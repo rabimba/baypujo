@@ -4,127 +4,114 @@ import { useEffect, useRef, useState } from "react";
 import { Shiuli } from "./motifs";
 import { VoiceIO } from "../lib/voice-io";
 import { city } from "../lib/pujas";
-import type { AssistantEngine, ChatTurn } from "../lib/assistant-engine";
+import type { ChatTurn } from "../lib/assistant-engine";
+import type { EngineStatus } from "../lib/engine-manager";
 
-type Phase =
-  | "idle"
-  | "probe"
-  | "init"
-  | "ready"
-  | "thinking"
-  | "listening"
-  | "error";
-
-type Brain = "nano" | "webllm" | null;
+type Phase = "warming" | "ready" | "thinking" | "transcribing" | "error";
 
 const MODEL_DOWNLOAD_NOTE =
-  "First use downloads the on-device model (~700 MB for the LLM, ~45 MB for voice) over Wi-Fi. It is cached by your browser after that — nothing is ever sent to a server.";
+  "First use downloads the on-device model (~700 MB over Wi-Fi, cached by your browser after that). Nothing is ever sent to a server.";
 
 export default function AssistantPanel({
   onClose,
 }: {
   onClose: () => void;
 }) {
-  const [phase, setPhase] = useState<Phase>("probe");
+  const [phase, setPhase] = useState<Phase>("warming");
+  const [status, setStatus] = useState<EngineStatus>({
+    choice: null,
+    state: "probing",
+    note: "Checking what this device can run…",
+  });
   const [err, setErr] = useState<string | null>(null);
-  const [progress, setProgress] = useState<string | null>(null);
-  const [brain, setBrain] = useState<Brain>(null);
-  const [voiceCapable, setVoiceCapable] = useState(false);
-  const [listening, setListening] = useState(false);
-  const [level, setLevel] = useState(0);
   const [input, setInput] = useState("");
   const [turns, setTurns] = useState<ChatTurn[]>([]);
   const [streamText, setStreamText] = useState("");
+  const [voiceCapable, setVoiceCapable] = useState(true);
+  const [listening, setListening] = useState(false);
+  const [micNote, setMicNote] = useState<string | null>(null);
+  const [level, setLevel] = useState(0);
 
-  const engineRef = useRef<AssistantEngine | null>(null);
+  const managerRef = useRef<import("../lib/engine-manager").EngineManager | null>(null);
   const voiceRef = useRef<VoiceIO | null>(null);
   const logRef = useRef<HTMLDivElement | null>(null);
-  const inputRef = useRef<HTMLInputElement | null>(null);
-  const busy = phase === "thinking" || phase === "listening";
 
+  const busy = phase === "thinking" || phase === "transcribing" || listening;
+
+  // Boot: dynamic-import manager + voice, start background warm-up.
   useEffect(() => {
     let dead = false;
-
-    const boot = async () => {
-      const { detectSupport } = await import("../lib/assistant-support");
-      const support = await detectSupport();
+    void (async () => {
+      const { EngineManager } = await import("../lib/engine-manager");
       if (dead) return;
-      if (!support.supported) {
-        setPhase("error");
-        setErr("This device can't run the on-device assistant.");
-        return;
+      const mgr = new EngineManager();
+      managerRef.current = mgr;
+      try {
+        await mgr.warm((s) => {
+          if (!dead) {
+            setStatus(s);
+            setPhase((p) => (p === "warming" && s.state === "ready" ? "ready" : p));
+            if (s.state === "failed") {
+              setPhase("error");
+              setErr(s.note);
+            }
+          }
+        });
+      } catch {
+        /* status callbacks already surfaced the failure */
       }
+      if (dead) return;
       setVoiceCapable(await VoiceIO.capable());
-      setPhase("idle");
-    };
-    void boot();
-
+      if (!dead && phase === "warming" && managerRef.current?.getStatus().state === "ready") {
+        setPhase("ready");
+      }
+    })();
     return () => {
       dead = true;
-      engineRef.current?.destroy();
-      engineRef.current = null;
+      managerRef.current?.destroy();
+      managerRef.current = null;
       voiceRef.current?.dispose();
       voiceRef.current = null;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     logRef.current?.scrollTo({ top: logRef.current.scrollHeight });
-  }, [turns, streamText]);
-
-  const ensureEngine = async (
-    query: string,
-  ): Promise<AssistantEngine> => {
-    const { pickEngine } = await import("../lib/assistant-support");
-    const which = pickEngine(
-      { supported: true, nano: !!(window as { LanguageModel?: unknown }).LanguageModel, webllm: true },
-      query,
-    );
-    if (engineRef.current && engineRef.current.kind === which) {
-      return engineRef.current;
-    }
-    engineRef.current?.destroy();
-    const impl =
-      which === "nano"
-        ? new (await import("../lib/nano-engine")).NanoEngine()
-        : new (await import("../lib/webllm-engine")).WebLlmEngine();
-    setPhase("init");
-    setBrain(which);
-    await impl.init({
-      onProgress: (p, text) => {
-        const pct = Math.round((p ?? 0) * 100);
-        setProgress(text?.includes("Loading") ? `${pct}%` : text);
-      },
-    });
-    engineRef.current = impl;
-    setPhase("ready");
-    setProgress(null);
-    return impl;
-  };
+  }, [turns, streamText, micNote]);
 
   const send = async (text: string) => {
     const q = text.trim();
     if (!q || busy) return;
     setInput("");
+    setMicNote(null);
     const history: ChatTurn[] = [...turns, { role: "user", content: q }];
     setTurns(history);
     setStreamText("");
     setPhase("thinking");
     try {
-      const engine = await ensureEngine(q);
+      const mgr = managerRef.current;
+      if (!mgr) throw new Error("Engine not ready yet");
       let full = "";
-      await engine.ask(history.slice(-8), {
-        onToken: (t) => {
-          full += t;
-          setStreamText(full);
+      const { answer } = await mgr.ask(
+        history.slice(-8),
+        {
+          onToken: (t) => {
+            full += t;
+            setStreamText(full);
+          },
         },
-      });
-      const answer = full.trim() || "…";
-      setTurns((h) => [...h, { role: "assistant", content: answer }]);
+        (s) => {
+          setStatus(s);
+          if (s.state === "downloading") setPhase("warming");
+        },
+      );
+      const final = (answer || full).trim() || "…";
+      setTurns((h) => [...h, { role: "assistant", content: final }]);
       setStreamText("");
       setPhase("ready");
       if (voiceRef.current) {
-        voiceRef.current.speak(answer);
+        voiceRef.current.speak(final);
       }
     } catch (e) {
       setPhase("error");
@@ -137,28 +124,51 @@ export default function AssistantPanel({
     if (!voiceRef.current) voiceRef.current = new VoiceIO();
     if (!listening) {
       try {
-        setPhase("listening");
+        setMicNote(null);
         await voiceRef.current.startListening((peak) =>
           setLevel(Math.min(1, peak * 3)),
         );
         setListening(true);
       } catch {
-        setPhase("error");
         setErr("Microphone permission denied.");
       }
     } else {
       setListening(false);
       setLevel(0);
-      const { text } = await voiceRef.current.stopListening();
-      setPhase("ready");
-      if (text) {
-        await send(text);
+      setPhase("transcribing");
+      setMicNote("Transcribing…");
+      const res = await voiceRef.current.stopListening((note) =>
+        setMicNote(note),
+      );
+      setMicNote(null);
+      if (res.error) {
+        setErr(res.error);
+        setPhase("ready");
+        return;
+      }
+      if (res.text) {
+        await send(res.text);
+      } else {
+        setPhase("ready");
       }
     }
   };
 
   const brainLabel =
-    brain === "nano" ? "Chrome built-in" : brain === "webllm" ? "gemma3 on-device" : null;
+    status.choice === "nano"
+      ? "Chrome built-in AI"
+      : status.choice === "webllm"
+        ? status.state === "failed"
+          ? "model unavailable"
+          : "Qwen3 · on-device"
+        : status.state === "failed"
+          ? "no engine available"
+          : "detecting…";
+
+  const statusLine =
+    phase === "warming" || status.state === "downloading"
+      ? status.note
+      : null;
 
   return (
     <div
@@ -168,38 +178,54 @@ export default function AssistantPanel({
     >
       <div className="durgo-gradient text-white px-4 py-3 flex items-center gap-2">
         <Shiuli className="w-4 h-4 text-sona shrink-0" />
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <p className="font-display font-bold text-sm leading-tight">
             পুজো সহায়ক · {city.brand}
           </p>
-          <p className="text-[10px] text-white/75 font-body leading-tight">
-            {phase === "init" || phase === "probe"
-              ? "Preparing on-device AI…"
-              : brainLabel
-                ? `${brainLabel} · answers stay on this device`
-                : "Runs fully on this device"}
+          <p className="text-[10px] text-white/75 font-body leading-tight truncate">
+            {brainLabel} · answers stay on this device
           </p>
         </div>
+        {/* Readiness indicator */}
+        <span
+          className={`shrink-0 w-2.5 h-2.5 rounded-full ${
+            status.state === "ready"
+              ? "bg-emerald-400 animate-none"
+              : status.state === "downloading"
+                ? "bg-sona animate-pulse"
+                : status.state === "failed"
+                  ? "bg-rose-400"
+                  : "bg-white/60 animate-pulse"
+          }`}
+          title={
+            status.state === "ready"
+              ? "Ready to answer"
+              : status.state === "downloading"
+                ? "Downloading model"
+                : status.state === "failed"
+                  ? "Unavailable"
+                  : "Checking capability"
+          }
+          aria-label={`Assistant status: ${status.state}`}
+        />
         <button
           onClick={onClose}
-          className="ml-auto text-white/80 hover:text-white text-lg leading-none px-1"
+          className="ml-1 text-white/80 hover:text-white text-lg leading-none px-1"
           aria-label="Close assistant"
         >
           ×
         </button>
       </div>
 
-      {(progress || (phase !== "idle" && phase !== "ready" && phase !== "listening" && phase !== "thinking" && phase !== "error")) && null}
-
-      {phase === "init" && progress && (
+      {statusLine && (
         <div className="px-4 py-2 bg-kash/70 text-[11px] font-body text-ink/80 border-b border-dhunuchi/30">
-          Downloading model for offline use — {progress}
-          <div className="mt-1 h-1.5 bg-white/70 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-sindoor transition-all"
-              style={{ width: progress }}
-            />
-          </div>
+          {statusLine}
+        </div>
+      )}
+
+      {micNote && (
+        <div className="px-4 py-1.5 bg-sona/25 text-[11px] font-body text-ink/80 border-b border-dhunuchi/20">
+          🎤 {micNote}
         </div>
       )}
 
@@ -210,7 +236,9 @@ export default function AssistantPanel({
         {turns.length === 0 && streamText === "" && phase !== "error" && (
           <div className="text-stone-500 text-[13px] space-y-2">
             <p className="font-display font-semibold text-sindoor-dark text-sm">
-              Ask me anything about this year&apos;s pujas:
+              {status.state === "ready"
+                ? "Ask me anything about this year's pujas:"
+                : "Warming up — you can type your question meanwhile:"}
             </p>
             <ul className="space-y-1 list-disc list-inside">
               <li>Which pujas are on Ashtami weekend?</li>
@@ -218,7 +246,9 @@ export default function AssistantPanel({
               <li>Free pujas near San Ramon?</li>
               <li>When is Mahalaya?</li>
             </ul>
-            <p className="text-[11px] text-stone-400 pt-1">{MODEL_DOWNLOAD_NOTE}</p>
+            <p className="text-[11px] text-stone-400 pt-1">
+              {MODEL_DOWNLOAD_NOTE}
+            </p>
           </div>
         )}
         {turns.map((t, i) => (
@@ -242,6 +272,15 @@ export default function AssistantPanel({
         {phase === "error" && (
           <div className="bg-rose-50 border border-rose-200 text-rose-800 rounded-2xl px-3 py-2 text-[13px]">
             {err ?? "Something went wrong."}
+            <button
+              className="block mt-1 underline text-rose-700"
+              onClick={() => {
+                setErr(null);
+                setPhase("ready");
+              }}
+            >
+              dismiss
+            </button>
           </div>
         )}
       </div>
@@ -267,15 +306,20 @@ export default function AssistantPanel({
           🎤
         </button>
         <input
-          ref={inputRef}
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter") void send(input);
           }}
-          placeholder={listening ? "Listening…" : "Ask about pujas…"}
-          disabled={busy}
-          className="flex-1 min-w-0 bg-white border border-stone-200 rounded-full px-4 py-2 text-sm font-body focus:outline-none focus:border-dhunuchi disabled:opacity-50"
+          placeholder={
+            listening
+              ? "Listening…"
+              : busy
+                ? "Thinking…"
+                : "Ask about pujas…"
+          }
+          disabled={listening}
+          className="flex-1 min-w-0 bg-white border border-stone-200 rounded-full px-4 py-2 text-sm font-body focus:outline-none focus:border-dhunuchi disabled:opacity-60"
         />
         <button
           onClick={() => void send(input)}

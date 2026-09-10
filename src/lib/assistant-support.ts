@@ -5,11 +5,14 @@ export type AssistantSupport = {
   supported: boolean;
   /** Gemini Nano (Chrome built-in) usable right now. */
   nano: boolean;
-  /** WebGPU strong enough for WebLLM gemma3-1b. */
+  /** WebGPU strong enough for the WebLLM model. */
   webllm: boolean;
 };
 
-export const WEBLLM_MODEL_ID = "gemma3-1b-it-q4f16_1-MLC";
+// Qwen3-1.7B: full attention (no gemma3 SWA trap), genuinely multilingual
+// incl. Bengali (119 languages) — the 0.6B produces broken Bengali.
+// 2.0 GB q4f16, low-resource tier. Thinking blocks are stripped in stream.
+export const WEBLLM_MODEL_ID = "Qwen3-1.7B-q4f16_1-MLC";
 
 /** Cheap sync check — hides the button before anything loads. */
 export function quickSupport(): boolean {
@@ -36,7 +39,7 @@ async function webgpuCapable(): Promise<boolean> {
     if (!adapter) return false;
     // Software/fallback adapters (old Surface et al) can't run a 700MB LLM sanely.
     if (adapter.isFallbackAdapter) return false;
-    // gemma3-1b q4f16 needs large storage buffers; low limit = weak iGPU.
+    // The 1B q4f16 model needs large storage buffers; low limit = weak iGPU.
     const limit = adapter.maxStorageBufferBindingSize ?? 0;
     if (limit > 0 && limit < 128 * 1024 * 1024) return false;
     return true;
@@ -69,7 +72,7 @@ export function pickEngine(
   support: AssistantSupport,
   query: string,
 ): "nano" | "webllm" {
-  // Bengali always goes to gemma3 — Nano's language list has no Bengali.
+  // Bengali always goes to the WebLLM model — Nano's language list has no Bengali.
   if (/[\u0980-\u09FF]/.test(query)) return "webllm";
   if (support.nano) return "nano";
   return "webllm";

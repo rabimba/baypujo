@@ -2,18 +2,22 @@
 
 export interface SpeechResult {
   text: string;
+  error?: string;
 }
+
+type StatusFn = (note: string) => void;
 
 export class VoiceIO {
   private ctx: AudioContext | null = null;
   private stream: MediaStream | null = null;
   private workletNode: AudioWorkletNode | null = null;
+  private sinkGain: GainNode | null = null;
   private source: MediaStreamAudioSourceNode | null = null;
   private whisperWorker: Worker | null = null;
   private chunks: Float32Array[] = [];
   private sampleRate = 16000;
   private speaking = false;
-  private mutedWhileSpeaking = false;
+  private lastLevelAt = 0;
 
   /** Runs a feature probe; resolves false when mic/ASR can't work here. */
   static async capable(): Promise<boolean> {
@@ -28,8 +32,9 @@ export class VoiceIO {
   private async ensureCtx() {
     if (!this.ctx) {
       this.ctx = new AudioContext({ sampleRate: this.sampleRate });
-      // Tiny VAD-less worklet: passthrough ring capture; silence handled by
-      // push-to-talk UX rather than DSP.
+      // Passthrough capture worklet. Chrome only pulls audio through nodes
+      // that reach the destination, so the panel output is routed via a
+      // zero-gain sink (silence out, data in).
       const src = `class RecProc extends AudioWorkletProcessor {
         process(inputs) {
           const ch = inputs[0]?.[0];
@@ -70,36 +75,47 @@ export class VoiceIO {
     });
     this.source = this.ctx!.createMediaStreamSource(this.stream);
     this.workletNode = new AudioWorkletNode(this.ctx!, "rec");
+    this.sinkGain = this.ctx!.createGain();
+    this.sinkGain.gain.value = 0; // pull the graph, emit silence
     this.workletNode.port.onmessage = (e: MessageEvent) => {
       const buf = e.data as Float32Array;
       this.chunks.push(buf);
       if (onLevel) {
-        let peak = 0;
-        for (let i = 0; i < buf.length; i += 16) {
-          const v = Math.abs(buf[i]);
-          if (v > peak) peak = v;
+        const now = performance.now();
+        if (now - this.lastLevelAt > 80) {
+          this.lastLevelAt = now;
+          let peak = 0;
+          for (let i = 0; i < buf.length; i += 16) {
+            const v = Math.abs(buf[i]);
+            if (v > peak) peak = v;
+          }
+          onLevel(Math.min(1, peak * 3));
         }
-        onLevel(peak);
       }
     };
     this.source.connect(this.workletNode);
-    // Echo guard: stop any playing speech and remember to resume after.
+    this.workletNode.connect(this.sinkGain);
+    this.sinkGain.connect(this.ctx!.destination);
+    // Echo guard: stop any playing speech while the mic is open.
     if (this.speaking) this.stopSpeaking();
-    this.mutedWhileSpeaking = this.speaking;
   }
 
-  /** Stop capture; transcribes via whisper-base; resolves text. */
-  async stopListening(): Promise<SpeechResult> {
+  /** Stop capture; transcribes via whisper-base; resolves text or error. */
+  async stopListening(onStatus?: StatusFn): Promise<SpeechResult> {
     this.workletNode?.port.close();
     this.workletNode?.disconnect();
+    this.sinkGain?.disconnect();
     this.source?.disconnect();
     this.stream?.getTracks().forEach((t) => t.stop());
     this.workletNode = null;
+    this.sinkGain = null;
     this.source = null;
     this.stream = null;
 
     const total = this.chunks.reduce((a, c) => a + c.length, 0);
-    if (total === 0) return { text: "" };
+    if (total === 0) {
+      return { text: "", error: "No audio captured" };
+    }
     const audio = new Float32Array(total);
     let off = 0;
     for (const c of this.chunks) {
@@ -111,29 +127,47 @@ export class VoiceIO {
     const worker = this.ensureWhisper();
     return new Promise<SpeechResult>((resolve) => {
       const timeout = setTimeout(() => {
-        worker.removeEventListener("message", onMsg);
-        resolve({ text: "" });
-      }, 30000);
+        cleanup();
+        resolve({ text: "", error: "Transcription timed out" });
+      }, 90000);
       const onMsg = (e: MessageEvent) => {
-        if (e.data?.ok !== undefined) {
-          clearTimeout(timeout);
-          worker.removeEventListener("message", onMsg);
-          resolve(e.data.ok ? { text: e.data.text } : { text: "" });
+        const d = e.data as {
+          loading?: boolean;
+          note?: string;
+          ok?: boolean;
+          text?: string;
+          error?: string;
+        };
+        if (d?.loading) {
+          onStatus?.(d.note ?? "Loading voice model…");
+          return;
+        }
+        if (d?.ok !== undefined) {
+          cleanup();
+          resolve(
+            d.ok
+              ? { text: (d.text ?? "").trim() }
+              : { text: "", error: d.error ?? "Transcription failed" },
+          );
         }
       };
+      const cleanup = () => {
+        clearTimeout(timeout);
+        worker.removeEventListener("message", onMsg);
+      };
       worker.addEventListener("message", onMsg);
+      onStatus?.("Transcribing…");
       worker.postMessage({ audio });
     });
   }
 
-  /** Speak text through the browser's voices; sentences queue naturally. */
+  /** Speak text through the browser's voices. */
   speak(text: string, lang = "en-US"): void {
     if (typeof window === "undefined" || !window.speechSynthesis) return;
     const synth = window.speechSynthesis;
     synth.cancel();
     const u = new SpeechSynthesisUtterance(text);
     u.lang = /[\u0980-\u09FF]/.test(text) ? "bn-IN" : lang;
-    // Prefer a matching voice when the OS has one.
     const voices = synth.getVoices();
     const v =
       voices.find((x) => x.lang === u.lang) ??
