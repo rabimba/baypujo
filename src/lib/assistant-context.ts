@@ -1,4 +1,4 @@
-import { city, pujas, meta, REGION_BN, WEEKEND_LABELS } from "./pujas";
+import { city, pujas, meta } from "./pujas";
 
 /**
  * Builds the assistant's knowledge context from the city's own data.
@@ -7,27 +7,23 @@ import { city, pujas, meta, REGION_BN, WEEKEND_LABELS } from "./pujas";
  */
 
 const MAX_PUJAS = 40;
+/** Empirical WebLLM 0.2.85 + Qwen3-1.7B WebGPU ceiling: system prompts much
+ *  beyond ~2.5k chars stall generation mid-stream. Budget the whole prompt. */
+const MAX_SYSTEM_CHARS = 2500;
 
 export function pujaFacts(): Record<string, string> {
   const f: Record<string, string> = {};
   for (const p of pujas.slice(0, MAX_PUJAS)) {
-    const bits: string[] = [
-      `Dates: ${p.dateLabel}`,
-      `Venue: ${p.venue.name}, ${p.venue.city}`,
-    ];
-    if (p.venue.address) bits.push(`Address: ${p.venue.address}`);
-    if (p.region) bits.push(`Region: ${p.region}`);
-    if (p.entry.free === true) bits.push("Entry: free");
-    if (p.entry.free === false && p.entry.ticketUrl) {
-      bits.push(`Entry: ticketed — ${p.entry.ticketUrl}`);
-    } else if (p.entry.ticketUrl) {
-      bits.push(`Tickets: ${p.entry.ticketUrl}`);
-    }
-    if (p.bhog.available === true) bits.push("Bhog: available");
-    if (p.bhog.price) bits.push(`Bhog price: ${p.bhog.price}`);
-    const hl = p.highlights.slice(0, 3);
-    if (hl.length) bits.push(`Highlights: ${hl.join("; ")}`);
-    if (p.status === "tba") bits.push("Status: 2026 details not yet announced");
+    // Compact single line — the 4096-token context must hold system +
+    // Qwen3's internal think block + answer, so every char counts.
+    const bits: string[] = [p.dateLabel, `${p.venue.name}, ${p.venue.city}`];
+    if (p.entry.free === true) bits.push("free entry");
+    else if (p.entry.free === false) bits.push("ticketed");
+    if (p.bhog.available === true) bits.push("bhog");
+    if (p.bhog.price) bits.push(`bhog ${p.bhog.price}`);
+    const hl = p.highlights.slice(0, 2);
+    if (hl.length) bits.push(hl.join("; "));
+    if (p.status === "tba") bits.push("2026 TBA");
     f[p.name] = bits.join(" | ");
   }
   return f;
@@ -51,29 +47,33 @@ export function buildSystemPrompt(): string {
     .map(([name, f]) => `- ${name}: ${f}`)
     .join("\n");
 
-  const regions = Object.entries(REGION_BN)
-    .map(([en, bn]) => `${en} (${bn})`)
-    .join(", ");
-
-  const weekends = Object.entries(WEEKEND_LABELS)
-    .map(([k, v]) => `${k === "0" ? "other dates" : `weekend ${k}`}: ${v}`)
-    .join("; ");
-
-  return [
-    `You are ${city.brand}'s helpful assistant (পুজো সহায়ক) for Durga Puja ${meta.year} in ${city.cityLabel}.`,
-    `Answer questions about the pujas listed below using ONLY this data. If something is not in the data, say you don't know and suggest checking the organizer's website or the site's directory page.`,
-    `Reply in the language of the question — Bengali questions get Bengali answers, English gets English. Keep answers short (1-3 sentences), warm, and factual. Never invent dates, venues, prices, or artists.`,
-    ``,
-    `Puja calendar (${meta.year}, ${city.cityLabelShort}): ${weekends}.`,
-    `Regions: ${regions}.`,
-    `Tithi days: ${tithiFacts()}.`,
+  const head = [
+    `You are Kartik (কার্তিক), "haat kata Kartik" — Durga Puja ${meta.year} assistant for ${city.cityLabelShort} on ${city.brand}.`,
+    `SCOPE: only Durga Puja, this site, and these pujas. Refuse anything else in one line. Answer ONLY from this data; unknown → say so. Reply in the question's language (Bengali→Bengali). 1-3 sentences, never invent details.`,
+    `Tithi: ${tithiFacts()}.`,
     mahalayaFacts(),
-    ``,
-    `The ${pujas.length} pujas:`,
-    pujaList,
   ]
     .filter(Boolean)
     .join("\n");
+
+  // Fit the pujas list into the remaining char budget; confirmed-date
+  // pujas first, TBA last, until the budget is exhausted.
+  const entries = Object.entries(pujaFacts());
+  const withDates = entries.filter(([, f]) => !f.includes("TBA"));
+  const tba = entries.filter(([, f]) => f.includes("TBA"));
+  const budget = MAX_SYSTEM_CHARS - head.length - 30;
+  const kept: string[] = [];
+  let used = 0;
+  let listed = 0;
+  for (const [name, f] of [...withDates, ...tba]) {
+    const line = `- ${name}: ${f}`;
+    if (used + line.length > budget && kept.length > 0) continue;
+    kept.push(line);
+    used += line.length + 1;
+    listed++;
+    if (used > budget) break;
+  }
+  return `${head}\nPujas (${listed} of ${pujas.length}):\n${kept.join("\n")}`;
 }
 
 /** Rough token estimate (chars/4) — used to assert the prompt stays small. */
@@ -85,3 +85,47 @@ export function estimateTokens(s: string): number {
 export function hasBengali(s: string): boolean {
   return /[\u0980-\u09FF]/.test(s);
 }
+
+/**
+ * Deterministic topic gate — runs BEFORE any model call.
+ * Bengali script always passes (the site's audience; Bengali chit-chat
+ * variants are rarer and the model's own fence handles the rest).
+ * Returns false only for clearly-off-site English questions.
+ */
+const ON_TOPIC = [
+  // puja/festival vocabulary (en + romanized bangla)
+  /puja|pujo|pooja|puj(a|o)\b/i,
+  /durga|durgo|maa\b|protima|pandal|pandol/i,
+  /ashtami|astami|saptami|shashthi|shashti|navami|nabami|dashami|doshami|dashomi/i,
+  /mahalaya|bodhon|anandamela|ananda mela|sindoor|sindur|shindur|dhunuchi|sandhi|pushpanjali|anjali|bhog|arati|aarti|aroti|kumari|chandi|visarjan|bijoya|borsha|bisarjan/i,
+  /kali|lakshmi|laksmi|saraswati|shoroshshoti|devi|goddess|lakshmi puja|kali puja/i,
+  // site vocabulary
+  /parikrama|parikroma|route|planner|itinerary|schedule|venue|ticket|bhog|prasad|khichuri|food|directions|map\b|weekend|region|directory|milpitas|fremont|sunnyvale|san jose|san ramon|dublin|pleasanton|hayward|oakland|berkeley|sacramento|folsom|cupertino|santa clara|palo alto|mountain view|campbell|houston|sugar land|katy|cypress|brookshire|hillcroft/i,
+  /kumari|tithi|panjika|panchang|calendar|october|bijoya|shubho|shuvo|shubha|utsav|sarbajanin|sarbojanin|boishakh|noboborsho|prabasi|probashee|mela|mela\b/i,
+  /pratidin|protidin/i,
+];
+
+const OFF_TOPIC_HINTS = [
+  /world cup|fifa|cricket|football match|nba|super bowl/i,
+  /write (me |a )?(poem|story|essay|song)|write code|python|javascript|java program|c\+\+|sql|regex/i,
+  /capital of|president of|prime minister|who invented|history of (the )?(world|america|india)|weather (in|today)|stock (market|price)|recipe for (cake|pasta)|homework|math problem|solve.*equation/i,
+];
+
+/** Site/meta questions the assistant legitimately handles. */
+const SELF_TOPIC = [
+  /your name|who are you|what are you|কার্তিক|kartik|haat kata|assistant|how do you work|are you (an? )?(ai|robot|bot)/i,
+];
+
+export function isOnTopic(q: string): boolean {
+  if (hasBengali(q)) return true;
+  if (SELF_TOPIC.some((re) => re.test(q))) return true;
+  if (ON_TOPIC.some((re) => re.test(q))) return true;
+  // clearly-known off-topic patterns with no on-topic signal → refuse
+  if (OFF_TOPIC_HINTS.some((re) => re.test(q))) return false;
+  // unknown zone: let the model + its fence decide
+  return true;
+}
+
+/** The canned refusal — never generated, always identical. */
+export const OFF_TOPIC_REPLY =
+  "I'm Kartik — haat kata Kartik, your Durga Puja companion! I only chat about Durga Puja, this site's pujas, schedules, bhog, and the parikroma planner. Ask me something about the pujas 🙏";

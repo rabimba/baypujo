@@ -164,9 +164,13 @@ function trimLoop(s: string): string {
   while (trimmed.endsWith(unit) && trimmed.length > unit.length) {
     trimmed = trimmed.slice(0, -unit.length);
   }
-  // A partial fragment of the unit may remain; also drop trailing junk.
   trimmed = trimmed.replace(/[\s।,.;:]+$/, "");
-  if (trimmed.length < 12) return s.slice(0, 160).replace(/[\s।,.;:]+$/, "") + "…";
+  if (trimmed.length < 12) {
+    // Nothing survived — salvage the first complete sentence instead of "…".
+    const sentence = s.split(/(?<=[.!?।])/)[0] ?? "";
+    const salvage = (sentence || s).slice(0, 200).trim();
+    return salvage.length > 0 ? salvage : "I'm not sure — please rephrase.";
+  }
   return trimmed + "…";
 }
 
@@ -190,37 +194,14 @@ class WebLlmEngine implements AssistantEngine {
     this.worker = new Worker(new URL("./webllm-worker.ts", import.meta.url), {
       type: "module",
     });
-    // gemma3's shipped mlc-chat-config sets sliding_window_size: 1024 (SWA).
-    // Our ~3.4k-token system prompt exceeds a 1024-token sliding window, so we
-    // must run the non-SWA full-attention KV cache — exactly what the prebuilt
-    // record's overrides intend. Passing a context_window_size *chatOpt* on top
-    // trips "only one may be positive" against the config's sliding window;
-    // instead we clone the record with both fields resolved, the documented
-    // ModelRecord.overrides path.
-    const modelList = webllm.prebuiltAppConfig.model_list.filter(
-      (m) =>
-        (m as { model_id: string }).model_id === WEBLLM_MODEL_ID,
-    ) as Array<Record<string, unknown>>;
-    if (modelList.length === 0) {
-      throw new Error(`Model ${WEBLLM_MODEL_ID} missing from prebuilt list`);
-    }
-    const record = {
-      ...modelList[0],
-      overrides: {
-        ...((modelList[0].overrides as object) ?? {}),
-        context_window_size: 4096,
-        sliding_window_size: -1,
-      },
-    };
-    const appConfig = {
-      ...webllm.prebuiltAppConfig,
-      model_list: [record],
-    };
+    // Qwen3's prebuilt record is already clean (context_window_size 4096
+    // override, no sliding window) — the default appConfig is correct.
+    // (The record-clone override was only needed for gemma3's SWA config,
+    // and a cloned single-record list caused worker-side stalls.)
     this.engine = await webllm.CreateWebWorkerMLCEngine(
       this.worker,
       WEBLLM_MODEL_ID,
       {
-        appConfig,
         initProgressCallback: (r) => {
           events.onProgress?.(r.progress ?? 0, r.text ?? "");
         },
@@ -230,11 +211,18 @@ class WebLlmEngine implements AssistantEngine {
 
   async ask(history: ChatTurn[], events: EngineEvents): Promise<string> {
     if (!this.engine) throw new Error("WebLlmEngine not initialized");
+    const FENCE = "(Reminder: you are Kartik, the Durga Puja assistant. Only answer questions about Durga Puja, this website, or the pujas. Politely refuse anything else in one line.)\n\n";
+    const turns = history.slice(-8);
     const messages = [
       { role: "system" as const, content: buildSystemPrompt() },
-      ...history.slice(-8).map((t) => ({
+      ...turns.map((t, i) => ({
         role: t.role,
-        content: t.content,
+        // Prepend the fence to the LATEST user turn only, so the model
+        // sees the constraint immediately before answering.
+        content:
+          t.role === "user" && i === turns.length - 1
+            ? FENCE + t.content
+            : t.content,
       })),
     ];
     const chunks = await this.engine.chat.completions.create({
@@ -242,9 +230,9 @@ class WebLlmEngine implements AssistantEngine {
       temperature: 0.3,
       // Small models loop on long factual answers; penalize repeats.
       repetition_penalty: 1.15,
-      // Qwen3 thinks before answering (enable_thinking:false is not honored
-      // by web-llm 0.2.85); budget for the think block, strip it in stream.
-      max_tokens: 700,
+      // Qwen3 emits long <think> blocks on enumeration questions (>2.8k
+      // chars observed); stripThink hides them, the budget covers both.
+      max_tokens: 1600,
       messages,
     });
     let raw = "";
@@ -289,6 +277,9 @@ class WebLlmEngine implements AssistantEngine {
 
 export class EngineManager {
   private current: AssistantEngine | null = null;
+  /** Serializes generations — WebLLM's worker processes one request at a
+   *  time; a queued second request would wait forever. */
+  private genLock: Promise<unknown> = Promise.resolve();
   private status: EngineStatus = {
     choice: null,
     state: "probing",
@@ -489,6 +480,27 @@ export class EngineManager {
     onStatus: (s: EngineStatus) => void,
   ): Promise<{ answer: string; engine: string }> {
     const last = history[history.length - 1]?.content ?? "";
+    // Serialize: chain onto any in-flight generation; a stale one can't
+    // block newer questions forever (WebLLM would queue them indefinitely).
+    const prev = this.genLock;
+    let release!: () => void;
+    this.genLock = new Promise<void>((r) => {
+      release = r;
+    });
+    await prev;
+    try {
+      return await this.doAsk(history, events, onStatus, last);
+    } finally {
+      release();
+    }
+  }
+
+  private async doAsk(
+    history: ChatTurn[],
+    events: EngineEvents,
+    onStatus: (s: EngineStatus) => void,
+    last: string,
+  ): Promise<{ answer: string; engine: string }> {
     let engine = await this.ensureFor(last, onStatus);
     try {
       const answer = await engine.ask(history, events);

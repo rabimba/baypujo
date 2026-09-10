@@ -6,6 +6,7 @@ import { VoiceIO } from "../lib/voice-io";
 import { city } from "../lib/pujas";
 import type { ChatTurn } from "../lib/assistant-engine";
 import type { EngineStatus } from "../lib/engine-manager";
+import { isOnTopic, OFF_TOPIC_REPLY } from "../lib/assistant-context";
 
 type Phase = "warming" | "ready" | "thinking" | "transcribing" | "error";
 
@@ -85,6 +86,15 @@ export default function AssistantPanel({
     if (!q || busy) return;
     setInput("");
     setMicNote(null);
+    // Deterministic topic gate — refuses off-site questions locally,
+    // before any model tokens are spent (small models can't be trusted
+    // to hold the fence on their own).
+    if (!isOnTopic(q)) {
+      const history: ChatTurn[] = [...turns, { role: "user", content: q }];
+      setTurns([...history, { role: "assistant", content: OFF_TOPIC_REPLY }]);
+      if (voiceRef.current) voiceRef.current.speak(OFF_TOPIC_REPLY);
+      return;
+    }
     const history: ChatTurn[] = [...turns, { role: "user", content: q }];
     setTurns(history);
     setStreamText("");
@@ -180,7 +190,7 @@ export default function AssistantPanel({
         <Shiuli className="w-4 h-4 text-sona shrink-0" />
         <div className="min-w-0 flex-1">
           <p className="font-display font-bold text-sm leading-tight">
-            পুজো সহায়ক · {city.brand}
+            কার্তিক · পুজো সহায়ক
           </p>
           <p className="text-[10px] text-white/75 font-body leading-tight truncate">
             {brainLabel} · answers stay on this device
