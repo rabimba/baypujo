@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240">
+  <!-- Maa Durga's eye — favicon. Sindoor red on pandal cream. -->
+  <rect width="240" height="240" rx="48" fill="#fdf6ec"/>
+  <g fill="none" stroke="#b3231f" strokeLinecap="round">
+    <!-- brow -->
+    <path d="M36 108 C 82 74, 158 74, 204 108" stroke-width="10" opacity="0.55"/>
+    <!-- upper lid -->
+    <path d="M24 140 C 70 92, 170 92, 216 140 C 170 188, 70 188, 24 140 Z" stroke-width="9"/>
+    <!-- lower lid crease -->
+    <path d="M42 138 C 86 106, 154 106, 198 138" stroke-width="3.5" opacity="0.6"/>
+    <!-- iris -->
+    <circle cx="120" cy="136" r="46" stroke-width="8"/>
+    <circle cx="120" cy="136" r="20" fill="#b3231f" stroke="none"/>
+    <!-- pupil catchlight -->
+    <circle cx="135" cy="121" r="8" fill="#fdf6ec" stroke="none"/>
+    <!-- kohl flicks -->
+    <path d="M40 116 L 18 102 M200 116 L 222 102" stroke-width="7"/>
+  </g>
+</svg>
