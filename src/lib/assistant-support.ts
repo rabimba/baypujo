@@ -37,11 +37,15 @@ async function webgpuCapable(): Promise<boolean> {
     if (!gpu) return false;
     const adapter = await gpu.requestAdapter();
     if (!adapter) return false;
-    // Software/fallback adapters (old Surface et al) can't run a 700MB LLM sanely.
+    // Software/fallback adapters (old Surface et al) can't run a 2GB LLM sanely.
     if (adapter.isFallbackAdapter) return false;
-    // The 1B q4f16 model needs large storage buffers; low limit = weak iGPU.
-    const limit = adapter.maxStorageBufferBindingSize ?? 0;
-    if (limit > 0 && limit < 128 * 1024 * 1024) return false;
+    // Storage-buffer limit: 0/undefined = not reported (many Mac adapters) —
+    // treat as unknown and let WebLLM decide at load time. Only an explicitly
+    // small positive limit (< 128 MB) disqualifies.
+    const limit = adapter.maxStorageBufferBindingSize;
+    if (typeof limit === "number" && limit > 0 && limit < 128 * 1024 * 1024) {
+      return false;
+    }
     return true;
   } catch {
     return false;

@@ -29,6 +29,8 @@ interface WebLlmChatCompletions {
     stream?: boolean;
     temperature?: number;
     max_tokens?: number;
+    // MLC-native anti-repetition for small models.
+    repetition_penalty?: number;
     // Qwen3: suppress <think> blocks. No-op for other models.
     enable_thinking?: boolean;
     messages: { role: "system" | "user" | "assistant"; content: string }[];
@@ -40,6 +42,8 @@ interface WebLlmEngineInstance {
     modelId: string,
     engineConfig?: Record<string, unknown>,
   ): Promise<void>;
+  /** Stop an in-flight generation (frees the GPU immediately). */
+  interruptGenerate(): void;
   chat: { completions: WebLlmChatCompletions };
   unload(): Promise<void>;
 }
@@ -138,6 +142,34 @@ class NanoEngine implements AssistantEngine {
   }
 }
 
+/** True when the last ~150 chars are an n-gram repetition loop. */
+function detectLoop(s: string): boolean {
+  if (s.length < 160) return false;
+  const tail = s.slice(-150);
+  const unit = tail.slice(-18);
+  if (unit.trim().length < 6) return false;
+  let count = 0;
+  let idx = tail.indexOf(unit);
+  while (idx !== -1) {
+    count++;
+    idx = tail.indexOf(unit, idx + 1);
+  }
+  return count >= 4;
+}
+
+/** Cut a degenerate answer back to before the repeated unit began. */
+function trimLoop(s: string): string {
+  const unit = s.slice(-18);
+  let trimmed = s;
+  while (trimmed.endsWith(unit) && trimmed.length > unit.length) {
+    trimmed = trimmed.slice(0, -unit.length);
+  }
+  // A partial fragment of the unit may remain; also drop trailing junk.
+  trimmed = trimmed.replace(/[\s।,.;:]+$/, "");
+  if (trimmed.length < 12) return s.slice(0, 160).replace(/[\s।,.;:]+$/, "") + "…";
+  return trimmed + "…";
+}
+
 /** Remove Qwen3 <think>…</think> blocks; hide an unclosed one mid-stream. */
 function stripThink(raw: string): string {
   const closed = raw.replace(/<think>[\s\S]*?<\/think>/g, "");
@@ -208,25 +240,39 @@ class WebLlmEngine implements AssistantEngine {
     const chunks = await this.engine.chat.completions.create({
       stream: true,
       temperature: 0.3,
+      // Small models loop on long factual answers; penalize repeats.
+      repetition_penalty: 1.15,
       // Qwen3 thinks before answering (enable_thinking:false is not honored
       // by web-llm 0.2.85); budget for the think block, strip it in stream.
       max_tokens: 700,
       messages,
     });
     let raw = "";
-    let shown = 0; // chars of `raw` already emitted to the UI
-    for await (const chunk of chunks) {
-      const delta = chunk.choices?.[0]?.delta?.content;
-      if (!delta) continue;
-      raw += delta;
-      // Visible answer = everything after the closing </think> (Qwen3).
-      const cleaned = stripThink(raw);
-      if (cleaned.length > shown) {
-        events.onToken?.(cleaned.slice(shown));
-        shown = cleaned.length;
+    let shown = 0; // chars of the cleaned text already emitted to the UI
+    let interrupted = false;
+    try {
+      for await (const chunk of chunks) {
+        const delta = chunk.choices?.[0]?.delta?.content;
+        if (!delta) continue;
+        raw += delta;
+        // Visible answer = everything after the closing </think> (Qwen3).
+        const cleaned = stripThink(raw);
+        if (cleaned.length > shown) {
+          events.onToken?.(cleaned.slice(shown));
+          shown = cleaned.length;
+        }
+        // Hard guard: n-gram repetition loop → stop generation now.
+        if (detectLoop(cleaned)) {
+          this.engine.interruptGenerate();
+          interrupted = true;
+          break;
+        }
       }
+    } catch {
+      /* interrupt can surface as a stream error — expected */
     }
-    return stripThink(raw);
+    const final = stripThink(raw);
+    return interrupted ? trimLoop(final) : final;
   }
 
   destroy(): void {
@@ -352,7 +398,11 @@ export class EngineManager {
       const adapter = await gpu.requestAdapter();
       if (!adapter) return false;
       const limit = adapter.maxStorageBufferBindingSize as number | undefined;
-      if (limit !== undefined && limit < 128 * 1024 * 1024) return false;
+      // 0/undefined = not reported (common on Mac adapters) — let WebLLM
+      // decide. Only an explicitly small positive limit disqualifies.
+      if (typeof limit === "number" && limit > 0 && limit < 128 * 1024 * 1024) {
+        return false;
+      }
       return true;
     } catch {
       return false;
