@@ -18,6 +18,8 @@
     "pretypecheck": "node scripts/select-city.mjs"
   },
   "dependencies": {
+    "@huggingface/transformers": "^4.2.0",
+    "@mlc-ai/web-llm": "^0.2.85",
     "leaflet": "^1.9.4",
     "next": "16.3.4",
     "react": "19.2.8",
@@ -26,6 +28,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/dom-chromium-ai": "^0.0.17",
     "@types/leaflet": "^1.9.22",
     "@types/node": "^24.13.3",
     "@types/react": "^19",

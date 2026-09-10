@@ -19,6 +19,14 @@ schedules, venues, bhog, tickets, and a day-planner to hop multiple pujos.
   and a numbered route map.
 - **Status badges** — "Schedule published" / "Details partial" / "Dates TBA"
   so it's clear what's confirmed vs. to-verify-with-organizer.
+- **On-device AI assistant** (homepage, capable devices only) — "🙏 Ask"
+  floating button: voice or text questions about the pujas, answered by
+  models running **entirely in the browser** (nothing sent to any server).
+  LLM: Gemini Nano (Chrome built-in) for English, else WebLLM gemma3-1b
+  (WebGPU, always used for Bengali). ASR: whisper-base via
+  Transformers.js. TTS: browser speechSynthesis. First use downloads the
+  models (~700 MB + ~45 MB) which the browser then caches. Devices without
+  WebGPU/built-in AI never see the button.
 
 ## Data
 

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import AssistantMount from "../components/AssistantMount";
 import PujaCard from "../components/PujaCard";
 import {
   AlponaDivider,
@@ -256,6 +257,7 @@ export default function HomePage() {
             .join(" · ")}
         </p>
       </div>
+      <AssistantMount />
     </div>
   );
 }

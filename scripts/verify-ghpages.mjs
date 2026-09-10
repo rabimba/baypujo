@@ -30,7 +30,7 @@ const log = (name, ok, extra = "") => {
 await page.goto(`${BASE}/`, { waitUntil: "networkidle" });
 log("home loads under subpath", (await page.locator("h1").first().textContent())?.trim() === CITY.brandBn);
 log("css asset under basePath loads (no unstyled flash)",
-  (await page.locator(".durgo-gradient").count()) === 1);
+  (await page.locator(".durgo-gradient").count()) >= 1);
 const PUJA_COUNT = JSON.parse(
   readFileSync(
     path.join(process.cwd(), "data", "cities", CITY.cityId, "pujas.json"),
