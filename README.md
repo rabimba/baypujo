@@ -22,12 +22,34 @@ schedules, venues, bhog, tickets, and a day-planner to hop multiple pujos.
 
 ## Data
 
-`data/pujas.json` is the single source of truth — 31 pujas, 6 regions, 3
-weekends (Oct 9–11, 16–18, 23–25 2026) + TBA listings. Sources: Abahan Bay
-Area directory, organizer websites, Drik Panchang (tithi dates). Venue
-coordinates from OpenStreetMap Nominatim (approximate pins are flagged).
+City-scoped data lives in `data/cities/<city>/`:
 
-To update: edit `data/pujas.json`, run `npm run build`.
+- `pujas.json` — the pujas, schedule, venue, bhog, entry, programs (the
+  single source of truth for that city)
+- `city.json` — brand strings, regions + colors + Bengali names, map
+  center, weekend labels, festival dates, drive-time params, verify-script
+  samples, planner examples
+
+`site.config.json` at the repo root selects the city this repo builds
+(`{ "city": "houston" }`) — **the only intentional difference between
+city repos**. `PB_CITY` env overrides for local dev (e.g.
+`PB_CITY=bayarea npm run build`).
+
+To update: edit `data/cities/<city>/pujas.json`, run `npm run build`.
+
+### Multi-city model
+
+One codebase, one repo per city. Each repo's `main` builds its own city.
+Sync code fixes between them:
+
+```bash
+# in houstonpujo clone (baypujo added as remote "baypujo")
+git fetch baypujo && git merge baypujo/main
+# resolve site.config.json to keep "houston", push
+```
+
+Adding a new city: `data/cities/<newcity>/{city,pujas}.json`, flip
+`site.config.json`, run the verify battery with `PB_BASE_PATH=/<repo>`.
 
 ## Develop
 
