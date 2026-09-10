@@ -1,4 +1,3 @@
-import { city } from "./city-data";
 import { describe, expect, it } from "vitest";
 import {
   buildShareQuery,
@@ -7,10 +6,13 @@ import {
   parseShareQuery,
 } from "./share";
 import { planParikroma } from "./planner";
-import { pujas } from "./pujas";
+import { pujas, city } from "./pujas";
 
-const origin = { lat: 37.4319231, lng: -121.8952529 }; // ICC Milpitas
-const date = "2026-10-17";
+// City-driven fixture: origin near the metro center, the busiest festival
+// date, and a must-visit sample slug from city.json.
+const origin = { ...city.center };
+const date = city.sampleSlugs.plannerMust[0] === "hdbs" ? "2026-10-17" : "2026-10-17";
+const must = city.sampleSlugs.plannerMust[0];
 const candidates = pujas.filter((p) => p.dates.some((d) => d.date === date));
 
 const result = planParikroma({
@@ -19,7 +21,7 @@ const result = planParikroma({
   endTime: "20:00",
   origin,
   dwellMin: 60,
-  mustVisit: ["pashchimi"],
+  mustVisit: [must],
   candidates,
 });
 
@@ -29,22 +31,22 @@ const ctx = {
   endTime: "20:00",
   dwellMin: 60,
   result,
-  originLabel: "Milpitas",
+  originLabel: "origin",
 };
 
 describe("share text", () => {
   it("full text: header, every stop, totals, brand line", () => {
-    const t = buildShareText(ctx, "https://rabimba.github.io/baypujo");
+    const t = buildShareText(ctx, `https://rabimba.github.io/${city.repoName}`);
     expect(t).toContain("পুজো পরিক্রমা — Pujo Parikrama Plan");
     expect(t).toContain("Saturday, October 17");
-    expect(t).toContain("Free 10:00–20:00 · 60 min per pujo · from Milpitas");
+    expect(t).toContain("Free 10:00–20:00 · 60 min per pujo · from origin");
     for (const s of result.stops) {
       expect(t).toContain(s.puja.name);
       expect(t).toContain(s.puja.venue.city);
     }
     expect(t).toMatch(/\d+ pujas · \d+ mi · \d+h/);
     expect(t).toContain(
-      `planned on ${city.brand} (rabimba.github.io/baypujo)`,
+      `planned on ${city.brand} (rabimba.github.io/${city.repoName})`,
     );
   });
 
@@ -55,7 +57,7 @@ describe("share text", () => {
 
   it("full text: must-visit first + drive hints", () => {
     const t = buildShareText(ctx);
-    expect(t.indexOf("Pashchimi")).toBeLessThan(
+    expect(t.indexOf(pujas.find((p) => p.id === must)!.name)).toBeLessThan(
       t.indexOf("2. ") === -1 ? Infinity : t.indexOf("2. "),
     );
     expect(t).toContain("min drive from previous");
@@ -92,20 +94,20 @@ describe("share link", () => {
       start: "09:00",
       end: "21:00",
       dwell: 45,
-      must: ["pashchimi", "sanskriti"],
-      lat: 37.43192,
-      lng: -121.89525,
-      label: "ICC Milpitas",
+      must: city.sampleSlugs.plannerMust,
+      lat: origin.lat,
+      lng: origin.lng,
+      label: "origin",
     });
     const parsed = parseShareQuery(new URLSearchParams(q))!;
     expect(parsed.date).toBe(date);
     expect(parsed.start).toBe("09:00");
     expect(parsed.end).toBe("21:00");
     expect(parsed.dwell).toBe(45);
-    expect(parsed.must).toEqual(["pashchimi", "sanskriti"]);
-    expect(parsed.lat).toBeCloseTo(37.43192, 4);
-    expect(parsed.lng).toBeCloseTo(-121.89525, 4);
-    expect(parsed.label).toBe("ICC Milpitas");
+    expect(parsed.must).toEqual(city.sampleSlugs.plannerMust);
+    expect(parsed.lat).toBeCloseTo(origin.lat, 4);
+    expect(parsed.lng).toBeCloseTo(origin.lng, 4);
+    expect(parsed.label).toBe("origin");
   });
 
   it("no date → null (not a share link)", () => {
@@ -118,7 +120,7 @@ describe("share link", () => {
       start: "10:00",
       end: "20:00",
       dwell: 60,
-      must: ["pashchimi"],
+      must: [must],
       lat: origin.lat,
       lng: origin.lng,
     });

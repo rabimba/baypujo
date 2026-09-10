@@ -57,10 +57,11 @@ export default function ParikromaClient() {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const { latitude: lat, longitude: lng } = pos.coords;
-        // Reject null-island / clearly non-BA fixes silently returned by
+        // Reject null-island / clearly non-metro fixes silently returned by
         // some IP-based providers (0,0 or thousands of miles off).
-        const inNorthernCalifornia =
-          Math.abs(lat - 37.5) < 1.5 && Math.abs(lng - -122) < 2.5;
+        const inMetro =
+          Math.abs(lat - city.center.lat) < 1.5 &&
+          Math.abs(lng - city.center.lng) < 2.5;
         if (lat === 0 && lng === 0) {
           setOrigin(null);
           setGeoStatus("Got an empty location fix — enter your address below instead");
@@ -68,7 +69,7 @@ export default function ParikromaClient() {
         }
         setOrigin({ lat, lng });
         setGeoStatus(
-          inNorthernCalifornia
+          inMetro
             ? ""
             : `Got (${lat.toFixed(3)}, ${lng.toFixed(3)}) — that's outside the ${city.cityLabelShort}. If this is wrong, enter your address below.`,
         );
@@ -94,11 +95,12 @@ export default function ParikromaClient() {
       const j = await res.json();
       if (j[0]) {
         const label = (j[0].display_name ?? "").split(",").slice(0, 3).join(",");
-        if (
+        const farFromMetro =
           j[0].lat &&
-          (Math.abs(+j[0].lat - 37) > 1.5 || Math.abs(+j[0].lon - -122) > 2)
-        ) {
-          // rough Northern California sanity check
+          (Math.abs(+j[0].lat - city.center.lat) > 1.5 ||
+            Math.abs(+j[0].lon - city.center.lng) > 2.5);
+        if (farFromMetro) {
+          // rough metro sanity check
           setAddrStatus(
             `Found ${label} — that looks far from the ${city.cityLabelShort}. Double-check the address.`,
           );
@@ -107,7 +109,7 @@ export default function ParikromaClient() {
         setAddrStatus(`Found: ${label}`);
       } else {
         setAddrStatus(
-          "No match — try a full street address with city, or a city name like 'Fremont, CA'",
+          `No match — try a full street address with city, or a city name like "${city.plannerCityQuery}"`,
         );
       }
     } catch {
@@ -250,7 +252,7 @@ export default function ParikromaClient() {
                   type="text"
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
-                  placeholder="e.g. 1901 Leghorn St, Mountain View"
+                  placeholder={city.plannerAddressExample}
                   className="flex-1 rounded-xl border border-stone-300 px-3 py-2 text-sm bg-white focus:border-sindoor focus:outline-none"
                   onKeyDown={(e) => e.key === "Enter" && geocodeAddress()}
                 />
@@ -344,8 +346,8 @@ export default function ParikromaClient() {
                     nothing fits your day. Your browser&apos;s location (or the
                     address found) is probably off.{" "}
                     <strong>
-                      Switch to Address above and enter e.g. &quot;Fremont,
-                      CA&quot;
+                      Switch to Address above and enter e.g. &quot;
+                      {city.plannerCityQuery}&quot;
                     </strong>{" "}
                     — or your actual street address.
                   </p>

@@ -3,7 +3,7 @@
 import type { CityConfig } from "./city";
 import type { PujoData } from "./types";
 
-export const CITY_ID = "bayarea" as const;
+export const CITY_ID: string = "bayarea";
 export const city = {
   "id": "bayarea",
   "brand": "Bay Area Pujo Parikrama",
@@ -88,7 +88,9 @@ export const city = {
       "pashchimi",
       "sanskriti"
     ]
-  }
+  },
+  "plannerAddressExample": "e.g. 1901 Leghorn St, Mountain View",
+  "plannerCityQuery": "Fremont, CA"
 } as CityConfig;
 export const data = {
   "meta": {

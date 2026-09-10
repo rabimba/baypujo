@@ -1,0 +1,70 @@
+{
+  "id": "houston",
+  "brand": "Houston Pujo Parikrama",
+  "brandBn": "পুজো পরিক্রমা",
+  "taglineBn": "এক ঠিকানায় সমগ্র বঙ্গসভ্যতার উৎসব",
+  "heroKickerBn": "শার্দীয় উৎসব ২০২৬ · Houston, Texas",
+  "cityLabel": "Houston",
+  "cityLabelShort": "Houston",
+  "metaTitle": "Houston Pujo Parikrama — Durga Puja 2026 Guide",
+  "metaDescription": "Every Bengali Durga Puja in greater Houston in one place: schedules, venues, bhog, tickets, and a parikroma planner to hop multiple pujos in a day.",
+  "repoName": "houstonpujo",
+  "dataRepoUrl": "https://github.com/rabimba/houstonpujo/edit/main/data/cities/houston/pujas.json",
+  "ownerUrl": "https://rabimba.github.io/",
+  "center": { "lat": 29.74, "lng": -95.55 },
+  "zoom": 10,
+  "warnRadiusMi": 75,
+  "driveParams": { "roadFactor": 1.25, "speedsMph": [22, 32, 45] },
+  "regions": [
+    {
+      "id": "Hillcroft / Mahatma Gandhi District",
+      "color": "#e11d48",
+      "bn": "হিলক্রফট / গান্ধী জেলা"
+    },
+    {
+      "id": "West Houston",
+      "color": "#d97706",
+      "bn": "পশ্চিম হিউস্টন"
+    },
+    {
+      "id": "Southwest Houston",
+      "color": "#7c3aed",
+      "bn": "দক্ষিণ-পশ্চিম হিউস্টন"
+    },
+    {
+      "id": "Energy Corridor",
+      "color": "#0891b2",
+      "bn": "এনার্জি করিডর"
+    },
+    {
+      "id": "Brookshire / Katy",
+      "color": "#16a34a",
+      "bn": "ব্রুকশায়ার / ক্যাটি"
+    }
+  ],
+  "weekendLabels": {
+    "1": "Devi Paksha · Oct 10–11",
+    "2": "Puja Days · Oct 15–20",
+    "3": "Bijoya & Late Puja · Oct 23–25",
+    "0": "Other published dates"
+  },
+  "festivalDates": [
+    "2026-10-10",
+    "2026-10-11",
+    "2026-10-15",
+    "2026-10-16",
+    "2026-10-17",
+    "2026-10-18",
+    "2026-10-19",
+    "2026-10-20",
+    "2026-10-24",
+    "2026-10-25"
+  ],
+  "plannerAddressExample": "e.g. 13944 Schiller Rd, Houston",
+  "plannerCityQuery": "Sugar Land, TX",
+  "sampleSlugs": {
+    "detail": "hdbs",
+    "sitemap": "hdbs",
+    "plannerMust": ["hdbs", "sdkkm"]
+  }
+}

@@ -2,6 +2,11 @@
 import { chromium } from "playwright";
 import { cityConfig, baseUrl, inMetroGeo } from "./verify-lib.mjs";
 const CITY = cityConfig();
+const mustName = JSON.parse(
+  (await import("node:fs")).readFileSync(
+    `data/cities/${CITY.cityId}/pujas.json`, "utf-8",
+  ),
+).pujas.find((p) => p.id === CITY.sampleSlugs.plannerMust[0]).name;
 const BASE = baseUrl(CITY);
 const browser = await chromium.launch();
 const ctx = await browser.newContext({
@@ -60,7 +65,7 @@ log("date change updates live", stops4 >= 1, `stops=${stops4}`);
 // 5. address mode
 await goto();
 await page.click("text=Address");
-await page.fill('input[placeholder*="Leghorn"]', "1901 Leghorn St, Mountain View");
+await page.fill("input[type=text][placeholder]", CITY.plannerAddressExample.replace("e.g. ", ""));
 await page.click("text=Find");
 await page.waitForTimeout(3500);
 const stops5 = await stopCount();
@@ -70,10 +75,10 @@ log("live itinerary after address", stops5 >= 2, `stops=${stops5}`);
 await goto();
 await page.click("text=Use my current location");
 await page.waitForTimeout(2000);
-await page.click("text=Pashchimi Durga Puja");
+await page.click(`text=${mustName}`);
 await page.waitForTimeout(500);
 const first = await page.locator("ol li").first().innerText();
-log("must-visit pinned first", first.includes("Pashchimi") && first.includes("MUST"));
+log("must-visit pinned first", first.includes(mustName.split(" ")[0]) && first.includes("MUST"));
 
 // 7. infeasible window shows actionable guidance
 await page.fill('input[type=time] >> nth=0', "13:00");

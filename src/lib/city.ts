@@ -23,6 +23,8 @@ export interface CityConfig {
   regions: { id: string; color: string; bn: string }[];
   weekendLabels: Record<string, string>;
   festivalDates: string[];
+  plannerAddressExample: string;
+  plannerCityQuery: string;
   sampleSlugs: { detail: string; sitemap: string; plannerMust: string[] };
 }
 

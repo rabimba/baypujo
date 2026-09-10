@@ -1,0 +1,795 @@
+{
+  "meta": {
+    "year": 2026,
+    "lastVerified": "2026-09-09",
+    "tithiReference": [
+      {
+        "date": "2026-10-10",
+        "label": "Mahalaya / Sarva Pitru Amavasya (panchang)",
+        "labelBn": "মহালয়া"
+      },
+      {
+        "date": "2026-10-15",
+        "label": "Bodhan (Shashthi tithi begins)",
+        "labelBn": "বোধন"
+      },
+      {
+        "date": "2026-10-16",
+        "label": "Maha Shashthi",
+        "labelBn": "ষষ্ঠী"
+      },
+      {
+        "date": "2026-10-17",
+        "label": "Maha Saptami",
+        "labelBn": "সপ্তমী"
+      },
+      {
+        "date": "2026-10-18",
+        "label": "Maha Ashtami (Sandhi Puja 11:21 PM–12:09 AM at SDKKM)",
+        "labelBn": "অষ্টমী"
+      },
+      {
+        "date": "2026-10-19",
+        "label": "Maha Nabami (tithi)",
+        "labelBn": "নবমী"
+      },
+      {
+        "date": "2026-10-20",
+        "label": "Dashami (tithi)",
+        "labelBn": "দশমী"
+      },
+      {
+        "date": "2026-10-24",
+        "label": "Dashami & Bijoya Sammiloni (community weekend)",
+        "labelBn": "বিজয়া সম্মিলনী"
+      }
+    ],
+    "mahalaya": {
+      "date": "2026-10-10",
+      "dateLabel": "Saturday, October 10, 2026",
+      "tithi": "Ashwina Amavasya",
+      "title": "Mahalaya — মহালয়া",
+      "significance": "End of Pitru Paksha and the eve of Devi Paksha — the day Bengalis invoke Maa Durga with 'Ya Devi Sarvabhuteshu' and begin the festive fortnight. Note: some Houston organizers (e.g. HDBS) observe Mahalaya on Oct 11; panchang Amavasya is Oct 10.",
+      "mahishasuramardini": "Since 1931, All India Radio has broadcast Birendra Krishna Bhadra's Mahishasuramardini — Chandipath and songs — at 4 AM on Mahalaya morning. SDKKM celebrates with a community Mahishasuramardini singing program at 11 AM.",
+      "tarpan": "Til Tarpan for ancestors is offered on Mahalaya morning — HDBS holds Til Tarpan 7:00–9:30 AM on Oct 10."
+    },
+    "sourceNote": "Houston organizers: Houston Durga Bari Society (durgabari.org), Maitri in Houston (maitri-houston.org), Shiv Durga Krishna Kali Mandir (sdkkm.org), Vedanta Society of Greater Houston (houstonvedanta.org), Houston Kali Temple (houstonkalitemple.org). Unlike the Bay Area, Houston's big pujas (HDBS, SDKKM) follow the actual tithi calendar — Shashthi through Dashami, Oct 15–20 — rather than weekends. Schedules change — always confirm with the organizer before traveling."
+  },
+  "pujas": [
+    {
+      "id": "hdbs",
+      "name": "Houston Durga Bari Society Durga Puja",
+      "organizer": "Houston Durga Bari Society (HDBS)",
+      "region": "Energy Corridor",
+      "weekend": 2,
+      "dates": [
+        {
+          "date": "2026-10-10"
+        },
+        {
+          "date": "2026-10-11"
+        },
+        {
+          "date": "2026-10-15"
+        },
+        {
+          "date": "2026-10-16"
+        },
+        {
+          "date": "2026-10-17"
+        },
+        {
+          "date": "2026-10-18"
+        },
+        {
+          "date": "2026-10-19"
+        },
+        {
+          "date": "2026-10-20"
+        },
+        {
+          "date": "2026-10-24"
+        }
+      ],
+      "dateLabel": "Oct 10–24, 2026 (tithi calendar)",
+      "description": "Houston's flagship Durga Puja and a North America-class celebration — 25+ years running, 4,000–5,000 attendees, winner of the Government of West Bengal's Biswa Bangla Sarad Samman (the only North American puja so honored). Follows the true tithi calendar: Til Tarpan and Mahalaya (Oct 10–11), Bodhan Oct 15, Shashthi through Dashami Oct 16–20, with Bijoya Sammiloni on Oct 24. Mahalaxmi Iyer performs Saturday night.",
+      "venue": {
+        "name": "Houston Durga Bari Society Temple",
+        "address": "13944 Schiller Road",
+        "city": "Houston",
+        "lat": 29.7425,
+        "lng": -95.7385,
+        "coordsApprox": true
+      },
+      "schedule": [
+        {
+          "date": "2026-10-10",
+          "start": "07:00",
+          "end": "09:30",
+          "title": "Til Tarpan",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-11",
+          "start": "09:00",
+          "end": null,
+          "title": "Durga Puja (Mahalaya)",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-11",
+          "start": "10:00",
+          "end": null,
+          "title": "Mahishasur Mardini",
+          "type": "cultural"
+        },
+        {
+          "date": "2026-10-11",
+          "start": "12:00",
+          "end": null,
+          "title": "Pushpanjali, Bhog, Arati",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-11",
+          "start": "12:00",
+          "end": "14:00",
+          "title": "Anandamela — festive season begins",
+          "type": "food"
+        },
+        {
+          "date": "2026-10-11",
+          "start": "15:15",
+          "end": null,
+          "title": "Thakurbarir Ghore Baire (fashion show)",
+          "type": "cultural"
+        },
+        {
+          "date": "2026-10-11",
+          "start": "16:30",
+          "end": null,
+          "title": "Ek Je Chhilo Nayak (Uttam Kumar retro)",
+          "type": "cultural"
+        },
+        {
+          "date": "2026-10-15",
+          "start": "18:00",
+          "end": null,
+          "title": "Bodhan & Arati",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-16",
+          "start": "10:30",
+          "end": null,
+          "title": "Maha Shashthi Puja",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-16",
+          "start": "18:00",
+          "end": null,
+          "title": "Amantran & Adhibas",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-16",
+          "start": "19:00",
+          "end": null,
+          "title": "Pushpanjali, Bhog, Sandhya Arati",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-16",
+          "start": "18:30",
+          "end": null,
+          "title": "Musical journey along Silk Route",
+          "type": "cultural"
+        },
+        {
+          "date": "2026-10-16",
+          "start": "19:30",
+          "end": null,
+          "title": "Udbodhan / Parikrama",
+          "type": "cultural"
+        },
+        {
+          "date": "2026-10-16",
+          "start": "20:30",
+          "end": "21:30",
+          "title": "Dinner — culinary celebration",
+          "type": "food"
+        },
+        {
+          "date": "2026-10-16",
+          "start": "22:00",
+          "end": null,
+          "title": "Ankita Bhattacharyya & Subhadeep Das Choudhury — musical nite",
+          "type": "cultural"
+        },
+        {
+          "date": "2026-10-17",
+          "start": "09:00",
+          "end": null,
+          "title": "Kalabou Snan",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-17",
+          "start": "10:00",
+          "end": null,
+          "title": "Maha Saptami Puja",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-17",
+          "start": "12:00",
+          "end": null,
+          "title": "Balidaan",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-17",
+          "start": "12:30",
+          "end": null,
+          "title": "Pushpanjali, Bhog, Arati",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-17",
+          "start": "13:00",
+          "end": "14:00",
+          "title": "Lunch — Bengali cuisine treat",
+          "type": "food"
+        },
+        {
+          "date": "2026-10-17",
+          "start": null,
+          "end": null,
+          "title": "Muktomela — open stage for community children",
+          "type": "cultural"
+        },
+        {
+          "date": "2026-10-17",
+          "start": "18:30",
+          "end": null,
+          "title": "Saat Ronger Saat Paak (wedding traditions)",
+          "type": "cultural"
+        },
+        {
+          "date": "2026-10-17",
+          "start": "19:00",
+          "end": null,
+          "title": "Sandhya Arati",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-17",
+          "start": "20:30",
+          "end": "21:30",
+          "title": "Dinner — gastronomic experience",
+          "type": "food"
+        },
+        {
+          "date": "2026-10-17",
+          "start": "22:00",
+          "end": null,
+          "title": "Mahalaxmi Iyer & Sourav Das — magical melodies",
+          "type": "cultural"
+        },
+        {
+          "date": "2026-10-18",
+          "start": "10:00",
+          "end": null,
+          "title": "Maha Ashtami Puja",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-18",
+          "start": "12:00",
+          "end": null,
+          "title": "Bolidaan",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-18",
+          "start": "12:30",
+          "end": null,
+          "title": "Pushpanjali, Bhog, Arati",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-18",
+          "start": "13:00",
+          "end": "14:00",
+          "title": "Lunch — Ashtami traditions on your plate",
+          "type": "food"
+        },
+        {
+          "date": "2026-10-18",
+          "start": null,
+          "end": null,
+          "title": "Next Gen cultural presentation",
+          "type": "cultural"
+        },
+        {
+          "date": "2026-10-18",
+          "start": null,
+          "end": null,
+          "title": "Boroder Adda — seniors' reminiscence",
+          "type": "cultural"
+        },
+        {
+          "date": "2026-10-18",
+          "start": "18:00",
+          "end": null,
+          "title": "Sandhya Arati",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-18",
+          "start": null,
+          "end": null,
+          "title": "Panchakobir Monone Rasobodh — poets' homage",
+          "type": "cultural"
+        },
+        {
+          "date": "2026-10-18",
+          "start": "20:56",
+          "end": null,
+          "title": "Maha Sandhi Puja",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-18",
+          "start": "20:30",
+          "end": "21:30",
+          "title": "Dinner — puja feast",
+          "type": "food"
+        },
+        {
+          "date": "2026-10-19",
+          "start": "10:30",
+          "end": null,
+          "title": "Maha Nabami Puja (tithi)",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-19",
+          "start": "12:00",
+          "end": null,
+          "title": "Bolidaan",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-19",
+          "start": "12:30",
+          "end": null,
+          "title": "Pushpanjali, Bhog, Arati",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-19",
+          "start": "19:00",
+          "end": null,
+          "title": "Sandhya Arati",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-20",
+          "start": "11:00",
+          "end": null,
+          "title": "Puja and Dadhikarma (Dashami tithi)",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-24",
+          "start": "15:30",
+          "end": null,
+          "title": "Aparajita Puja",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-24",
+          "start": "16:30",
+          "end": null,
+          "title": "Bhasaan, Sindoor Khela",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-24",
+          "start": "18:30",
+          "end": null,
+          "title": "Dhunuchi Nach",
+          "type": "cultural"
+        },
+        {
+          "date": "2026-10-24",
+          "start": "20:30",
+          "end": "21:30",
+          "title": "Dinner — Subho Bijoya",
+          "type": "food"
+        }
+      ],
+      "bhog": {
+        "available": true,
+        "price": null,
+        "details": "Bhog and catered festive meals across all five puja days; dinner nightly at 8:30 PM."
+      },
+      "entry": {
+        "free": null,
+        "ticketUrl": "https://durgabari.org/2026-puja/registration/",
+        "notes": "Puja registration & donation via durgabari.org. Parking & bus shuttle info on the puja pages."
+      },
+      "contact": {
+        "email": "puja@durgabari.org",
+        "phone": "(281) 589-7700"
+      },
+      "notices": [
+        "Follows the tithi calendar — main puja days are Oct 16–20 (Fri–Tue), not a single weekend."
+      ],
+      "links": {
+        "website": "https://durgabari.org/2026-puja/",
+        "facebook": "https://www.facebook.com/HoustonDurgaBari/",
+        "tickets": "https://durgabari.org/2026-puja/registration/"
+      },
+      "highlights": [
+        "Biswa Bangla Sarad Samman winner — the only North American puja so honored",
+        "4,000–5,000 attendees from across the US",
+        "Mahalaxmi Iyer & Sourav Das live — Oct 17, 10 PM",
+        "True tithi calendar: Bodhan Oct 15 to Dashami Oct 20",
+        "Sandhi Puja Oct 18, 8:56 PM",
+        "Bijaya Sammiloni & Sindoor Khela Oct 24"
+      ],
+      "status": "verified",
+      "culturalPrograms": [
+        {
+          "title": "Mahalaxmi Iyer & Sourav Das — musical nite",
+          "date": "2026-10-17",
+          "time": "22:00",
+          "artist": "Mahalaxmi Iyer, Sourav Das",
+          "description": "Bollywood playback singer Mahalaxmi Iyer with Sourav Das — magical melodies to close Saptami night.",
+          "free": null
+        },
+        {
+          "title": "Ankita Bhattacharyya & Subhadeep Das Choudhury — musical nite",
+          "date": "2026-10-16",
+          "time": "22:00",
+          "artist": "Ankita Bhattacharyya, Subhadeep Das Choudhury",
+          "description": "Opening night musical performance.",
+          "free": null
+        },
+        {
+          "title": "Thakurbarir Ghore Baire — fashion show",
+          "date": "2026-10-11",
+          "time": "15:15",
+          "artist": null,
+          "description": "Mahalaya-day fashion show.",
+          "free": null
+        }
+      ],
+      "hours": []
+    },
+    {
+      "id": "maitri",
+      "name": "Maitri in Houston Durga Puja",
+      "organizer": "Maitri in Houston",
+      "region": "Southwest Houston",
+      "weekend": 3,
+      "dates": [
+        {
+          "date": "2026-10-23"
+        },
+        {
+          "date": "2026-10-24"
+        }
+      ],
+      "dateLabel": "Oct 23–24, 2026",
+      "description": "Maitri in Houston — the Bangladeshi-heritage community's grand Durga Puja at India House. Two days of rituals, cultural programs, traditional festivities and food. Early-bird registration through Sep 30 (member family $100; non-member family $130; student family $70).",
+      "venue": {
+        "name": "India House",
+        "address": "8888 W Belfort Blvd",
+        "city": "Houston",
+        "lat": 29.6855,
+        "lng": -95.5425,
+        "coordsApprox": true
+      },
+      "schedule": [],
+      "bhog": {
+        "available": true,
+        "price": null,
+        "details": "Traditional festive food with registration."
+      },
+      "entry": {
+        "free": false,
+        "ticketUrl": "https://maitri-houston.org/event-registration-puja/",
+        "notes": "Early bird until Sep 30: member family $100 / individual $50; non-member family $130 / individual $65; student family $70 / individual $35. After Sep 30 rates increase (member $120/$60, non-member $150/$75, student $80/$40)."
+      },
+      "contact": {
+        "email": null,
+        "phone": null,
+        "notes": "Reach via maitri-houston.org or Facebook/Instagram @maitriinhouston"
+      },
+      "notices": [
+        "Registration rates rise after the Sep 30 early-bird deadline."
+      ],
+      "links": {
+        "website": "https://maitri-houston.org/etn/durga-puja-2026/",
+        "facebook": "https://www.facebook.com/maitriinhouston"
+      },
+      "highlights": [
+        "Houston's biggest Bangladeshi-heritage Durga Puja",
+        "Early-bird family registration $100 (members) until Sep 30",
+        "Two days of cultural programs at India House"
+      ],
+      "status": "verified",
+      "culturalPrograms": [],
+      "hours": []
+    },
+    {
+      "id": "sdkkm",
+      "name": "SDKKM Durga Puja (Shiv Durga Krishna Kali Mandir)",
+      "organizer": "Shiv Durga Krishna Kali Mandir of Greater Houston",
+      "region": "West Houston",
+      "weekend": 2,
+      "dates": [
+        {
+          "date": "2026-10-10"
+        },
+        {
+          "date": "2026-10-15"
+        },
+        {
+          "date": "2026-10-16"
+        },
+        {
+          "date": "2026-10-17"
+        },
+        {
+          "date": "2026-10-18"
+        },
+        {
+          "date": "2026-10-19"
+        },
+        {
+          "date": "2026-10-20"
+        },
+        {
+          "date": "2026-10-24"
+        },
+        {
+          "date": "2026-10-25"
+        },
+        {
+          "date": "2026-11-07"
+        }
+      ],
+      "dateLabel": "Main Puja Oct 15–20 · extended to Nov 7 (tithi calendar)",
+      "description": "Shiv Durga Krishna Kali Mandir's tithi-true Durga Puja: Mahalaya with community Mahishasuramardini singing (Oct 10), Bodhan Oct 15, Shashthi–Dashami Oct 16–20, Sandhi Puja at 11:21 PM on Ashtami, Vijaya Dashami & Sindoor Khela on Oct 24. Extended calendar runs to Kali Puja (Nov 7). Puja packages: early-bird family $350 until Sep 15.",
+      "venue": {
+        "name": "SDKKM Temple",
+        "address": "16620 Keith Harrow Boulevard",
+        "city": "Houston",
+        "lat": 29.8395,
+        "lng": -95.6765,
+        "coordsApprox": true
+      },
+      "schedule": [
+        {
+          "date": "2026-10-10",
+          "start": "11:00",
+          "end": null,
+          "title": "Mahalaya — Sarod Mela & Til Tarpan, Mahishasuramardini singing",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-15",
+          "start": null,
+          "end": null,
+          "title": "Bodhan",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-16",
+          "start": null,
+          "end": null,
+          "title": "Maha Shashthi Puja",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-17",
+          "start": null,
+          "end": null,
+          "title": "Maha Saptami Puja",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-18",
+          "start": null,
+          "end": null,
+          "title": "Maha Ashtami Puja",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-18",
+          "start": "23:21",
+          "end": "00:09",
+          "title": "Sandhi Puja",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-19",
+          "start": null,
+          "end": null,
+          "title": "Maha Navami Puja (tithi)",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-20",
+          "start": null,
+          "end": null,
+          "title": "Dashami Puja (tithi)",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-24",
+          "start": null,
+          "end": null,
+          "title": "Vijaya Dashami & Sindoor Khela",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-25",
+          "start": null,
+          "end": null,
+          "title": "Maha Lakshmi Puja",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-11-07",
+          "start": null,
+          "end": null,
+          "title": "Maha Kali Puja",
+          "type": "ritual"
+        }
+      ],
+      "bhog": {
+        "available": true,
+        "price": null,
+        "details": "All meals included with puja packages; exclusive food line & senior seating for package holders."
+      },
+      "entry": {
+        "free": null,
+        "ticketUrl": "https://sdkkm.org/registration/",
+        "notes": "Packages (until Sep 15): Durga Puja family $350 / single $175; Durga+Kali family $400 / single $200; all-3-puja family $450 / single $250. After Sep 15: family $400 / $450 / $500. Puja Patron $1,100. Pay via Zelle to SDKKM.Pujo.Houston@gmail.com."
+      },
+      "contact": {
+        "email": null,
+        "phone": "(832) 367-6646",
+        "notes": "Mahalaya singers: Soumee Choudhury (586) 822-5938, Swapan Das (281) 832-1741"
+      },
+      "notices": [
+        "Early-bird package pricing ends September 15.",
+        "Sandhi Puja falls at 11:21 PM–12:09 AM on Ashtami night (Oct 18–19)."
+      ],
+      "links": {
+        "website": "https://sdkkm.org/durga-puja-2026/",
+        "facebook": null
+      },
+      "highlights": [
+        "Tithi-true calendar: Bodhan Oct 15 to Dashami Oct 20",
+        "Community Mahishasuramardini on Mahalaya morning (Oct 10, 11 AM)",
+        "Sandhi Puja 11:21 PM–12:09 AM (Oct 18)",
+        "Vijaya Dashami & Sindoor Khela Oct 24",
+        "Kali Puja follows Nov 7"
+      ],
+      "status": "verified",
+      "culturalPrograms": [
+        {
+          "title": "Mahalaya Mahishasuramardini — community singing",
+          "date": "2026-10-10",
+          "time": "11:00",
+          "artist": "Community singers (open call, deadline Aug 10)",
+          "description": "Chandipath and Mahishasuramardini songs by community performers at the temple.",
+          "free": true
+        }
+      ],
+      "hours": []
+    },
+    {
+      "id": "vedanta",
+      "name": "Vedanta Society of Greater Houston Durga Puja",
+      "organizer": "Vedanta Society of Greater Houston (Ramakrishna Order)",
+      "region": "West Houston",
+      "weekend": null,
+      "dates": [],
+      "dateLabel": "2026 date to be announced",
+      "description": "The Vedanta Society's annual one-day Durga Puja, held under a tent in the open air at the Vedanta center, with worship performed by a monastic Swami of the Ramakrishna Order (Swami Kripamayananda in recent years). In 2025 it was held Sep 20 with lunch coupons (adult $15, family up to 4 $50). Watch houstonvedanta.org for the 2026 date.",
+      "venue": {
+        "name": "Vedanta Society of Greater Houston",
+        "address": "14809 Lindita Drive",
+        "city": "Houston",
+        "lat": 29.6965,
+        "lng": -95.7285,
+        "coordsApprox": true
+      },
+      "schedule": [],
+      "bhog": {
+        "available": true,
+        "price": "$15 adult / $50 family (2025 lunch coupons)",
+        "details": "Pre-purchase lunch coupons for accurate planning."
+      },
+      "entry": {
+        "free": true,
+        "ticketUrl": null,
+        "notes": "Worship open to all; register and buy lunch coupons when announced (2025: adult $15, family up to 4 $50)."
+      },
+      "contact": {
+        "email": null,
+        "phone": "(281) 988-7211",
+        "notes": null
+      },
+      "notices": [
+        "2026 date not yet announced — 2025 was Sep 20, 9:30 AM–2:30 PM."
+      ],
+      "links": {
+        "website": "https://www.houstonvedanta.org/event-list"
+      },
+      "highlights": [
+        "Worship by a Ramakrishna Order Swami",
+        "Open-air tent celebration",
+        "Free to attend; lunch by coupon"
+      ],
+      "status": "tba",
+      "culturalPrograms": [],
+      "hours": []
+    },
+    {
+      "id": "hkt",
+      "name": "Houston Kali Temple Durga Puja",
+      "organizer": "Houston Kali Temple",
+      "region": "Brookshire / Katy",
+      "weekend": null,
+      "dates": [],
+      "dateLabel": "2026 date to be announced",
+      "description": "The Houston Kali Temple's Durga Puja at its Brookshire temple land (41180 Mt Zion Rd). The temple also celebrated its Bhoomi Pujan in 2025 — a permanent temple is coming. Check houstonkalitemple.org for the 2026 puja announcement.",
+      "venue": {
+        "name": "Houston Kali Temple",
+        "address": "41180 Mt Zion Road",
+        "city": "Brookshire",
+        "lat": 29.8065,
+        "lng": -95.9415,
+        "coordsApprox": true
+      },
+      "schedule": [],
+      "bhog": {
+        "available": null,
+        "price": null,
+        "details": null
+      },
+      "entry": {
+        "free": null,
+        "ticketUrl": null,
+        "notes": "2026 details not yet published."
+      },
+      "contact": {
+        "email": "info@houstonkalitemple.org",
+        "phone": "+1 (346) 580-2777",
+        "notes": null
+      },
+      "notices": [
+        "2026 puja not yet announced; site lists events as they're scheduled."
+      ],
+      "links": {
+        "website": "https://houstonkalitemple.org/"
+      },
+      "highlights": [
+        "Kali-temple Durga Puja west of Houston",
+        "New temple land in Brookshire (Bhoomi Pujan 2025)"
+      ],
+      "status": "tba",
+      "culturalPrograms": [],
+      "hours": []
+    }
+  ]
+}

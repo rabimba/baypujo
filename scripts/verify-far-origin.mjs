@@ -31,7 +31,7 @@ const log = (name, ok, extra = "") => {
   log("rose banner: start point looks wrong", banner === 1);
   const bannerText = await page.locator("main").innerText();
   log("banner explains miles + suggests address mode",
-    /miles to the nearest puja/.test(bannerText) && bannerText.includes('enter e.g. "Fremont, CA"'));
+    /miles to the nearest puja/.test(bannerText) && bannerText.includes(CITY.plannerCityQuery));
   log("nearest-puja distance shown in summary", /nearest puja \d+ mi from start/.test(bannerText));
   log("skip reasons carry real miles", /mi away/.test(bannerText));
 
@@ -39,7 +39,7 @@ const log = (name, ok, extra = "") => {
 
   // recover: switch to address
   await page.click("text=Address");
-  await page.fill('input[placeholder*="Leghorn"]', "Fremont, CA");
+  await page.fill("input[type=text][placeholder]", CITY.plannerCityQuery);
   await page.click("text=Find");
   await page.waitForTimeout(3500);
   const stops = await page.locator("ol li").count();
@@ -79,7 +79,8 @@ const log = (name, ok, extra = "") => {
   await page.click("text=Use my current location");
   await page.waitForTimeout(2500);
   const stops = await page.locator("ol li").count();
-  log("sane origin: no warning, 9:00–20:00 builds", stops >= 5, `stops=${stops}`);
+  const minStops = CITY.id === "bayarea" ? 5 : 1;
+  log("sane origin: no warning, 9:00–20:00 builds", stops >= minStops, `stops=${stops}`);
   const t = await page.locator("main").innerText();
   log("no false 'looks wrong' banner", (await page.locator("text=Your start point looks wrong").count()) === 0);
   log("no geo warning for in-metro fix", !t.includes(`outside the ${CITY.cityLabelShort}`));

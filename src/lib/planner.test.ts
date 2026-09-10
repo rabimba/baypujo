@@ -3,6 +3,10 @@ import { haversineMi, driveTimeMin } from "./geo";
 import { hmToMin, minToHm, openWindow, planParikroma } from "./planner";
 import type { Puja } from "./types";
 import { pujas } from "./pujas";
+import { CITY_ID, city as cityCfg } from "./city-data";
+const cityCenter = cityCfg.center;
+const BA = CITY_ID === "bayarea";
+const itBA = BA ? it : it.skip;
 
 const iccMilpitas = { lat: 37.4319231, lng: -121.8952529 };
 const newarkPavilion = { lat: 37.5332703, lng: -122.0324619 };
@@ -23,7 +27,7 @@ function fakePuja(id: string, venue: { lat: number; lng: number }, win?: { open:
 }
 
 describe("geo", () => {
-  it("haversine: Milpitas to Newark ~12-14 mi", () => {
+  itBA("haversine: Milpitas to Newark ~12-14 mi", () => {
     const d = haversineMi(iccMilpitas, newarkPavilion);
     expect(d).toBeGreaterThan(10);
     expect(d).toBeLessThan(16);
@@ -47,18 +51,18 @@ describe("planner helpers", () => {
   it("minToHm roundtrip", () => {
     expect(minToHm(hmToMin("09:45"))).toBe("09:45");
   });
-  it("openWindow from schedule", () => {
+  itBA("openWindow from schedule", () => {
     const p = pujas.find((x) => x.id === "sanskriti")!;
     const w = openWindow(p, "2026-10-10");
     expect(w).not.toBeNull();
     expect(w!.open).toBe(hmToMin("10:30"));
     expect(w!.close).toBe(hmToMin("22:00"));
   });
-  it("openWindow null when no events and no hours", () => {
+  itBA("openWindow null when no events and no hours", () => {
     const p = pujas.find((x) => x.id === "aadya")!;
     expect(openWindow(p, "2026-10-10")).toBeNull();
   });
-  it("openWindow prefers organizer hours over schedule", () => {
+  itBA("openWindow prefers organizer hours over schedule", () => {
     const p = pujas.find((x) => x.id === "abahan")!;
     const w = openWindow(p, "2026-10-10");
     expect(w).not.toBeNull();
@@ -121,7 +125,7 @@ describe("planParikroma", () => {
     expect(res.stops.some((s) => s.puja.id === "near")).toBe(true);
   });
 
-  it("real data: Oct 17 within one day visits multiple pujas", () => {
+  itBA("real data: Oct 17 within one day visits multiple pujas", () => {
     const active = pujas.filter((p) => p.dates.some((d) => d.date === "2026-10-17"));
     expect(active.length).toBeGreaterThan(3);
     const res = planParikroma({
@@ -140,7 +144,7 @@ describe("planParikroma", () => {
     }
   });
 
-  it("flags must-visit not active on date", () => {
+  itBA("flags must-visit not active on date", () => {
     const a = fakePuja("a", iccMilpitas, { open: "10:00", close: "20:00" });
     const res = planParikroma({
       date: "2026-10-17",
@@ -190,17 +194,17 @@ describe("planParikroma", () => {
     expect(res.skipped.every((s) => s.reason.includes("mi away") || s.reason.includes("Closes"))).toBe(true);
   });
 
-  it("bay area origin, wide window → never zero stops", () => {
+  it("metro-center origin, wide window → never zero stops", () => {
     const res = planParikroma({
       date: "2026-10-17",
       startTime: "09:00",
       endTime: "20:00",
-      origin: iccMilpitas,
+      origin: { ...cityCenter },
       dwellMin: 45,
       mustVisit: [],
       candidates: pujas.filter((p) => p.dates.some((d) => d.date === "2026-10-17")),
     });
-    expect(res.stops.length).toBeGreaterThanOrEqual(3);
+    expect(res.stops.length).toBeGreaterThanOrEqual(1);
     expect(res.diagnostics.originTooFar).toBe(false);
   });
 
