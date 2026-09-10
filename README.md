@@ -1,36 +1,87 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Bay Area Pujo Parikrama — পুজো পরিক্রমা
 
-## Getting Started
+All 31 San Francisco Bay Area Durga Puja celebrations (2026) in one place:
+schedules, venues, bhog, tickets, and a day-planner to hop multiple pujos.
 
-First, run the development server:
+## Features
+
+- **Directory** (`/pujas/`) — filter by date, region, event type (rituals /
+  cultural / food), entry cost, and distance from your location; Leaflet +
+  OpenStreetMap view.
+- **Pujo detail pages** (`/pujas/[slug]/`) — full ritual schedules where
+  published (Sanskriti, Pashchimi, Utsav artist nights), bhog purchase info,
+  entry/ticket links, venue map + directions.
+- **Parikroma planner** (`/parikroma/`) — pick a date, your free hours, a
+  starting point (geolocation or address), and optional must-visit pujas; a
+  greedy scheduler builds a feasible hop itinerary with drive-time estimates
+  and a numbered route map.
+- **Status badges** — "Schedule published" / "Details partial" / "Dates TBA"
+  so it's clear what's confirmed vs. to-verify-with-organizer.
+
+## Data
+
+`data/pujas.json` is the single source of truth — 31 pujas, 6 regions, 3
+weekends (Oct 9–11, 16–18, 23–25 2026) + TBA listings. Sources: Abahan Bay
+Area directory, organizer websites, Drik Panchang (tithi dates). Venue
+coordinates from OpenStreetMap Nominatim (approximate pins are flagged).
+
+To update: edit `data/pujas.json`, run `npm run build`.
+
+## Develop
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev        # http://localhost:3000
+npm test           # planner unit tests (vitest)
+npm run typecheck
+npm run lint
+npm run build      # static export to out/
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Static export (`output: 'export'`) — deploy `out/` to any static host
+(Vercel, Netlify, GitHub Pages, S3).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Deploy
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### GitHub Pages (automated)
 
-## Learn More
+1. Push this repo to GitHub (branch `main`).
+2. Repo → Settings → Pages → Source: **GitHub Actions**.
+3. Push — `.github/workflows/deploy.yml` builds with
+   `PB_BASE_PATH=/<repo-name>` and deploys `out/` (with `.nojekyll`).
 
-To learn more about Next.js, take a look at the following resources:
+The site serves at `https://<owner>.github.io/<repo-name>/`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Analytics (optional, privacy-friendly)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+No analytics render unless an ID is configured at build time. Both can run
+together:
 
-## Deploy on Vercel
+- **GA4** — create a property (Google Analytics), then set repo variable
+  `NEXT_PUBLIC_GA_ID` (Settings → Secrets and variables → Actions →
+  Variables) to the measurement ID (`G-…`). The workflow injects it.
+- **GoatCounter** (cookieless, GDPR-friendly) — create a free counter, set
+  repo variable `NEXT_PUBLIC_GOATCOUNTER_CODE` to your site code.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Pageviews track on load and on every client-side route change.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Local preview of the GitHub Pages build:
+
+```bash
+npm run build:ghpages   # builds with basePath /<repo-name>
+npm run serve:ghpages
+```
+
+### Other hosts
+
+`npm run build` (no `PB_BASE_PATH`) produces a plain static site in `out/`
+for Vercel/Netlify/S3 — set `NEXT_PUBLIC_SITE_URL` to your domain for the
+sitemap.
+
+## Notes
+
+- Drive times are straight-line distance × road factor, not live traffic.
+- Where no schedule is published, the planner assumes 10:00–20:00 hours.
+- Before `next build` for production, set the real domain in
+  `src/app/sitemap.ts` (`BASE`).
+- Schedules change — every page links to the organizer for confirmation.

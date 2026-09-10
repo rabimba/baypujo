@@ -1,26 +1,139 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --color-sindoor: #b3231f;
+  --color-sindoor-dark: #8c1714;
+  --color-sindoor-deep: #6f100e;
+  --color-pandal: #fdf6ec;
+  --color-kash: #f5e9d0;
+  --color-dhunuchi: #c47f2e;
+  --color-sona: #e8b64c;
+  --color-sona-bright: #f2ca6f;
+  --color-shiuli: #f9f4ea;
+  --color-ink: #2b1d16;
+
+  --font-display: var(--font-baloo-da-2), system-ui, sans-serif;
+  --font-body: var(--font-hind-siliguri), system-ui, sans-serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-shiuli);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+/* hero: deep durgo gradient */
+.durgo-gradient {
+  background:
+    radial-gradient(
+      120% 90% at 50% -20%,
+      #d23c33 0%,
+      var(--color-sindoor) 34%,
+      var(--color-sindoor-dark) 68%,
+      var(--color-sindoor-deep) 100%
+    );
+}
+
+/* alpona-inspired decorative border for hero */
+.alpona-border {
+  --alpona: rgba(232, 182, 76, 0.4);
+  border: 1.5px solid var(--alpona);
+  background-image:
+    radial-gradient(circle at 50% 0%, var(--alpona) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 0% 50%, var(--alpona) 1.5px, transparent 1.5px);
+  background-size: 24px 24px;
+}
+
+/* gold hairline under header */
+.hairline-gold {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-sona) 20%,
+    var(--color-sona-bright) 50%,
+    var(--color-sona) 80%,
+    transparent
+  );
+  height: 2px;
+}
+
+/* pulsating diya dot */
+@keyframes diya {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+.diya {
+  animation: diya 2.2s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .diya { animation: none; }
+  html { scroll-behavior: auto; }
+}
+
+/* toran garland sway */
+@keyframes sway {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(2.5px); }
+}
+.toran-leaf {
+  transform-origin: 50% 0%;
+  animation: sway 3.4s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .toran-leaf { animation: none; }
+}
+
+/* leaflet z-index sanity under sticky headers */
+.leaflet-container {
+  z-index: 0;
+  font: inherit;
+}
+
+/* subtle entry animation */
+@keyframes riseIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.rise-in {
+  animation: riseIn 0.35s ease-out both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .rise-in { animation: none; }
+}
+
+/* kash silhouette row along hero bottom */
+.kash-row {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 120'%3E%3Cg fill='none' stroke='%23f5e9d0' stroke-width='2' stroke-linecap='round' opacity='0.5'%3E%3Cpath d='M30 120 C 24 84 16 48 12 24'/%3E%3Cpath d='M12 24 C 6 18 2 12 0 6'/%3E%3Cpath d='M12 24 C 10 16 9 8 8 0'/%3E%3Cpath d='M12 24 C 14 16 16 8 16 2'/%3E%3Cpath d='M12 24 C 18 18 22 14 26 10'/%3E%3Cpath d='M80 120 C 76 80 70 44 68 16'/%3E%3Cpath d='M68 16 C 62 10 58 6 56 0'/%3E%3Cpath d='M68 16 C 66 8 65 4 64 0'/%3E%3Cpath d='M68 16 C 70 8 72 4 74 0'/%3E%3Cpath d='M68 16 C 74 10 78 6 82 2'/%3E%3Cpath d='M140 120 C 136 84 132 50 132 20'/%3E%3Cpath d='M132 20 C 126 14 122 10 120 4'/%3E%3Cpath d='M132 20 C 130 12 129 6 128 0'/%3E%3Cpath d='M132 20 C 134 12 136 6 138 0'/%3E%3Cpath d='M132 20 C 138 14 142 10 146 6'/%3E%3Cpath d='M200 120 C 196 86 192 52 190 26'/%3E%3Cpath d='M190 26 C 184 20 180 16 178 10'/%3E%3Cpath d='M190 26 C 188 18 187 12 186 6'/%3E%3Cpath d='M190 26 C 192 18 194 12 196 6'/%3E%3Cpath d='M190 26 C 196 20 200 16 204 12'/%3E%3C/g%3E%3C/svg%3E");
+  background-repeat: repeat-x;
+  background-position: bottom center;
+  background-size: 240px 120px;
+}
+
+/* Print / Save-as-PDF: only the itinerary card */
+@media print {
+  header, footer, nav {
+    display: none !important;
+  }
+  body {
+    background: #fff !important;
+  }
+  [data-print-hide],
+  .print\:hidden,
+  .print-hide {
+    display: none !important;
+  }
+  .print-brand {
+    display: block !important;
+  }
+}
+.print-brand {
+  display: none;
 }
