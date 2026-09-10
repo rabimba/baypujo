@@ -23,6 +23,10 @@ export interface CityConfig {
   regions: { id: string; color: string; bn: string }[];
   weekendLabels: Record<string, string>;
   festivalDates: string[];
+  plannerAddressExample: string;
+  plannerCityQuery: string;
+  /** Sister city sites — cross-linked in the homepage hero. */
+  sisterSites?: { brand: string; url: string }[];
   sampleSlugs: { detail: string; sitemap: string; plannerMust: string[] };
 }
 

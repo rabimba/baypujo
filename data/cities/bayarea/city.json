@@ -11,10 +11,20 @@
   "repoName": "baypujo",
   "dataRepoUrl": "https://github.com/rabimba/baypujo/edit/main/data/cities/bayarea/pujas.json",
   "ownerUrl": "https://rabimba.github.io/",
-  "center": { "lat": 37.68, "lng": -122.0 },
+  "center": {
+    "lat": 37.68,
+    "lng": -122.0
+  },
   "zoom": 9,
   "warnRadiusMi": 90,
-  "driveParams": { "roadFactor": 1.3, "speedsMph": [22, 32, 45] },
+  "driveParams": {
+    "roadFactor": 1.3,
+    "speedsMph": [
+      22,
+      32,
+      45
+    ]
+  },
   "regions": [
     {
       "id": "East Bay",
@@ -65,9 +75,20 @@
     "2026-10-24",
     "2026-10-25"
   ],
+  "plannerAddressExample": "e.g. 1901 Leghorn St, Mountain View",
+  "plannerCityQuery": "Fremont, CA",
   "sampleSlugs": {
     "detail": "pashchimi",
     "sitemap": "sanskriti",
-    "plannerMust": ["pashchimi", "sanskriti"]
-  }
+    "plannerMust": [
+      "pashchimi",
+      "sanskriti"
+    ]
+  },
+  "sisterSites": [
+    {
+      "brand": "Houston Pujo Parikrama",
+      "url": "https://rabimba.github.io/houstonpujo/"
+    }
+  ]
 }

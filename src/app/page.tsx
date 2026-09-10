@@ -88,6 +88,23 @@ export default function HomePage() {
             </Link>
           </div>
 
+          {city.sisterSites && city.sisterSites.length > 0 && (
+            <p className="mt-5 text-xs font-body text-white/70">
+              {city.sisterSites.length > 1 ? "Also in other cities:" : "Also celebrating in:"}{" "}
+              {city.sisterSites.map((s, i) => (
+                <span key={s.url}>
+                  {i > 0 && " · "}
+                  <a
+                    href={s.url}
+                    className="text-sona-bright underline decoration-sona/50 underline-offset-2 hover:decoration-sona transition-colors"
+                  >
+                    {s.brand}
+                  </a>
+                </span>
+              ))}
+            </p>
+          )}
+
           <div className="mt-8 flex flex-wrap justify-center gap-x-8 gap-y-2 text-xs text-white/70 font-body">
             <span>{withSchedule.length} with published schedules</span>
             <span>{withBhog.length} serving bhog</span>

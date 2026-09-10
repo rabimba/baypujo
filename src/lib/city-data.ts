@@ -81,6 +81,8 @@ export const city = {
     "2026-10-24",
     "2026-10-25"
   ],
+  "plannerAddressExample": "e.g. 1901 Leghorn St, Mountain View",
+  "plannerCityQuery": "Fremont, CA",
   "sampleSlugs": {
     "detail": "pashchimi",
     "sitemap": "sanskriti",
@@ -88,7 +90,13 @@ export const city = {
       "pashchimi",
       "sanskriti"
     ]
-  }
+  },
+  "sisterSites": [
+    {
+      "brand": "Houston Pujo Parikrama",
+      "url": "https://rabimba.github.io/houstonpujo/"
+    }
+  ]
 } as CityConfig;
 export const data = {
   "meta": {
