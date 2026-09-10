@@ -1,9 +1,11 @@
-# Bay Area Pujo Parikrama — পুজো পরিক্রমা
+# Houston Pujo Parikrama — পুজো পরিক্রমা
 
-**Live site:** <https://rabimba.github.io/baypujo/>
+**Live site:** <https://rabimba.github.io/houstonpujo/>
 
-All 31 San Francisco Bay Area Durga Puja celebrations (2026) in one place:
-schedules, venues, bhog, tickets, and a day-planner to hop multiple pujos.
+Every Bengali Durga Puja in greater Houston (2026) in one place: schedules,
+venues, bhog, tickets, and a day-planner to hop multiple pujos. Houston's
+major pujas (HDBS, SDKKM) follow the true tithi calendar — Bodhan Oct 15
+through Dashami Oct 20 — rather than the weekend model.
 
 ## Features
 
@@ -74,7 +76,7 @@ Static export (`output: 'export'`) — deploy `out/` to any static host
 3. Push — `.github/workflows/deploy.yml` builds with
    `PB_BASE_PATH=/<repo-name>` and deploys `out/` (with `.nojekyll`).
 
-This repo deploys to <https://rabimba.github.io/baypujo/>. For a different
+This repo deploys to <https://rabimba.github.io/houstonpujo/>. For a different
 repo, the site serves at `https://<owner>.github.io/<repo-name>/`.
 
 ### Analytics (optional, privacy-friendly)
