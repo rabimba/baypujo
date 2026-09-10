@@ -1,7 +1,7 @@
 /* E2E under GitHub Pages subpath simulation */
 import { chromium } from "playwright";
 
-const BASE = "http://localhost:3000/pujo-parikrama";
+const BASE = "http://localhost:3000/baypujo";
 const browser = await chromium.launch();
 const ctx = await browser.newContext({
   permissions: ["geolocation"],
@@ -36,7 +36,7 @@ await page.waitForURL("**/pujas/");
 await page.waitForLoadState("networkidle");
 await page.waitForTimeout(1500);
 log("client nav to directory under subpath",
-  page.url().includes("/pujo-parikrama/pujas/"));
+  page.url().includes("/baypujo/pujas/"));
 log("directory Leaflet tiles render under subpath",
   (await page.locator(".leaflet-tile").count()) > 0);
 log("map tiles all load (OSM absolute URLs)",
@@ -54,7 +54,7 @@ await page.click("main a.group.block");
 await page.waitForURL("**/pujas/*/");
 await page.waitForLoadState("networkidle");
 await page.waitForTimeout(1000);
-log("detail page under subpath", page.url().includes("/pujo-parikrama/pujas/pashchimi/"));
+log("detail page under subpath", page.url().includes("/baypujo/pujas/pashchimi/"));
 log("detail map tiles", (await page.locator(".leaflet-tile").count()) > 0);
 
 // planner with geolocation (live itinerary — no build button)
@@ -71,9 +71,9 @@ await page.goto(`${BASE}/404.html`, { waitUntil: "networkidle" });
 log("404 page under subpath", (await page.locator("text=এই পণ্ডালটি ম্যাপে নেই").count()) === 1);
 
 // sitemap has basePath URLs
-const sm = await (await fetch("http://localhost:3000/pujo-parikrama/sitemap.xml")).text();
+const sm = await (await fetch("http://localhost:3000/baypujo/sitemap.xml")).text();
 log("sitemap URLs carry subpath + real domain",
-  sm.includes("https://rkaranjai.github.io/pujo-parikrama/pujas/sanskriti/"));
+  sm.includes("https://rabimba.github.io/baypujo/pujas/sanskriti/"));
 
 // analytics: none configured → no gtag requests
 log("analytics scripts absent when unconfigured",

@@ -33,7 +33,7 @@ const ctx = {
 
 describe("share text", () => {
   it("full text: header, every stop, totals, brand line", () => {
-    const t = buildShareText(ctx, "https://rkaranjai.github.io/pujo-parikrama");
+    const t = buildShareText(ctx, "https://rabimba.github.io/baypujo");
     expect(t).toContain("পুজো পরিক্রমা — Pujo Parikrama Plan");
     expect(t).toContain("Saturday, October 17");
     expect(t).toContain("Free 10:00–20:00 · 60 min per pujo · from Milpitas");
@@ -43,7 +43,7 @@ describe("share text", () => {
     }
     expect(t).toMatch(/\d+ pujas · \d+ mi · \d+h/);
     expect(t).toContain(
-      "planned on Bay Area Pujo Parikrama (rkaranjai.github.io/pujo-parikrama)",
+      "planned on Bay Area Pujo Parikrama (rabimba.github.io/baypujo)",
     );
   });
 
@@ -75,8 +75,8 @@ describe("share text", () => {
   });
 
   it("compact text: one line per stop + brand, shorter than full", () => {
-    const full = buildShareText(ctx, "https://rkaranjai.github.io");
-    const compact = buildShareTextCompact(ctx, "https://rkaranjai.github.io");
+    const full = buildShareText(ctx, "https://rabimba.github.io");
+    const compact = buildShareTextCompact(ctx, "https://rabimba.github.io");
     expect(compact.length).toBeLessThan(full.length);
     expect(compact.split("\n").length).toBe(result.stops.length + 2); // head + stops + brand
     expect(compact).toContain("1. 10:");

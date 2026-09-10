@@ -1,6 +1,6 @@
 /* Far-origin UX: wrong location detected, explained, and recoverable */
 import { chromium } from "playwright";
-const BASE = "http://localhost:3000/pujo-parikrama";
+const BASE = "http://localhost:3000/baypujo";
 const browser = await chromium.launch();
 
 const results = [];

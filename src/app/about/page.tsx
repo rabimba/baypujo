@@ -198,7 +198,15 @@ export default function AboutPage() {
         <KaashPhool className="h-32 text-dhunuchi/30" />
         <p className="flex items-center justify-center gap-2 text-xs text-stone-400 mt-2">
           <Shiuli className="w-3 h-3 text-dhunuchi" />
-          Data verified {meta.lastVerified} · Built with ❤ by Rabimba
+          Data verified {meta.lastVerified} · Built with ❤ by{" "}
+          <a
+            href="https://rabimba.github.io/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-display text-sona hover:underline"
+          >
+            Rabimba
+          </a>
         </p>
       </div>
     </div>

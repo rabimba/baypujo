@@ -1,5 +1,5 @@
 import { chromium } from "playwright";
-const BASE = "http://localhost:3000/pujo-parikrama";
+const BASE = "http://localhost:3000/baypujo";
 const browser = await chromium.launch();
 const page = await (await browser.newContext({ viewport: { width: 1280, height: 900 } })).newPage();
 const errors = [];

@@ -1,5 +1,7 @@
 # Bay Area Pujo Parikrama — পুজো পরিক্রমা
 
+**Live site:** <https://rabimba.github.io/baypujo/>
+
 All 31 San Francisco Bay Area Durga Puja celebrations (2026) in one place:
 schedules, venues, bhog, tickets, and a day-planner to hop multiple pujos.
 
@@ -50,7 +52,8 @@ Static export (`output: 'export'`) — deploy `out/` to any static host
 3. Push — `.github/workflows/deploy.yml` builds with
    `PB_BASE_PATH=/<repo-name>` and deploys `out/` (with `.nojekyll`).
 
-The site serves at `https://<owner>.github.io/<repo-name>/`.
+This repo deploys to <https://rabimba.github.io/baypujo/>. For a different
+repo, the site serves at `https://<owner>.github.io/<repo-name>/`.
 
 ### Analytics (optional, privacy-friendly)
 
@@ -82,6 +85,4 @@ sitemap.
 
 - Drive times are straight-line distance × road factor, not live traffic.
 - Where no schedule is published, the planner assumes 10:00–20:00 hours.
-- Before `next build` for production, set the real domain in
-  `src/app/sitemap.ts` (`BASE`).
 - Schedules change — every page links to the organizer for confirmation.

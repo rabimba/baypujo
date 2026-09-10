@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { pujas } from "../lib/pujas";
 
 const BASE = (
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://bayarea-pujo-parikrama.example.com"
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://rabimba.github.io"
 ).replace(/\/+$/, "");
 const BASE_PATH = process.env.PB_BASE_PATH?.replace(/\/+$/, "") ?? "";
 

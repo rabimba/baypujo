@@ -1,7 +1,7 @@
 /* Share v2 E2E: image card in WhatsApp/SMS flow, branding on all paths */
 import { chromium } from "playwright";
 import fs from "fs";
-const BASE = "http://localhost:3000/pujo-parikrama";
+const BASE = "http://localhost:3000/baypujo";
 const browser = await chromium.launch();
 
 const results = [];
@@ -38,7 +38,7 @@ if (popA) {
   log("WhatsApp text carries brand line",
     decoded.includes("planned on Bay Area Pujo Parikrama"));
   log("WhatsApp text carries plan link w/ basePath",
-    decoded.includes("localhost:3000/pujo-parikrama/parikroma/?date="));
+    decoded.includes("localhost:3000/baypujo/parikroma/?date="));
   await popA.close().catch(() => {});
 }
 if (dlA) {

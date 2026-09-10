@@ -1,6 +1,6 @@
 /* Planner flow: live itinerary (no Build button), all input modes */
 import { chromium } from "playwright";
-const BASE = "http://localhost:3000/pujo-parikrama";
+const BASE = "http://localhost:3000/baypujo";
 const browser = await chromium.launch();
 const ctx = await browser.newContext({
   permissions: ["geolocation"],

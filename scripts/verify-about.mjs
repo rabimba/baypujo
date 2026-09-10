@@ -3,7 +3,7 @@ const b = await chromium.launch();
 const p = await (await b.newContext({ viewport: { width: 900, height: 1300 } })).newPage();
 const errors = [];
 p.on("pageerror", (e) => errors.push(String(e)));
-await p.goto("http://localhost:3000/pujo-parikrama/about/", { waitUntil: "networkidle" });
+await p.goto("http://localhost:3000/baypujo/about/", { waitUntil: "networkidle" });
 const t = await p.locator("main").innerText();
 const checks = [
   ["bangaliana framing", t.includes("বাঙালিয়ানা জিনিসটা আসলে কোথায় থাকে?")],

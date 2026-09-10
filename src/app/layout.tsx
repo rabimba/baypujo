@@ -92,7 +92,14 @@ export default function RootLayout({
                 { month: "short", day: "numeric", year: "numeric" },
               )}{" "}
               · Built with <span aria-label="love">❤</span> by{" "}
-              <span className="font-display text-sona">Rabimba</span>
+              <a
+                href="https://rabimba.github.io/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-display text-sona hover:underline"
+              >
+                Rabimba
+              </a>
             </p>
             <p className="font-display text-sona text-sm">
               শুভ ষষ্ঠী! শুভ দুর্গাপূজা ২০২৬
