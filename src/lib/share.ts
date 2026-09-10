@@ -1,6 +1,7 @@
 import type { PlanResult } from "./planner";
 import { hmToMin, minToHm } from "./planner";
 import { fmtDateLong, tithiBn } from "./pujas";
+import { city } from "./city-data";
 
 export interface ShareContext {
   date: string;
@@ -14,14 +15,12 @@ export interface ShareContext {
   originLng?: number;
 }
 
-const BRAND_DEFAULT = "Bay Area Pujo Parikrama";
-
 /** Attribution line appended to every shared text. */
 export function brandLine(siteUrl?: string): string {
   const host = (siteUrl ?? "").replace(/^https?:\/\//, "").replace(/\/+$/, "");
   return host
-    ? `— planned on ${BRAND_DEFAULT} (${host})`
-    : `— planned on ${BRAND_DEFAULT}`;
+    ? `— planned on ${city.brand} (${host})`
+    : `— planned on ${city.brand}`;
 }
 
 /** Full itinerary text — WhatsApp / native share / clipboard.
@@ -29,7 +28,7 @@ export function brandLine(siteUrl?: string): string {
 export function buildShareText(ctx: ShareContext, siteUrl?: string): string {
   const { date, startTime, endTime, dwellMin, result } = ctx;
   const L: string[] = [];
-  L.push("পুজো পরিক্রমা — Pujo Parikrama Plan");
+  L.push(`${city.brandBn} — Pujo Parikrama Plan`);
   L.push(
     `${tithiBn(date) ? tithiBn(date) + " · " : ""}${fmtDateLong(date)}`,
   );

@@ -10,6 +10,7 @@ import {
 import {
   meta,
   pujas,
+  city,
   REGION_BN,
   tithiBn,
   WEEKEND_LABELS,
@@ -52,7 +53,7 @@ export default function HomePage() {
           <div className="flex items-center justify-center gap-3 text-sona">
             <Shiuli className="w-3.5 h-3.5" />
             <p className="font-display text-sona text-xs sm:text-sm tracking-[0.35em] uppercase">
-              শারদীয়া উৎসব ২০২৬ · San Francisco Bay Area
+              {city.heroKickerBn}
             </p>
             <Shiuli className="w-3.5 h-3.5" />
           </div>
@@ -60,16 +61,16 @@ export default function HomePage() {
           <DurgaEye className="w-40 sm:w-52 mx-auto mt-6 text-kash" />
 
           <h1 className="font-display font-extrabold text-5xl sm:text-7xl mt-4 leading-[1.1] text-pandal drop-shadow-sm">
-            পুজো পরিক্রমা
+            {city.brandBn}
           </h1>
           <p className="font-display text-lg sm:text-2xl mt-2 text-sona-bright">
-            এক ঠিকানায় সমগ্র বঙ্গসভ্যতার উৎসব
+            {city.taglineBn}
           </p>
           <p className="font-body text-white/85 max-w-xl mx-auto mt-4 text-sm sm:text-base">
-            Every Durga Puja in the Bay Area, in one place — {pujas.length}{" "}
-            pujas across 6 regions and 3 weekends, with schedules, bhog,
-            tickets, and directions. Plan a parikroma and hop several pandals
-            in a single day.
+            Every Durga Puja in {city.cityLabel}, in one place —{" "}
+            {pujas.length} pujas across {city.regions.length} regions, with
+            schedules, bhog, tickets, and directions. Plan a parikroma and
+            hop several pandals in a single day.
           </p>
 
           <div className="mt-8 flex flex-wrap justify-center gap-3 font-body text-sm font-semibold">

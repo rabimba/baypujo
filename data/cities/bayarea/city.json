@@ -1,0 +1,73 @@
+{
+  "id": "bayarea",
+  "brand": "Bay Area Pujo Parikrama",
+  "brandBn": "পুজো পরিক্রমা",
+  "taglineBn": "এক ঠিকানায় সমগ্র বঙ্গসভ্যতার উৎসব",
+  "heroKickerBn": "শার্দীয় উৎসব ২০২৬ · San Francisco Bay Area",
+  "cityLabel": "the Bay Area",
+  "cityLabelShort": "Bay Area",
+  "metaTitle": "Bay Area Pujo Parikrama — Durga Puja 2026 Guide",
+  "metaDescription": "All Bay Area Durga Puja celebrations in one place: schedules, venues, bhog, tickets, and a parikroma planner to hop multiple pujos in a day.",
+  "repoName": "baypujo",
+  "dataRepoUrl": "https://github.com/rabimba/baypujo/edit/main/data/cities/bayarea/pujas.json",
+  "ownerUrl": "https://rabimba.github.io/",
+  "center": { "lat": 37.68, "lng": -122.0 },
+  "zoom": 9,
+  "warnRadiusMi": 90,
+  "driveParams": { "roadFactor": 1.3, "speedsMph": [22, 32, 45] },
+  "regions": [
+    {
+      "id": "East Bay",
+      "color": "#e11d48",
+      "bn": "পূর্ব উপসাগর"
+    },
+    {
+      "id": "South Bay",
+      "color": "#2563eb",
+      "bn": "দক্ষিণ উপসাগর"
+    },
+    {
+      "id": "Tri-Valley",
+      "color": "#d97706",
+      "bn": "ট্রাই-ভ্যালি"
+    },
+    {
+      "id": "Central Valley",
+      "color": "#16a34a",
+      "bn": "মধ্য উপত্যকা"
+    },
+    {
+      "id": "Sacramento",
+      "color": "#7c3aed",
+      "bn": "স্যাক্রামেন্টো"
+    },
+    {
+      "id": "Peninsula",
+      "color": "#0891b2",
+      "bn": "উপদ্বীপ"
+    }
+  ],
+  "weekendLabels": {
+    "1": "Weekend 1 · Oct 9–11",
+    "2": "Weekend 2 · Oct 16–18",
+    "3": "Weekend 3 · Oct 23–25"
+  },
+  "festivalDates": [
+    "2026-10-09",
+    "2026-10-10",
+    "2026-10-11",
+    "2026-10-16",
+    "2026-10-17",
+    "2026-10-18",
+    "2026-10-19",
+    "2026-10-20",
+    "2026-10-23",
+    "2026-10-24",
+    "2026-10-25"
+  ],
+  "sampleSlugs": {
+    "detail": "pashchimi",
+    "sitemap": "sanskriti",
+    "plannerMust": ["pashchimi", "sanskriti"]
+  }
+}

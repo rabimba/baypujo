@@ -1,7 +1,9 @@
 /* Share v2 E2E: image card in WhatsApp/SMS flow, branding on all paths */
 import { chromium } from "playwright";
+import { cityConfig, baseUrl, inMetroGeo } from "./verify-lib.mjs";
+const CITY = cityConfig();
 import fs from "fs";
-const BASE = "http://localhost:3000/baypujo";
+const BASE = baseUrl(CITY);
 const browser = await chromium.launch();
 
 const results = [];
@@ -12,7 +14,7 @@ const log = (name, ok, extra = "") => {
 
 const ctx = await browser.newContext({
   permissions: ["geolocation"],
-  geolocation: { latitude: 37.4319231, longitude: -121.8952529 },
+  geolocation: inMetroGeo(CITY),
 });
 const page = await ctx.newPage();
 const errors = [];
@@ -36,9 +38,9 @@ if (popA) {
     popA.url().replace("https://wa.me/?text=", "").replace(/\+/g, " "),
   );
   log("WhatsApp text carries brand line",
-    decoded.includes("planned on Bay Area Pujo Parikrama"));
+    decoded.includes(`planned on ${CITY.brand}`));
   log("WhatsApp text carries plan link w/ basePath",
-    decoded.includes("localhost:3000/baypujo/parikroma/?date="));
+    decoded.includes(`${BASE}/parikroma/?date=`));
   await popA.close().catch(() => {});
 }
 if (dlA) {

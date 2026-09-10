@@ -88,13 +88,7 @@ export interface Puja {
   status: "verified" | "partial" | "tba";
 }
 
-export type Region =
-  | "East Bay"
-  | "South Bay"
-  | "Tri-Valley"
-  | "Central Valley"
-  | "Sacramento"
-  | "Peninsula";
+export type Region = string; // city-defined region ids (see data/cities/<city>/city.json)
 
 export interface MahalayaInfo {
   date: string; // ISO date
@@ -110,7 +104,7 @@ export interface PujoData {
   meta: {
     year: number;
     lastVerified: string;
-    tithiReference: { date: string; label: string }[];
+    tithiReference: { date: string; label: string; labelBn?: string }[];
     mahalaya?: MahalayaInfo;
     sourceNote: string;
   };

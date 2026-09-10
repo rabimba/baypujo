@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { city } from "../../lib/pujas";
 import Link from "next/link";
 import { meta, pujas } from "../../lib/pujas";
 import {
@@ -15,7 +16,7 @@ export const metadata: Metadata = {
     "A letter from a fellow probashi Bengali: what Durga Puja means far from home, how this guide came to be, and how organizers can send corrections.",
 };
 
-const DATA_REPO_URL = "https://github.com/rabimba/baypujo/edit/main/data/pujas.json";
+const DATA_REPO_URL = city.dataRepoUrl;
 
 const BN_STORY: { head: string; paras: string[] }[] = [
   {
@@ -200,7 +201,7 @@ export default function AboutPage() {
           <Shiuli className="w-3 h-3 text-dhunuchi" />
           Data verified {meta.lastVerified} · Built with ❤ by{" "}
           <a
-            href="https://rabimba.github.io/"
+            href={city.ownerUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="font-display text-sona hover:underline"

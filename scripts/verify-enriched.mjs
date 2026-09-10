@@ -1,5 +1,7 @@
 import { chromium } from "playwright";
-const BASE = "http://localhost:3000/baypujo";
+import { cityConfig, baseUrl } from "./verify-lib.mjs";
+const CITY = cityConfig();
+const BASE = baseUrl(CITY);
 const browser = await chromium.launch();
 const page = await (await browser.newContext({ viewport: { width: 1280, height: 900 } })).newPage();
 const errors = [];

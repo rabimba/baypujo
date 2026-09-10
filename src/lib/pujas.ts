@@ -1,49 +1,25 @@
-import rawData from "../../data/pujas.json";
-import type { CulturalProgram, Puja, PujoData, Region, WeekendTab } from "./types";
+import { city, data } from "./city-data";
+import type { CulturalProgram, Puja, Region, WeekendTab } from "./types";
 
-export const data = rawData as PujoData;
+export { city };
+
 export const pujas = data.pujas;
 export const meta = data.meta;
 
-export const REGIONS: Region[] = [
-  "East Bay",
-  "South Bay",
-  "Tri-Valley",
-  "Central Valley",
-  "Sacramento",
-  "Peninsula",
-];
+export const REGIONS: Region[] = city.regions.map((r) => r.id);
 
-export const REGION_COLORS: Record<Region, string> = {
-  "East Bay": "#e11d48",
-  "South Bay": "#2563eb",
-  "Tri-Valley": "#d97706",
-  "Central Valley": "#16a34a",
-  Sacramento: "#7c3aed",
-  Peninsula: "#0891b2",
-};
+export const REGION_COLORS: Record<Region, string> = Object.fromEntries(
+  city.regions.map((r) => [r.id, r.color]),
+);
 
-export const REGION_BN: Record<Region, string> = {
-  "East Bay": "পূর্ব উপসাগর",
-  "South Bay": "দক্ষিণ উপসাগর",
-  "Tri-Valley": "ট্রাই-ভ্যালি",
-  "Central Valley": "মধ্য উপত্যকা",
-  Sacramento: "স্যাক্রামেন্টো",
-  Peninsula: "উপদ্বীপ",
-};
+export const REGION_BN: Record<Region, string> = Object.fromEntries(
+  city.regions.map((r) => [r.id, r.bn]),
+);
 
-const TITHI_BN: Record<string, string> = {
-  "2026-10-10": "মহালয়া",
-  "2026-10-16": "ষষ্ঠী",
-  "2026-10-17": "সপ্তমী",
-  "2026-10-18": "অষ্টমী",
-  "2026-10-19": "নবমী",
-  "2026-10-20": "দশমী",
-};
-
-/** Bengali tithi name for a date, if it is a tithi day. */
+/** Bengali tithi name for a date, if it is a tithi day. Data-driven. */
 export function tithiBn(date: string): string | null {
-  return TITHI_BN[date] ?? null;
+  const t = meta.tithiReference.find((t) => t.date === date);
+  return t?.labelBn ?? null;
 }
 
 /** Bengali renderings for common schedule event titles. */
@@ -76,11 +52,7 @@ export function eventBn(title: string): string | null {
   return hit ? hit.bn : null;
 }
 
-export const WEEKEND_LABELS: Record<string, string> = {
-  "1": "Weekend 1 · Oct 9–11",
-  "2": "Weekend 2 · Oct 16–18",
-  "3": "Weekend 3 · Oct 23–25",
-};
+export const WEEKEND_LABELS: Record<string, string> = city.weekendLabels;
 
 export function getPuja(id: string): Puja | undefined {
   return pujas.find((p) => p.id === id);
@@ -181,16 +153,4 @@ export function programTimeMin(c: CulturalProgram): number | null {
   return null;
 }
 
-export const ALL_FESTIVAL_DATES: string[] = [
-  "2026-10-09",
-  "2026-10-10",
-  "2026-10-11",
-  "2026-10-16",
-  "2026-10-17",
-  "2026-10-18",
-  "2026-10-19",
-  "2026-10-20",
-  "2026-10-23",
-  "2026-10-24",
-  "2026-10-25",
-];
+export const ALL_FESTIVAL_DATES: string[] = city.festivalDates;

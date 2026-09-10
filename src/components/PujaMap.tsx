@@ -3,15 +3,15 @@
 import { useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { REGION_COLORS } from "../lib/pujas";
+import { REGION_COLORS, city } from "../lib/pujas";
 import type { Puja } from "../lib/types";
 
 export default function PujaMap({
   pujas,
   className,
   route,
-  center = [37.65, -121.9],
-  zoom = 9,
+  center = [city.center.lat, city.center.lng],
+  zoom = city.zoom,
 }: {
   pujas: Puja[];
   className?: string;

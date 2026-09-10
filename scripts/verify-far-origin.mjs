@@ -1,6 +1,8 @@
 /* Far-origin UX: wrong location detected, explained, and recoverable */
 import { chromium } from "playwright";
-const BASE = "http://localhost:3000/baypujo";
+import { cityConfig, baseUrl, inMetroGeo } from "./verify-lib.mjs";
+const CITY = cityConfig();
+const BASE = baseUrl(CITY);
 const browser = await chromium.launch();
 
 const results = [];
@@ -22,7 +24,7 @@ const log = (name, ok, extra = "") => {
   await page.waitForTimeout(2500);
 
   const status = await page.locator("main").innerText();
-  log("geo status warns outside Bay Area", status.includes("outside the Bay Area"));
+  log("geo status warns outside metro", status.includes(`outside the ${CITY.cityLabelShort}`));
   log("start point shows resolved coords", /\(35\.680, 139\.690\)/.test(status));
 
   const banner = await page.locator("text=Your start point looks wrong").count();
@@ -66,11 +68,11 @@ const log = (name, ok, extra = "") => {
   await ctx.close();
 }
 
-// --- Scenario C: sane Bay Area origin still perfect ---
+// --- Scenario C: sane in-metro origin still perfect ---
 {
   const ctx = await browser.newContext({
     permissions: ["geolocation"],
-    geolocation: { latitude: 37.4431, longitude: -122.3242 },
+    geolocation: inMetroGeo(CITY),
   });
   const page = await ctx.newPage();
   await page.goto(`${BASE}/parikroma/`, { waitUntil: "networkidle" });
@@ -80,7 +82,7 @@ const log = (name, ok, extra = "") => {
   log("sane origin: no warning, 9:00–20:00 builds", stops >= 5, `stops=${stops}`);
   const t = await page.locator("main").innerText();
   log("no false 'looks wrong' banner", (await page.locator("text=Your start point looks wrong").count()) === 0);
-  log("no geo warning for in-BA fix", !t.includes("outside the Bay Area"));
+  log("no geo warning for in-metro fix", !t.includes(`outside the ${CITY.cityLabelShort}`));
   await page.screenshot({ path: "/tmp/sane-origin.png" });
   await ctx.close();
 }

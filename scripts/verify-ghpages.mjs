@@ -1,11 +1,15 @@
 /* E2E under GitHub Pages subpath simulation */
 import { chromium } from "playwright";
+import { readFileSync } from "node:fs";
+import path from "node:path";
 
-const BASE = "http://localhost:3000/baypujo";
+import { cityConfig, baseUrl, inMetroGeo } from "./verify-lib.mjs";
+const CITY = cityConfig();
+const BASE = baseUrl(CITY);
 const browser = await chromium.launch();
 const ctx = await browser.newContext({
   permissions: ["geolocation"],
-  geolocation: { latitude: 37.4431, longitude: -122.3242 },
+  geolocation: inMetroGeo(CITY),
   viewport: { width: 1280, height: 900 },
 });
 const page = await ctx.newPage();
@@ -24,10 +28,16 @@ const log = (name, ok, extra = "") => {
 
 // home
 await page.goto(`${BASE}/`, { waitUntil: "networkidle" });
-log("home loads under subpath", (await page.locator("h1").first().textContent())?.trim() === "পুজো পরিক্রমা");
+log("home loads under subpath", (await page.locator("h1").first().textContent())?.trim() === CITY.brandBn);
 log("css asset under basePath loads (no unstyled flash)",
   (await page.locator(".durgo-gradient").count()) === 1);
-log("31 cards", (await page.locator("main a.group.block").count()) === 31);
+const PUJA_COUNT = JSON.parse(
+  readFileSync(
+    path.join(process.cwd(), "data", "cities", CITY.cityId, "pujas.json"),
+    "utf-8",
+  ),
+).pujas.length;
+log("all puja cards", (await page.locator("main a.group.block").count()) === PUJA_COUNT, `expected ${PUJA_COUNT}`);
 await page.screenshot({ path: "/tmp/ghp-home.png" });
 
 // client nav: home → directory (basePath-aware Link)
@@ -36,7 +46,7 @@ await page.waitForURL("**/pujas/");
 await page.waitForLoadState("networkidle");
 await page.waitForTimeout(1500);
 log("client nav to directory under subpath",
-  page.url().includes("/baypujo/pujas/"));
+  page.url().includes(`${BASE}/pujas/`));
 log("directory Leaflet tiles render under subpath",
   (await page.locator(".leaflet-tile").count()) > 0);
 log("map tiles all load (OSM absolute URLs)",
@@ -45,7 +55,7 @@ log("map tiles all load (OSM absolute URLs)",
 await page.screenshot({ path: "/tmp/ghp-directory.png" });
 
 // filters work under subpath
-await page.fill("input[type=search]", "pashchimi");
+await page.fill("input[type=search]", CITY.sampleSlugs.detail);
 await page.waitForTimeout(300);
 log("filter works under subpath", (await page.locator("main a.group.block").count()) === 1);
 
@@ -54,7 +64,7 @@ await page.click("main a.group.block");
 await page.waitForURL("**/pujas/*/");
 await page.waitForLoadState("networkidle");
 await page.waitForTimeout(1000);
-log("detail page under subpath", page.url().includes("/baypujo/pujas/pashchimi/"));
+log("detail page under subpath", page.url().includes(`${BASE}/pujas/${CITY.sampleSlugs.detail}/`));
 log("detail map tiles", (await page.locator(".leaflet-tile").count()) > 0);
 
 // planner with geolocation (live itinerary — no build button)
@@ -71,9 +81,9 @@ await page.goto(`${BASE}/404.html`, { waitUntil: "networkidle" });
 log("404 page under subpath", (await page.locator("text=এই পণ্ডালটি ম্যাপে নেই").count()) === 1);
 
 // sitemap has basePath URLs
-const sm = await (await fetch("http://localhost:3000/baypujo/sitemap.xml")).text();
+const sm = await (await fetch(`${BASE}/sitemap.xml`)).text();
 log("sitemap URLs carry subpath + real domain",
-  sm.includes("https://rabimba.github.io/baypujo/pujas/sanskriti/"));
+  sm.includes(`https://rabimba.github.io/${CITY.repoName}/pujas/${CITY.sampleSlugs.sitemap}/`));
 
 // analytics: none configured → no gtag requests
 log("analytics scripts absent when unconfigured",

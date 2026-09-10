@@ -3,7 +3,7 @@ import { Baloo_Da_2, Hind_Siliguri } from "next/font/google";
 import Link from "next/link";
 import { Shiuli } from "../components/motifs";
 import Analytics from "../components/Analytics";
-import { meta } from "../lib/pujas";
+import { meta, city } from "../lib/pujas";
 import "./globals.css";
 
 const baloo = Baloo_Da_2({
@@ -20,18 +20,14 @@ const hind = Hind_Siliguri({
 
 export const metadata: Metadata = {
   title: {
-    default: "Bay Area Pujo Parikrama — Durga Puja 2026 Guide",
-    template: "%s · Bay Area Pujo Parikrama",
+    default: city.metaTitle,
+    template: `%s · ${city.brand}`,
   },
-  description:
-    "All 31 Bay Area Durga Puja celebrations in one place: schedules, venues, bhog, tickets, and a parikroma planner to hop multiple pujos in a day.",
+  description: city.metaDescription,
   keywords: [
-    "durga puja bay area",
     "durga puja 2026",
-    "bengali bay area",
-    "pujo san jose",
-    "pujo fremont",
-    "durga puja milpitas",
+    `durga puja ${city.cityLabelShort.toLowerCase()}`,
+    `bengali ${city.cityLabelShort.toLowerCase()}`,
     "pujo parikrama",
   ],
 };
@@ -61,9 +57,9 @@ export default function RootLayout({
             >
               <Shiuli className="w-4 h-4 text-sona shrink-0" />
               <span>
-                পুজো পরিক্রমা{" "}
+                {city.brandBn}{" "}
                 <span className="hidden sm:inline font-body font-normal text-sona/90">
-                  · Bay Area
+                  · {city.cityLabelShort}
                 </span>
               </span>
             </Link>
@@ -93,7 +89,7 @@ export default function RootLayout({
               )}{" "}
               · Built with <span aria-label="love">❤</span> by{" "}
               <a
-                href="https://rabimba.github.io/"
+                href={city.ownerUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-display text-sona hover:underline"

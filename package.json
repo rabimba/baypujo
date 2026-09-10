@@ -4,13 +4,18 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "predev": "node scripts/select-city.mjs",
     "build": "next build",
+    "prebuild": "node scripts/select-city.mjs",
     "start": "next start",
-    "build:ghpages": "PB_BASE_PATH=/${PWD##*/} next build && touch out/.nojekyll",
+    "build:ghpages": "node scripts/select-city.mjs && PB_BASE_PATH=/${PWD##*/} next build && touch out/.nojekyll",
     "serve:ghpages": "npx --yes serve@14 out",
     "lint": "eslint",
+    "prelint": "node scripts/select-city.mjs",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "pretest": "node scripts/select-city.mjs",
+    "typecheck": "tsc --noEmit",
+    "pretypecheck": "node scripts/select-city.mjs"
   },
   "dependencies": {
     "leaflet": "^1.9.4",

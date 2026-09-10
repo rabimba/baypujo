@@ -1,8 +1,11 @@
 #!/usr/bin/env node
-/* Enrich data/pujas.json with scraped organizer info. Surgical patch. */
+/* Enrich data/cities/<city>/pujas.json with scraped organizer info. Surgical patch. */
 const fs = require("fs");
 const path = require("path");
-const file = path.join(__dirname, "..", "data", "pujas.json");
+const cityId =
+  process.env.PB_CITY ??
+  JSON.parse(fs.readFileSync(path.join(__dirname, "..", "site.config.json"), "utf8")).city;
+const file = path.join(__dirname, "..", "data", "cities", cityId, "pujas.json");
 const data = JSON.parse(fs.readFileSync(file, "utf8"));
 const byId = Object.fromEntries(data.pujas.map((p) => [p.id, p]));
 

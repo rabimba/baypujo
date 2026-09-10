@@ -2,6 +2,7 @@ import type { LatLng, Puja, ScheduleEvent } from "./types";
 import { driveTimeMin, haversineMi } from "./geo";
 import { hoursOn } from "./pujas";
 import { pujas as allPujas } from "./pujas";
+import { city } from "./city-data";
 
 export interface PlannerInput {
   date: string;
@@ -36,7 +37,7 @@ export interface PlanResult {
   freeTimeMin: number; // slack at end
   diagnostics: {
     nearestPujaMi: number | null;
-    /** True when the start point is far outside the Bay Area — likely a
+    /** True when the start point is far outside the metro — likely a
      *  bad geolocation fix or wrong address, not a scheduling problem. */
     originTooFar: boolean;
   };
@@ -208,7 +209,7 @@ export function planParikroma(input: PlannerInput): PlanResult {
   const lastEnd = stops.length > 0 ? stops[stops.length - 1].depart : start;
 
   // If nothing is reachable even from the closest puja, the start point is
-  // almost certainly far outside the Bay Area (bad IP geolocation, VPN,
+  // almost certainly far outside the metro (bad IP geolocation, VPN,
   // mistyped address). Surface that instead of a wall of "too far".
   const nearestMi =
     input.candidates.length > 0
@@ -216,7 +217,8 @@ export function planParikroma(input: PlannerInput): PlanResult {
           ...input.candidates.map((p) => haversineMi(input.origin, p.venue)),
         )
       : null;
-  const originTooFar = stops.length === 0 && nearestMi !== null && nearestMi > 75;
+  const originTooFar =
+    stops.length === 0 && nearestMi !== null && nearestMi > city.warnRadiusMi;
 
   return {
     stops,

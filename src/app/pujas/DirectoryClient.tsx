@@ -7,6 +7,7 @@ import {
   ALL_FESTIVAL_DATES,
   REGIONS,
   REGION_BN,
+  city,
   fmtDate,
   pujas as allPujas,
   tithiBn,
@@ -86,7 +87,7 @@ export default function DirectoryClient() {
         <span className="block text-dhunuchi text-lg leading-none mb-1">
           সমস্ত পুজো দেখুন
         </span>
-        All Bay Area Pujas
+        All {city.cityLabelShort} Pujas
       </h1>
       <p className="font-body text-stone-600 text-sm mt-1">
         {filtered.length} of {allPujas.length} pujas

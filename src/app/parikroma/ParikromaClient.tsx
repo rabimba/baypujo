@@ -6,6 +6,7 @@ import PujaMapLazy from "../../components/PujaMapLazy";
 import ShareBar from "../../components/ShareBar";
 import {
   ALL_FESTIVAL_DATES,
+  city,
   fmtDate,
   fmtDateLong,
   pujas,
@@ -69,7 +70,7 @@ export default function ParikromaClient() {
         setGeoStatus(
           inNorthernCalifornia
             ? ""
-            : `Got (${lat.toFixed(3)}, ${lng.toFixed(3)}) — that's outside the Bay Area. If this is wrong, enter your address below.`,
+            : `Got (${lat.toFixed(3)}, ${lng.toFixed(3)}) — that's outside the ${city.cityLabelShort}. If this is wrong, enter your address below.`,
         );
       },
       () => setGeoStatus("Could not get location — try entering an address"),
@@ -99,7 +100,7 @@ export default function ParikromaClient() {
         ) {
           // rough Northern California sanity check
           setAddrStatus(
-            `Found ${label} — that looks far from the Bay Area. Double-check the address.`,
+            `Found ${label} — that looks far from the ${city.cityLabelShort}. Double-check the address.`,
           );
         }
         setOrigin({ lat: +j[0].lat, lng: +j[0].lon });
@@ -339,7 +340,7 @@ export default function ParikromaClient() {
                   </p>
                   <p className="mt-1">
                     It&apos;s {Math.round(result.diagnostics.nearestPujaMi ?? 0)} miles
-                    to the nearest puja — that&apos;s outside the Bay Area, so
+                    to the nearest puja — that&apos;s outside the metro, so
                     nothing fits your day. Your browser&apos;s location (or the
                     address found) is probably off.{" "}
                     <strong>
@@ -354,7 +355,7 @@ export default function ParikromaClient() {
                 {/* print-only brand header — the only visible brand on PDF */}
                 <div className="print-brand border-b-2 border-sindoor pb-2 mb-3">
                   <p className="font-display font-bold text-xl text-sindoor">
-                    পুজো পরিক্রমা · Bay Area Pujo Parikrama
+                    ${city.brandBn} · {city.brand}
                   </p>
                   <p className="text-xs text-stone-500">
                     Durga Puja 2026 guide — planned on{" "}
@@ -501,7 +502,7 @@ export default function ParikromaClient() {
               )}
 
               <p className="text-[11px] text-stone-400 font-body px-1">
-                Drive times are straight-line estimates with a Bay Area road
+                Drive times are straight-line estimates with a local road
                 factor — leave buffer for parking and dhak-induced lingering.
                 Where no schedule is published, we assume 10am–8pm.
               </p>

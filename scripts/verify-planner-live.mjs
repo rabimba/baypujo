@@ -1,10 +1,12 @@
 /* Planner flow: live itinerary (no Build button), all input modes */
 import { chromium } from "playwright";
-const BASE = "http://localhost:3000/baypujo";
+import { cityConfig, baseUrl, inMetroGeo } from "./verify-lib.mjs";
+const CITY = cityConfig();
+const BASE = baseUrl(CITY);
 const browser = await chromium.launch();
 const ctx = await browser.newContext({
   permissions: ["geolocation"],
-  geolocation: { latitude: 37.4431, longitude: -122.3242 },
+  geolocation: inMetroGeo(CITY),
   timezoneId: "America/Los_Angeles",
 });
 const page = await ctx.newPage();

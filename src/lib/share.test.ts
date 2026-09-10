@@ -1,3 +1,4 @@
+import { city } from "./city-data";
 import { describe, expect, it } from "vitest";
 import {
   buildShareQuery,
@@ -43,13 +44,13 @@ describe("share text", () => {
     }
     expect(t).toMatch(/\d+ pujas · \d+ mi · \d+h/);
     expect(t).toContain(
-      "planned on Bay Area Pujo Parikrama (rabimba.github.io/baypujo)",
+      `planned on ${city.brand} (rabimba.github.io/baypujo)`,
     );
   });
 
   it("brand line always present, host-less fallback", () => {
     const t = buildShareText(ctx);
-    expect(t.trimEnd().endsWith("planned on Bay Area Pujo Parikrama")).toBe(true);
+    expect(t.trimEnd().endsWith(`planned on ${city.brand}`)).toBe(true);
   });
 
   it("full text: must-visit first + drive hints", () => {
@@ -80,7 +81,7 @@ describe("share text", () => {
     expect(compact.length).toBeLessThan(full.length);
     expect(compact.split("\n").length).toBe(result.stops.length + 2); // head + stops + brand
     expect(compact).toContain("1. 10:");
-    expect(compact).toContain("planned on Bay Area Pujo Parikrama");
+    expect(compact).toContain(`planned on ${city.brand}`);
   });
 });
 
