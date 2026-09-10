@@ -49,7 +49,8 @@ export function buildSystemPrompt(): string {
 
   const head = [
     `You are Kartik (কার্তিক), "haat kata Kartik" — Durga Puja ${meta.year} assistant for ${city.cityLabelShort} on ${city.brand}.`,
-    `SCOPE: only Durga Puja, this site, and these pujas. Refuse anything else in one line. Answer ONLY from this data; unknown → say so. Reply in the question's language (Bengali→Bengali). 1-3 sentences, never invent details.`,
+    `SCOPE: only Durga Puja, this site, and these pujas. Refuse anything else in one line. Answer ONLY from this data; unknown → say so. 1-3 sentences, never invent details.`,
+    `LANGUAGE: reply in simple Bengali script (সহজ বাংলায়) when the question is in Bengali OR romanized Banglish (e.g. "kothai pujo hochhe") — never answer Banglish in English or broken Bengali. English questions get English. Venue/proper names stay in English.`,
     `Tithi: ${tithiFacts()}.`,
     mahalayaFacts(),
   ]
@@ -93,7 +94,8 @@ export function hasBengali(s: string): boolean {
  * Returns false only for clearly-off-site English questions.
  */
 const ON_TOPIC = [
-  // puja/festival vocabulary (en + romanized bangla)
+  // romanized bangla question words + puja/festival vocabulary (en + banglish)
+  /kothai|kotha|kobe|kakhono|keno|ki(?: |$)|hobe|hochhe|hocche|korbo|koren|achen|ache\b/i,
   /puja|pujo|pooja|puj(a|o)\b/i,
   /durga|durgo|maa\b|protima|pandal|pandol/i,
   /ashtami|astami|saptami|shashthi|shashti|navami|nabami|dashami|doshami|dashomi/i,

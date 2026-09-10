@@ -51,6 +51,8 @@ describe("assistant context", () => {
     expect(isOnTopic("Where can I get bhog?")).toBe(true);
     expect(isOnTopic("What is your name?")).toBe(true);
     expect(isOnTopic("pujo kobe hobe milpitas e?")).toBe(true);
+    expect(isOnTopic("Kothai pujo hochhe?")).toBe(true);
+    expect(isOnTopic("bhog koto taka?")).toBe(true);
   });
 
   it("topic gate: off-topic questions refused locally", () => {
@@ -67,6 +69,14 @@ describe("assistant context", () => {
     expect(sp).toContain("haat kata");
     expect(sp).toMatch(/SCOPE:/);
     expect(sp).toMatch(/only Durga Puja, this site/i);
+  });
+
+  it("language rule: Banglish answered in Bengali script", () => {
+    const sp = buildSystemPrompt();
+    expect(sp).toMatch(/romanized Banglish/i);
+    expect(sp).toMatch(/never answer Banglish in English/i);
+    // prompt must still fit the ~2.5k stall budget
+    expect(sp.length).toBeLessThan(2600);
   });
 
   it("bengali detection", () => {
