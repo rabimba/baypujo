@@ -33,6 +33,7 @@ export const REGION_BN: Record<Region, string> = {
 };
 
 const TITHI_BN: Record<string, string> = {
+  "2026-10-10": "মহালয়া",
   "2026-10-16": "ষষ্ঠী",
   "2026-10-17": "সপ্তমী",
   "2026-10-18": "অষ্টমী",
@@ -60,6 +61,8 @@ const EVENT_BN: { re: RegExp; bn: string }[] = [
   { re: /chandi/i, bn: "চণ্ডীপাঠ" },
   { re: /visarjan|bisharjan|bisarjan/i, bn: "বিসর্জন" },
   { re: /dandiya/i, bn: "ডান্ডিয়া" },
+  { re: /mahalaya/i, bn: "মহালয়া" },
+  { re: /tarpan/i, bn: "তর্পণ" },
   { re: /dashami/i, bn: "দশমী" },
   { re: /nabami|navami/i, bn: "নবমী" },
   { re: /ashtami|asthami/i, bn: "অষ্টমী" },
@@ -97,14 +100,17 @@ export function pujasOnDate(date: string): Puja[] {
 export function scheduleOn(puja: Puja, date: string) {
   return puja.schedule
     .filter((e) => e.date === date)
-    .sort((a, b) => a.start.localeCompare(b.start));
+    .sort((a, b) =>
+      `${a.start ?? ""}`.localeCompare(`${b.start ?? ""}`),
+    );
 }
 
 export function scheduleDates(puja: Puja): string[] {
   return [...new Set(puja.schedule.map((e) => e.date))].sort();
 }
 
-export function fmtTime(hm: string): string {
+export function fmtTime(hm: string | null): string {
+  if (!hm) return "Time TBA";
   const [h, m] = hm.split(":").map(Number);
   const ampm = h >= 12 ? "PM" : "AM";
   const h12 = h % 12 === 0 ? 12 : h % 12;

@@ -120,6 +120,51 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Mahalaya */}
+      {meta.mahalaya && (
+        <section className="bg-shiuli border-b border-dhunuchi/30">
+          <div className="mx-auto max-w-4xl px-4 py-8">
+            <div className="text-center">
+              <p className="font-display text-xs tracking-[0.3em] uppercase text-dhunuchi">
+                দেবীপক্ষের সূচনা · The dawn of Devi Paksha
+              </p>
+              <h2 className="font-display font-extrabold text-3xl sm:text-4xl mt-2 text-sindoor-dark">
+                {meta.mahalaya.title}
+              </h2>
+              <p className="font-body text-sm text-stone-600 mt-1">
+                {meta.mahalaya.dateLabel} · {meta.mahalaya.tithi}
+              </p>
+            </div>
+            <div className="mt-5 grid gap-4 sm:grid-cols-3 font-body text-sm text-ink/90">
+              <div className="bg-white/80 border border-dhunuchi/30 rounded-2xl p-4">
+                <h3 className="font-display font-bold text-sindoor-dark text-base mb-1">
+                  মহালয়ার তাৎপর্য
+                </h3>
+                <p className="text-stone-600">{meta.mahalaya.significance}</p>
+              </div>
+              <div className="bg-white/80 border border-dhunuchi/30 rounded-2xl p-4">
+                <h3 className="font-display font-bold text-sindoor-dark text-base mb-1">
+                  মহিষাসুরমর্দিনী
+                </h3>
+                <p className="text-stone-600">
+                  {meta.mahalaya.mahishasuramardini}
+                </p>
+              </div>
+              <div className="bg-white/80 border border-dhunuchi/30 rounded-2xl p-4">
+                <h3 className="font-display font-bold text-sindoor-dark text-base mb-1">
+                  তর্পণ
+                </h3>
+                <p className="text-stone-600">{meta.mahalaya.tarpan}</p>
+              </div>
+            </div>
+            <p className="text-center font-body text-xs text-stone-400 mt-4">
+              Mahalaya is six days before Shashthi — the puja weekend itself
+              begins Oct 16.
+            </p>
+          </div>
+        </section>
+      )}
+
       {/* Weekend sections */}
       <div className="mx-auto max-w-6xl px-4 py-10 space-y-12">
         {[

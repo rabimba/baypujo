@@ -2,7 +2,7 @@ export type EventType = "ritual" | "cultural" | "food";
 
 export interface ScheduleEvent {
   date: string; // ISO date "2026-10-16"
-  start: string; // "HH:MM" 24h
+  start: string | null; // "HH:MM" 24h, null = time TBA
   end: string | null;
   title: string;
   type: EventType;
@@ -96,11 +96,22 @@ export type Region =
   | "Sacramento"
   | "Peninsula";
 
+export interface MahalayaInfo {
+  date: string; // ISO date
+  dateLabel: string;
+  tithi: string;
+  title: string;
+  significance: string;
+  mahishasuramardini: string;
+  tarpan: string;
+}
+
 export interface PujoData {
   meta: {
     year: number;
     lastVerified: string;
     tithiReference: { date: string; label: string }[];
+    mahalaya?: MahalayaInfo;
     sourceNote: string;
   };
   pujas: Puja[];

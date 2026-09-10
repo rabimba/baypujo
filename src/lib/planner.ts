@@ -63,10 +63,15 @@ export function openWindow(
   if (hours) {
     return { open: hmToMin(hours.open), close: hmToMin(hours.close) };
   }
-  const events = puja.schedule.filter((e) => e.date === date);
+  const events = puja.schedule.filter(
+    (e): e is ScheduleEvent & { start: string } =>
+      e.date === date && e.start !== null,
+  );
   if (events.length === 0) return null;
   const open = Math.min(...events.map((e) => hmToMin(e.start)));
-  const ends = events.map((e) => (e.end ? hmToMin(e.end) : hmToMin(e.start) + 90));
+  const ends = events.map((e) =>
+    e.end ? hmToMin(e.end) : hmToMin(e.start) + 90,
+  );
   const close = Math.max(...ends);
   return { open, close };
 }
@@ -144,8 +149,11 @@ export function planParikroma(input: PlannerInput): PlanResult {
 
     const events = next.schedule
       .filter(
+        (e): e is ScheduleEvent & { start: string } =>
+          e.date === input.date && e.start !== null,
+      )
+      .filter(
         (e) =>
-          e.date === input.date &&
           hmToMin(e.start) < depart &&
           (e.end ? hmToMin(e.end) : hmToMin(e.start) + 90) > visitStart,
       )

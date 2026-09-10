@@ -4,6 +4,10 @@
     "lastVerified": "2026-09-09",
     "tithiReference": [
       {
+        "date": "2026-10-10",
+        "label": "Mahalaya (Ashwina Amavasya, Sarva Pitru Amavasya)"
+      },
+      {
         "date": "2026-10-16",
         "label": "Shashthi (Bodhon)"
       },
@@ -24,7 +28,16 @@
         "label": "Dashami (Visarjan, Sindoor Utsav)"
       }
     ],
-    "sourceNote": "Dates and details from organizer websites (Abahan, Aadya, MitraUSA, Muktangan, Prothoma, Aantorik, Sanskriti, Pashchimi, Utsav Sacramento, Prabasi, Agomoni, BAPuja, Shirdi Sai Darbar, Bengal Club) and the Abahan Bay Area directory. Tithi timings per Drik Panchang. Schedules change — always confirm with the organizer before traveling."
+    "sourceNote": "Dates and details from organizer websites (Abahan, Aadya, MitraUSA, Muktangan, Prothoma, Aantorik, Sanskriti, Pashchimi, Utsav Sacramento, Prabasi, Agomoni, BAPuja, Shirdi Sai Darbar, Bengal Club) and the Abahan Bay Area directory. Tithi timings per Drik Panchang. Schedules change — always confirm with the organizer before traveling. Mahalaya 2026 (Ashwina Amavasya, Oct 10) per Drik Panchang.",
+    "mahalaya": {
+      "date": "2026-10-10",
+      "dateLabel": "Saturday, October 10, 2026",
+      "tithi": "Ashwina Amavasya",
+      "title": "Mahalaya — মহালয়া",
+      "significance": "End of Pitru Paksha (Sep 26 – Oct 10) and the eve of Devi Paksha. Traditionally the day Bengalis invoke Maa Durga with 'Ya Devi Sarvabhuteshu' and listen to Birendra Krishna Bhadra's Mahishasuramardini broadcast at dawn.",
+      "mahishasuramardini": "Since 1931 (except a brief substitution in 1976), All India Radio has broadcast Birendra Krishna Bhadra's Mahishasuramardini — Chandipath and songs — at 4 AM on Mahalaya morning.",
+      "tarpan": "Many perform Mahalaya tarpan for ancestors on Sarva Pitru Amavasya before the festive fortnight begins."
+    }
   },
   "pujas": [
     {
@@ -365,7 +378,7 @@
         }
       ],
       "dateLabel": "Oct 9–11, 2026",
-      "description": "Membership-driven Bengali community puja with rituals, culture, food, and adda. Venue listed as Campbell Community Center in the Abahan directory; a blog also lists HUSD Performing Arts Center, Hayward — confirm with organizer.",
+      "description": "Prothoma's flagship Durga Puja at the Campbell Heritage Center — Laser Disco Dandiya kickoff (Oct 9), Ash King live (Oct 10, 9 PM), the play Abhog by Suman Mukhopadhyay (Oct 11, 3:30 PM), and the Chakra fashion show. Members get free premium seating at live shows.",
       "venue": {
         "name": "Campbell Heritage Center",
         "address": null,
@@ -391,9 +404,10 @@
         "tickets": "https://www.tugoz.com/events/prothoma/Prothoma-2026-LaserDiscoDandiya"
       },
       "highlights": [
-        "Ash King live Oct 10",
-        "Abhog play by Suman Mukhopadhyay",
-        "Laser Disco Dandiya",
+        "Ash King live Oct 10, 9 PM",
+        "Durnibar Saha live",
+        "Abhog — play by Suman Mukhopadhyay, Oct 11",
+        "Laser Disco Dandiya kickoff Oct 9",
         "Chakra fashion show (free)"
       ],
       "status": "partial",
@@ -428,7 +442,7 @@
           "date": null,
           "time": null,
           "artist": null,
-          "description": "Spectacular fashion show. Absolutely FREE for all.",
+          "description": "Spectacular fashion show — CHAKRA, Circle of Life. Absolutely free for all.",
           "free": true
         },
         {
@@ -436,7 +450,7 @@
           "date": null,
           "time": null,
           "artist": "Durnibar Saha",
-          "description": "Live performance by the immensely popular Bengali singer. Members get free premium seating.",
+          "description": "Live performance by the immensely popular Bengali singer Durnibar Saha.",
           "free": null
         }
       ],
@@ -670,7 +684,7 @@
         }
       ],
       "dateLabel": "Oct 16–18, 2026",
-      "description": "California's largest open-air Durga Puja — 10th anniversary with themed pandal, cultural programs, food court, shopping, kids' activities, and an international artist performance.",
+      "description": "Agomoni's 10th-anniversary Durga Puja — California's largest open-air puja, October 16–18 at the Bishop Ranch parking lot, 2600 Camino Ramon, San Ramon. Themed pandal, pushpanjali, arati and sindoor khela, cultural programs, food court, shopping and vendor marketplace, kids' activities, and the Ananda Mela.",
       "venue": {
         "name": "Bishop Ranch Parking Lot, 2600 Camino Ramon",
         "address": "2600 Camino Ramon",
@@ -678,7 +692,36 @@
         "lat": 37.7653011,
         "lng": -121.9638567
       },
-      "schedule": [],
+      "schedule": [
+        {
+          "date": "2026-10-16",
+          "start": null,
+          "end": null,
+          "title": "Puja & Aarti (Shashthi)",
+          "type": "puja"
+        },
+        {
+          "date": "2026-10-17",
+          "start": null,
+          "end": null,
+          "title": "Puja & Aarti + cultural programs",
+          "type": "puja"
+        },
+        {
+          "date": "2026-10-18",
+          "start": null,
+          "end": null,
+          "title": "Puja & Aarti + cultural programs",
+          "type": "puja"
+        },
+        {
+          "date": "2026-10-18",
+          "start": "12:00",
+          "end": "16:00",
+          "title": "Ananda Mela — 50+ vendors",
+          "type": "cultural"
+        }
+      ],
       "bhog": {
         "available": true,
         "price": null,
@@ -693,13 +736,40 @@
         "website": "https://agomoni.org/durgapuja-2026/"
       },
       "highlights": [
-        "Largest open-air puja in California",
-        "10th anniversary",
+        "California's largest open-air Durga Puja",
+        "10th anniversary celebration",
         "Themed pandal",
-        "International artist"
+        "Ananda Mela — 50+ vendors, Oct 18, 12–4 PM",
+        "Rishi Panda — special attraction",
+        "Anindya Bose"
       ],
       "status": "verified",
-      "culturalPrograms": [],
+      "culturalPrograms": [
+        {
+          "title": "Ananda Mela",
+          "date": "2026-10-18",
+          "time": "12:00",
+          "artist": null,
+          "description": "50+ vendors — shopping, food and community fair.",
+          "free": true
+        },
+        {
+          "title": "Rishi Panda — special attraction",
+          "date": null,
+          "time": null,
+          "artist": "Rishi Panda",
+          "description": "Featured artist for the 10th-anniversary year.",
+          "free": null
+        },
+        {
+          "title": "Anindya Bose",
+          "date": null,
+          "time": null,
+          "artist": "Anindya Bose",
+          "description": "Cultural program headliner.",
+          "free": null
+        }
+      ],
       "contact": {},
       "notices": [],
       "hours": [
@@ -1195,7 +1265,7 @@
         }
       ],
       "dateLabel": "Oct 23–25, 2026",
-      "description": "Silver Jubilee celebration with rituals, cultural performances, festive food, and featured artists: Chandrabindoo (Fri Oct 23, 9pm) and Mahalaxmi Iyer (Sun Oct 25, 7pm).",
+      "description": "Utsav Sacramento's Silver Jubilee Durga Puja, October 23–25 at the Orangevale Community Center. Mega 25th-anniversary opening with Chandrabindoo (Fri) and a closing concert by Mahalaxmi Iyer with full live band (Sun, 7 PM, $50); 25% of ticket sales go to community projects.",
       "venue": {
         "name": "Orangevale Community Center",
         "address": "6826 Hazel Ave",
@@ -1227,7 +1297,7 @@
       "entry": {
         "free": null,
         "ticketUrl": null,
-        "notes": "Artist nights ticketed via Eventbrite."
+        "notes": "Artist nights ticketed via Eventbrite; Mahalaxmi Iyer closing concert $50 per person, 25% to community projects."
       },
       "links": {
         "website": "https://utsavsac.org/event/utsav-silver-jubilee-durga-puja-2026-october-23rd-to-october-25th/",
@@ -1237,7 +1307,8 @@
       "highlights": [
         "Silver Jubilee (25 years)",
         "Chandrabindoo live Oct 23",
-        "Mahalaxmi Iyer live Oct 25"
+        "Mahalaxmi Iyer with full live band Oct 25",
+        "25% of ticket sales to community projects"
       ],
       "status": "verified",
       "culturalPrograms": [
@@ -1255,7 +1326,7 @@
           "date": "2026-10-25",
           "time": "19:00",
           "artist": "Mahalaxmi Iyer",
-          "description": "Closing evening concert.",
+          "description": "Closing the Silver Jubilee: Bollywood playback singer Mahalaxmi Iyer performs with full live band — Teri Deewani, Kabira, Khuda Jaane, Chak De India and more. 25% of ticket sales go to community projects.",
           "ticketUrl": "https://www.eventbrite.com/e/mahalaxmi-iyer-nite-tickets-1993504121491",
           "free": false
         }
@@ -1384,7 +1455,7 @@
         }
       ],
       "dateLabel": "Oct 16–18, 2026",
-      "description": "Bengali association in the Sacramento area (Folsom) connected with Durga Puja and Saraswati Puja celebrations.",
+      "description": "Aantorik Sacramento's Durga Puja 2026 at the Folsom Masonic Center — three days of pujo, culture and community, with Saptak Bhattacharjee live, the Bhushundir Maathe natok, kids' and dance programs, sindoor khela, and a Bollywood DJ night.",
       "venue": {
         "name": "Masonic Center",
         "address": "1000 Duchow Way",
@@ -1393,7 +1464,85 @@
         "lng": -121.176058,
         "coordsApprox": false
       },
-      "schedule": [],
+      "schedule": [
+        {
+          "date": "2026-10-16",
+          "start": null,
+          "end": null,
+          "title": "Shashthi Pujo",
+          "type": "puja"
+        },
+        {
+          "date": "2026-10-16",
+          "start": "19:00",
+          "end": null,
+          "title": "Lazy Lamhe — fun-twist dance program",
+          "type": "cultural"
+        },
+        {
+          "date": "2026-10-16",
+          "start": "21:00",
+          "end": null,
+          "title": "Saptak Bhattacharjee — special performance",
+          "type": "cultural"
+        },
+        {
+          "date": "2026-10-17",
+          "start": null,
+          "end": null,
+          "title": "Saptami / Ashtami Pujo",
+          "type": "puja"
+        },
+        {
+          "date": "2026-10-17",
+          "start": "19:00",
+          "end": null,
+          "title": "Opening dance by Sudipta Hore + kids' program",
+          "type": "cultural"
+        },
+        {
+          "date": "2026-10-17",
+          "start": null,
+          "end": null,
+          "title": "Bhushundir Maathe — Shruti Natok",
+          "type": "cultural"
+        },
+        {
+          "date": "2026-10-17",
+          "start": null,
+          "end": null,
+          "title": "Dance performances by Aantorik teens & adults",
+          "type": "cultural"
+        },
+        {
+          "date": "2026-10-17",
+          "start": null,
+          "end": null,
+          "title": "Bollywood DJ, post dinner",
+          "type": "cultural"
+        },
+        {
+          "date": "2026-10-18",
+          "start": null,
+          "end": null,
+          "title": "Navami / Dashami Pujo",
+          "type": "puja"
+        },
+        {
+          "date": "2026-10-18",
+          "start": null,
+          "end": null,
+          "title": "Sindoor Khela",
+          "type": "cultural"
+        },
+        {
+          "date": "2026-10-18",
+          "start": "16:30",
+          "end": null,
+          "title": "Shalini Mukherjee — evening guest performance",
+          "type": "cultural"
+        }
+      ],
       "bhog": {
         "available": true,
         "price": null,
@@ -1409,10 +1558,11 @@
         "facebook": "https://www.facebook.com/people/Aantorik-Sacramento/pfbid02SNL8KefAQS5kYyxv7TS4mbSVyTWHo9BZQtBcU4JpMPyMjFNX84mFcsAWDfujRqo8l/"
       },
       "highlights": [
-        "Saptak Bhattacharjee live Oct 16",
-        "Shalini Mukherjee live Oct 18",
-        "Bhushundir Maathe drama",
-        "Sindoor Khela"
+        "Saptak Bhattacharjee live (Fri)",
+        "Bhushundir Maathe — Shruti Natok (Sat)",
+        "Shalini Mukherjee live (Sun)",
+        "Sindoor Khela (Sun)",
+        "Bollywood DJ after dinner (Sat)"
       ],
       "status": "verified",
       "culturalPrograms": [
