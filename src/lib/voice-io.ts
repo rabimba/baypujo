@@ -39,6 +39,15 @@ export class VoiceIO {
   private lastLevelAt = 0;
   /** Auto-stop: speech-end detection state. */
   private voiceStartAt = 0;
+  /** Last capture diagnostics (rate, seconds, peak, non-zero ratio). */
+  lastCapture: {
+    ctxRate: number;
+    nativeSamples: number;
+    seconds: number;
+    peak: number;
+    nonZeroRatio: number;
+    resampledSamples: number;
+  } | null = null;
   private silenceMs = 0;
   private autoStopTimer: ReturnType<typeof setInterval> | null = null;
   private onAutoStop: (() => void) | null = null;
@@ -54,32 +63,42 @@ export class VoiceIO {
     );
   }
 
-  private async ensureCtx() {
-    if (!this.ctx) {
-      // Native rate (e.g. 48k). Chrome does NOT reliably resample a mic
-      // stream into a constrained-rate context (echoCancellation path) —
-      // buffers arrive at the track's rate regardless, so we resample
-      // ourselves before whisper. see crbug 40558768.
-      this.ctx = new AudioContext();
-      // Passthrough capture worklet. Chrome only pulls audio through nodes
-      // that reach the destination, so the panel output is routed via a
-      // zero-gain sink (silence out, data in).
-      const src = `class RecProc extends AudioWorkletProcessor {
-        process(inputs) {
-          const ch = inputs[0]?.[0];
-          if (ch) this.port.postMessage(ch.slice(0));
-          return true;
-        }
-      }
-      registerProcessor("rec", RecProc);`;
-      const url = URL.createObjectURL(
-        new Blob([src], { type: "application/javascript" }),
-      );
-      await this.ctx.audioWorklet.addModule(url);
-      URL.revokeObjectURL(url);
+  private workletSrc = `class RecProc extends AudioWorkletProcessor {
+    process(inputs) {
+      const ch = inputs[0]?.[0];
+      if (ch) this.port.postMessage(ch.slice(0));
+      return true;
     }
+  }
+  registerProcessor("rec", RecProc);`;
+
+  /** Open (or reopen) an AudioContext at exactly `rate` with the capture
+   *  worklet loaded. Chrome never resamples a mic stream to match a
+   *  context (crbug 40558768) — buffers arrive at the TRACK's rate no
+   *  matter the context rate, so the only correct setup is context rate
+   *  == track rate. */
+  private async openCtxAt(rate: number): Promise<void> {
+    this.ctx?.close().catch(() => {});
+    this.ctx = new AudioContext(rate === 16000 ? { sampleRate: 16000 } : {});
+    // Passthrough capture worklet. Chrome only pulls audio through nodes
+    // that reach the destination, so the panel output is routed via a
+    // zero-gain sink (silence out, data in).
+    const url = URL.createObjectURL(
+      new Blob([this.workletSrc], { type: "application/javascript" }),
+    );
+    await this.ctx.audioWorklet.addModule(url);
+    URL.revokeObjectURL(url);
     if (this.ctx.state === "suspended") await this.ctx.resume();
     this.ctxRate = this.ctx.sampleRate;
+  }
+
+  private async ensureCtx(): Promise<void> {
+    if (this.ctx && this.ctx.state !== "closed") {
+      if (this.ctx.state === "suspended") await this.ctx.resume();
+      this.ctxRate = this.ctx.sampleRate;
+      return;
+    }
+    await this.openCtxAt(16000);
   }
 
   private ensureWhisper(): Worker {
@@ -104,13 +123,27 @@ export class VoiceIO {
   ): Promise<void> {
     await this.ensureCtx();
     this.chunks = [];
+    // APM OFF: with echoCancellation Chrome delivers raw track-rate
+    // buffers into a differently-rated context (crbug 40558768) — the
+    // chipmunk bug. Without processing, the track reports its true rate.
     this.stream = await navigator.mediaDevices.getUserMedia({
       audio: {
         channelCount: 1,
-        echoCancellation: true,
-        noiseSuppression: true,
+        echoCancellation: false,
+        noiseSuppression: false,
+        autoGainControl: false,
       },
     });
+    // Align the context to the track's ACTUAL rate — the only pairing
+    // that yields correctly-timed buffers (measured: 16k track through a
+    // 44.1k context delivered 41.2k samples/s of duplicated audio).
+    const trackRate =
+      this.stream.getAudioTracks()[0]?.getSettings().sampleRate ?? 16000;
+    if (trackRate && Math.abs(trackRate - this.ctxRate) > 1) {
+      await this.openCtxAt(trackRate);
+      // capture only from now (context was rebuilt)
+      this.chunks = [];
+    }
     this.source = this.ctx!.createMediaStreamSource(this.stream);
     this.workletNode = new AudioWorkletNode(this.ctx!, "rec");
     this.sinkGain = this.ctx!.createGain();
@@ -217,6 +250,26 @@ export class VoiceIO {
     }
 
     const audio = resampleTo16k(native, this.ctxRate);
+    // capture diagnostics — surfaced to console + VoiceIO.lastCapture
+    let peak = 0;
+    let nonzero = 0;
+    for (let i = 0; i < native.length; i++) {
+      const v = Math.abs(native[i]);
+      if (v > peak) peak = v;
+      if (v > 0.001) nonzero++;
+    }
+    this.lastCapture = {
+      ctxRate: this.ctxRate,
+      nativeSamples: native.length,
+      seconds: +(native.length / (this.ctxRate || 16000)).toFixed(2),
+      peak: +peak.toFixed(3),
+      nonZeroRatio: +(nonzero / Math.max(1, native.length)).toFixed(3),
+      resampledSamples: audio.length,
+    };
+    console.info(
+      "[voice] captured",
+      JSON.stringify(this.lastCapture),
+    );
 
     const worker = this.ensureWhisper();
     return new Promise<SpeechResult>((resolve) => {

@@ -98,7 +98,7 @@ self.onmessage = async (e: MessageEvent) => {
     return;
   }
   const audio = data.audio ?? new Float32Array(0);
-  const language = data.language;
+  const _language = data.language; void _language;
   try {
     const dur = (audio.length / 16000).toFixed(1);
     self.postMessage({
@@ -110,7 +110,10 @@ self.onmessage = async (e: MessageEvent) => {
     const out = await withWatchdog(
       pipe(audio, {
         task: "transcribe",
-        language: language ?? null,
+        // Force English: multilingual mode on marginal audio produces
+        // hallucinated junk tokens ("you"). Our audience asks in English
+        // or Banglish — English ASR transcribes both intelligibly.
+        language: "en",
         return_timestamps: false,
       }),
       90000,
