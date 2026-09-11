@@ -71,10 +71,10 @@ describe("assistant context", () => {
     expect(sp).toMatch(/only Durga Puja, this site/i);
   });
 
-  it("language rule: Banglish answered in Bengali script", () => {
+  it("language rule: all questions answered in English", () => {
     const sp = buildSystemPrompt();
+    expect(sp).toMatch(/always reply in simple English/i);
     expect(sp).toMatch(/romanized Banglish/i);
-    expect(sp).toMatch(/never answer Banglish in English/i);
     // prompt must still fit the ~2.5k stall budget
     expect(sp.length).toBeLessThan(2600);
   });
