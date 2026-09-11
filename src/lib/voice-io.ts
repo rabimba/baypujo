@@ -45,10 +45,14 @@ export class VoiceIO {
     nativeSamples: number;
     seconds: number;
     peak: number;
+    normalized: boolean;
     nonZeroRatio: number;
     resampledSamples: number;
   } | null = null;
   private silenceMs = 0;
+  /** Adaptive VAD calibration state. */
+  private vadFloor = 0;
+  private vadFrames = 0;
   private autoStopTimer: ReturnType<typeof setInterval> | null = null;
   private onAutoStop: (() => void) | null = null;
   private hardStopTimer: ReturnType<typeof setTimeout> | null = null;
@@ -123,15 +127,16 @@ export class VoiceIO {
   ): Promise<void> {
     await this.ensureCtx();
     this.chunks = [];
-    // APM OFF: with echoCancellation Chrome delivers raw track-rate
-    // buffers into a differently-rated context (crbug 40558768) — the
-    // chipmunk bug. Without processing, the track reports its true rate.
+    // echoCancellation OFF (crbug 40558768: EC path never resamples to
+    // the context rate — the chipmunk bug), but autoGainControl ON:
+    // quiet mics (measured peak 0.009 speech) are unrecoverable by
+    // whisper-base without OS-level gain.
     this.stream = await navigator.mediaDevices.getUserMedia({
       audio: {
         channelCount: 1,
         echoCancellation: false,
         noiseSuppression: false,
-        autoGainControl: false,
+        autoGainControl: true,
       },
     });
     // Align the context to the track's ACTUAL rate — the only pairing
@@ -150,6 +155,8 @@ export class VoiceIO {
     this.sinkGain.gain.value = 0; // pull the graph, emit silence
     this.voiceStartAt = 0;
     this.silenceMs = 0;
+    this.vadFloor = 0;
+    this.vadFrames = 0;
     this.onAutoStop = onAutoStop ?? null;
     this.workletNode.port.onmessage = (e: MessageEvent) => {
       const buf = e.data as Float32Array;
@@ -166,9 +173,16 @@ export class VoiceIO {
           onLevel(Math.min(1, peak * 3));
         }
       }
-      // Speech-end VAD: voiced (peak>~0.02) marks speech; 1.2s of
-      // silence AFTER ≥0.6s of speech auto-stops the recording.
-      const voiced = peak > 0.02;
+      // Speech-end VAD with adaptive floor: sample the noise floor over
+      // the first ~0.5s, then voiced = peak > max(0.006, floor * 3).
+      // (Fixed 0.025 missed quiet-mic speech entirely — measured peak
+      // 0.009 on the target machine.)
+      if (this.vadFrames < 32) {
+        this.vadFloor += peak / 32;
+        this.vadFrames++;
+      }
+      const floor = Math.max(0.006, this.vadFloor * 3);
+      const voiced = peak > floor;
       if (voiced) {
         this.voiceStartAt = this.voiceStartAt || performance.now();
         this.silenceMs = 0;
@@ -250,20 +264,33 @@ export class VoiceIO {
     }
 
     const audio = resampleTo16k(native, this.ctxRate);
-    // capture diagnostics — surfaced to console + VoiceIO.lastCapture
+
+    // Normalize: APM is off (crbug workaround) so there's no auto-gain —
+    // quiet mics deliver peak ~0.05 speech that whisper decodes as
+    // [BLANK_AUDIO]. Scale usable audio up to a ~0.4 peak.
     let peak = 0;
     let nonzero = 0;
-    for (let i = 0; i < native.length; i++) {
-      const v = Math.abs(native[i]);
+    for (let i = 0; i < audio.length; i++) {
+      const v = Math.abs(audio[i]);
       if (v > peak) peak = v;
       if (v > 0.001) nonzero++;
     }
+    const normalized = peak > 0.002 && peak < 0.35;
+    if (normalized) {
+      const gain = Math.min(40, 0.5 / peak);
+      for (let i = 0; i < audio.length; i++) {
+        audio[i] = Math.max(-1, Math.min(1, audio[i] * gain));
+      }
+    }
+
+    // capture diagnostics — surfaced to console + VoiceIO.lastCapture
     this.lastCapture = {
       ctxRate: this.ctxRate,
       nativeSamples: native.length,
       seconds: +(native.length / (this.ctxRate || 16000)).toFixed(2),
       peak: +peak.toFixed(3),
-      nonZeroRatio: +(nonzero / Math.max(1, native.length)).toFixed(3),
+      normalized: normalized,
+      nonZeroRatio: +(nonzero / Math.max(1, audio.length)).toFixed(3),
       resampledSamples: audio.length,
     };
     console.info(

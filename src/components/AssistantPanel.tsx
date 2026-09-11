@@ -114,9 +114,22 @@ export default function AssistantPanel({
     // Deterministic topic gate — refuses off-site questions locally,
     // before any model tokens are spent (small models can't be trusted
     // to hold the fence on their own).
-    if (/^\([^)]{0,40}\)$/.test(q)) {
-      // Whisper audio-description artifact e.g. "(dog barking)" — not a question.
-      setTurns((h) => [...h, { role: "user", content: q }, { role: "assistant", content: "That didn't sound like a question — tap 🎤 and ask about the pujas." }]);
+    if (
+      /^\([^)]{0,40}\)$/.test(q) || // "(dog barking)" audio descriptions
+      /^\[?blank_audio\]?$/i.test(q) ||
+      /^\[?silence\]?$/i.test(q) ||
+      q.replace(/[^a-z]/gi, "").length < 2 // "you", "…", single letters
+    ) {
+      // Whisper non-speech artifacts — never waste a model call on these.
+      setTurns((h) => [
+        ...h,
+        { role: "user", content: q },
+        {
+          role: "assistant",
+          content:
+            "I couldn't quite hear that — tap 🎤 and speak a bit louder, closer to the mic.",
+        },
+      ]);
       return;
     }
     if (!isOnTopic(q)) {
@@ -160,7 +173,10 @@ export default function AssistantPanel({
   };
 
   const toggleMic = async () => {
-    if (busy && !listening) return;
+    if (busy && !listening) {
+      setMicNote("Still answering the last question — one moment…");
+      return;
+    }
     if (!voiceRef.current) voiceRef.current = new VoiceIO();
     if (!listening) {
       try {
