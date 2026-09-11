@@ -5,6 +5,23 @@ export interface SpeechResult {
   error?: string;
 }
 
+/** Linear resample to whisper's 16kHz. Speech bandwidth makes linear
+ *  interpolation entirely adequate for ASR. */
+function resampleTo16k(input: Float32Array, fromRate: number): Float32Array {
+  if (fromRate === 16000 || fromRate === 0) return input;
+  const ratio = fromRate / 16000;
+  const outLen = Math.max(1, Math.floor(input.length / ratio));
+  const out = new Float32Array(outLen);
+  for (let i = 0; i < outLen; i++) {
+    const pos = i * ratio;
+    const i0 = Math.floor(pos);
+    const i1 = Math.min(i0 + 1, input.length - 1);
+    const frac = pos - i0;
+    out[i] = input[i0] * (1 - frac) + input[i1] * frac;
+  }
+  return out;
+}
+
 type StatusFn = (note: string) => void;
 
 export class VoiceIO {
@@ -16,6 +33,8 @@ export class VoiceIO {
   private whisperWorker: Worker | null = null;
   private chunks: Float32Array[] = [];
   private sampleRate = 16000;
+  /** Actual context (capture) rate — set by ensureCtx. */
+  private ctxRate = 16000;
   private speaking = false;
   private lastLevelAt = 0;
   /** Auto-stop: speech-end detection state. */
@@ -37,7 +56,11 @@ export class VoiceIO {
 
   private async ensureCtx() {
     if (!this.ctx) {
-      this.ctx = new AudioContext({ sampleRate: this.sampleRate });
+      // Native rate (e.g. 48k). Chrome does NOT reliably resample a mic
+      // stream into a constrained-rate context (echoCancellation path) —
+      // buffers arrive at the track's rate regardless, so we resample
+      // ourselves before whisper. see crbug 40558768.
+      this.ctx = new AudioContext();
       // Passthrough capture worklet. Chrome only pulls audio through nodes
       // that reach the destination, so the panel output is routed via a
       // zero-gain sink (silence out, data in).
@@ -56,6 +79,7 @@ export class VoiceIO {
       URL.revokeObjectURL(url);
     }
     if (this.ctx.state === "suspended") await this.ctx.resume();
+    this.ctxRate = this.ctx.sampleRate;
   }
 
   private ensureWhisper(): Worker {
@@ -116,7 +140,7 @@ export class VoiceIO {
         this.voiceStartAt = this.voiceStartAt || performance.now();
         this.silenceMs = 0;
       } else if (this.voiceStartAt) {
-        this.silenceMs += (buf.length / this.sampleRate) * 1000;
+        this.silenceMs += (buf.length / this.ctxRate) * 1000;
         if (this.silenceMs >= 1200 && this.onAutoStop) {
           const stop = this.onAutoStop;
           this.onAutoStop = null; // fire once
@@ -175,22 +199,24 @@ export class VoiceIO {
     const captured = this.chunks;
     this.chunks = [];
     const total = captured.reduce((a, c) => a + c.length, 0);
-    // <0.4s of audio = mic opened but nothing said
-    if (total < this.sampleRate * 0.4) {
+    // <0.4s of audio = mic opened but nothing said (at capture rate)
+    if (total < this.ctxRate * 0.4) {
       return {
         text: "",
         error: "Barely anything recorded — tap 🎤 and speak a full question.",
       };
     }
-    const audio = new Float32Array(total);
+    const native = new Float32Array(total);
     let off = 0;
     for (const c of captured) {
       // clamp: never write past the end regardless of what arrived
       const n = Math.min(c.length, total - off);
       if (n <= 0) break;
-      audio.set(n === c.length ? c : c.subarray(0, n), off);
+      native.set(n === c.length ? c : c.subarray(0, n), off);
       off += n;
     }
+
+    const audio = resampleTo16k(native, this.ctxRate);
 
     const worker = this.ensureWhisper();
     return new Promise<SpeechResult>((resolve) => {
