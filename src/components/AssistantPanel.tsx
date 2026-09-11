@@ -34,10 +34,18 @@ export default function AssistantPanel({
   const [level, setLevel] = useState(0);
 
   const managerRef = useRef<import("../lib/engine-manager").EngineManager | null>(null);
+  /** Always-fresh busy flag — async continuations (voice path) must not
+   *  act on a stale closure snapshot that still says listening/thinking. */
+  const busyRef = useRef(false);
   const voiceRef = useRef<VoiceIO | null>(null);
   const logRef = useRef<HTMLDivElement | null>(null);
 
   const busy = phase === "thinking" || phase === "transcribing" || listening;
+  // The voice path legitimately transitions listening→transcribing→send
+  // inside one async closure; when that closure calls send, phase is
+  // "transcribing" (busy) — but the send IS the continuation of that very
+  // turn. Allow it: mark the handoff.
+  const sendingFromVoice = useRef(false);
 
   // Boot: dynamic-import manager + voice, start background warm-up.
   useEffect(() => {
@@ -93,14 +101,24 @@ export default function AssistantPanel({
     logRef.current?.scrollTo({ top: logRef.current.scrollHeight });
   }, [turns, streamText, micNote]);
 
+  useEffect(() => {
+    busyRef.current = busy;
+  }, [busy]);
+
   const send = async (text: string) => {
     const q = text.trim();
-    if (!q || busy) return;
+    if (!q) return;
+    if (busyRef.current && !sendingFromVoice.current) return;
     setInput("");
     setMicNote(null);
     // Deterministic topic gate — refuses off-site questions locally,
     // before any model tokens are spent (small models can't be trusted
     // to hold the fence on their own).
+    if (/^\([^)]{0,40}\)$/.test(q)) {
+      // Whisper audio-description artifact e.g. "(dog barking)" — not a question.
+      setTurns((h) => [...h, { role: "user", content: q }, { role: "assistant", content: "That didn't sound like a question — tap 🎤 and ask about the pujas." }]);
+      return;
+    }
     if (!isOnTopic(q)) {
       const history: ChatTurn[] = [...turns, { role: "user", content: q }];
       setTurns([...history, { role: "assistant", content: OFF_TOPIC_REPLY }]);
@@ -184,7 +202,12 @@ export default function AssistantPanel({
           return;
         }
         if (res.text) {
-          await send(res.text);
+          sendingFromVoice.current = true;
+          try {
+            await send(res.text);
+          } finally {
+            sendingFromVoice.current = false;
+          }
         } else {
           setErr("Nothing heard — hold the mic a bit longer and speak up.");
           setPhase("ready");

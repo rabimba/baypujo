@@ -1,9 +1,23 @@
 "use strict";
-/* Whisper-base ASR worker — Transformers.js on WebGPU (WASM fallback).
- * Posts {loading, note} during model fetch so the UI can show progress. */
+/* Whisper-base ASR worker — Transformers.js on WASM/CPU.
+ *
+ * Deliberately NOT WebGPU: the LLM worker holds the GPU adapter while
+ * Kartik is running, and whisper's session creation on a busy adapter
+ * can hang indefinitely (never rejects — so a .catch() fallback never
+ * fires). WASM q8 transcribes 3-10s clips in ~2-6s, plenty for this
+ * use case, with zero GPU contention.
+ *
+ * Posts {loading, note} during model fetch so the UI can show progress,
+ * and {ok, text|error} with the result. An in-worker watchdog guarantees
+ * no silent hangs: if inference produces nothing in 90s, we report. */
 import { pipeline, env } from "@huggingface/transformers";
 
 env.allowLocalModels = false;
+// Single-threaded WASM: multi-thread needs SharedArrayBuffer which
+// requires COOP/COEP headers GitHub Pages doesn't send.
+if (env.backends?.onnx?.wasm) {
+  env.backends.onnx.wasm.numThreads = 1;
+}
 
 type AsrFn = (
   audio: Float32Array,
@@ -12,40 +26,55 @@ type AsrFn = (
 
 let asrPromise: Promise<AsrFn> | null = null;
 
-function buildAsr(device: "webgpu" | "wasm"): Promise<AsrFn> {
-  return pipeline(
-    "automatic-speech-recognition",
-    "onnx-community/whisper-base",
-    {
-      dtype: "q8",
-      device,
-      progress_callback: (p: { status?: string; progress?: number; file?: string }) => {
-        if (p?.status === "progress" && /\.onnx(_data)?$/.test(p.file ?? "")) {
-          self.postMessage({
-            loading: true,
-            note: `Voice model ${Math.round(p.progress ?? 0)}%`,
-          });
-        } else if (p?.status === "ready" || p?.status === "done") {
-          self.postMessage({ loading: true, note: "Voice model ready" });
-        }
-      },
-    },
-  ) as unknown as Promise<AsrFn>;
-}
-
 function getAsr(): Promise<AsrFn> {
   if (!asrPromise) {
-    // Prefer WebGPU, but a busy GPU (LLM running) or missing EP support
-    // can break the session — fall back to wasm instead of failing.
-    const hasGpu = !!(navigator as Navigator & { gpu?: unknown }).gpu;
-    asrPromise = hasGpu
-      ? buildAsr("webgpu").catch(() => {
-          self.postMessage({ loading: true, note: "Voice model (CPU mode)" });
-          return buildAsr("wasm");
-        })
-      : buildAsr("wasm");
+    asrPromise = pipeline(
+      "automatic-speech-recognition",
+      "onnx-community/whisper-base",
+      {
+        dtype: "q8",
+        device: "wasm",
+        progress_callback: (p: {
+          status?: string;
+          progress?: number;
+          file?: string;
+        }) => {
+          if (p?.status === "progress" && /\.onnx(_data)?$/.test(p.file ?? "")) {
+            self.postMessage({
+              loading: true,
+              note: `Voice model ${Math.round(p.progress ?? 0)}%`,
+            });
+          } else if (p?.status === "ready" || p?.status === "done") {
+            self.postMessage({ loading: true, note: "Voice model ready" });
+          }
+        },
+      },
+    ) as unknown as Promise<AsrFn>;
   }
   return asrPromise;
+}
+
+/** Race an inference promise against a watchdog. */
+function withWatchdog(
+  p: Promise<{ text: string }>,
+  ms: number,
+): Promise<{ text: string }> {
+  return new Promise((resolve, reject) => {
+    const t = setTimeout(
+      () => reject(new Error("Transcription timed out — please try again.")),
+      ms,
+    );
+    p.then(
+      (v) => {
+        clearTimeout(t);
+        resolve(v);
+      },
+      (e) => {
+        clearTimeout(t);
+        reject(e);
+      },
+    );
+  });
 }
 
 self.onmessage = async (e: MessageEvent) => {
@@ -77,18 +106,21 @@ self.onmessage = async (e: MessageEvent) => {
       note: `Loading voice model… (${dur}s of audio)`,
     });
     const pipe = await getAsr();
-    self.postMessage({ loading: true, note: "Transcribing…" });
-    const out = await pipe(audio, {
-      task: "transcribe",
-      language: language ?? null,
-      return_timestamps: false,
-    });
+      self.postMessage({ loading: true, note: "Transcribing…" });
+    const out = await withWatchdog(
+      pipe(audio, {
+        task: "transcribe",
+        language: language ?? null,
+        return_timestamps: false,
+      }),
+      90000,
+    );
     const text = (out.text ?? "").trim();
-    self.postMessage({ ok: true, text });
+      self.postMessage({ ok: true, text });
   } catch (err) {
-    // Real error text (fetch failed / device lost / wasm abort) — the UI
+    // Real error text (fetch failed / wasm abort / watchdog) — the UI
     // surfaces it instead of silently returning empty text.
-    self.postMessage({
+      self.postMessage({
       ok: false,
       error: String((err as Error)?.message ?? err).slice(0, 200),
     });

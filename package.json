@@ -18,7 +18,7 @@
     "pretypecheck": "node scripts/select-city.mjs"
   },
   "dependencies": {
-    "@huggingface/transformers": "^4.2.0",
+    "@huggingface/transformers": "^3.7.5",
     "@mlc-ai/web-llm": "^0.2.85",
     "leaflet": "^1.9.4",
     "next": "16.3.4",
