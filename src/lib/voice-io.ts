@@ -18,6 +18,12 @@ export class VoiceIO {
   private sampleRate = 16000;
   private speaking = false;
   private lastLevelAt = 0;
+  /** Auto-stop: speech-end detection state. */
+  private voiceStartAt = 0;
+  private silenceMs = 0;
+  private autoStopTimer: ReturnType<typeof setInterval> | null = null;
+  private onAutoStop: (() => void) | null = null;
+  private hardStopTimer: ReturnType<typeof setTimeout> | null = null;
 
   /** Runs a feature probe; resolves false when mic/ASR can't work here. */
   static async capable(): Promise<boolean> {
@@ -62,8 +68,16 @@ export class VoiceIO {
     return this.whisperWorker;
   }
 
-  /** Start push-to-talk capture. Mutes TTS echo while recording. */
-  async startListening(onLevel?: (peak: number) => void): Promise<void> {
+  /**
+   * Start capture. Push-to-talk: click again to stop — and speech-end
+   * auto-stop fires ~1.2s after you stop talking (requires ≥0.6s of
+   * speech first so a brief cough doesn't cut you off). A 25s hard cap
+   * guards against a stuck open mic.
+   */
+  async startListening(
+    onLevel?: (peak: number) => void,
+    onAutoStop?: () => void,
+  ): Promise<void> {
     await this.ensureCtx();
     this.chunks = [];
     this.stream = await navigator.mediaDevices.getUserMedia({
@@ -77,22 +91,45 @@ export class VoiceIO {
     this.workletNode = new AudioWorkletNode(this.ctx!, "rec");
     this.sinkGain = this.ctx!.createGain();
     this.sinkGain.gain.value = 0; // pull the graph, emit silence
+    this.voiceStartAt = 0;
+    this.silenceMs = 0;
+    this.onAutoStop = onAutoStop ?? null;
     this.workletNode.port.onmessage = (e: MessageEvent) => {
       const buf = e.data as Float32Array;
       this.chunks.push(buf);
+      let peak = 0;
+      for (let i = 0; i < buf.length; i += 16) {
+        const v = Math.abs(buf[i]);
+        if (v > peak) peak = v;
+      }
       if (onLevel) {
         const now = performance.now();
         if (now - this.lastLevelAt > 80) {
           this.lastLevelAt = now;
-          let peak = 0;
-          for (let i = 0; i < buf.length; i += 16) {
-            const v = Math.abs(buf[i]);
-            if (v > peak) peak = v;
-          }
           onLevel(Math.min(1, peak * 3));
         }
       }
+      // Speech-end VAD: voiced (peak>~0.02) marks speech; 1.2s of
+      // silence AFTER ≥0.6s of speech auto-stops the recording.
+      const voiced = peak > 0.02;
+      if (voiced) {
+        this.voiceStartAt = this.voiceStartAt || performance.now();
+        this.silenceMs = 0;
+      } else if (this.voiceStartAt) {
+        this.silenceMs += (buf.length / this.sampleRate) * 1000;
+        if (this.silenceMs >= 1200 && this.onAutoStop) {
+          const stop = this.onAutoStop;
+          this.onAutoStop = null; // fire once
+          stop();
+        }
+      }
     };
+    this.autoStopTimer = null; // (kept for future use; VAD runs inline)
+    this.hardStopTimer = setTimeout(() => {
+      const stop = this.onAutoStop;
+      this.onAutoStop = null;
+      stop?.();
+    }, 25000);
     this.source.connect(this.workletNode);
     this.workletNode.connect(this.sinkGain);
     this.sinkGain.connect(this.ctx!.destination);
@@ -100,8 +137,28 @@ export class VoiceIO {
     if (this.speaking) this.stopSpeaking();
   }
 
+  /**
+   * Pre-warm the whisper worker (model download + session init) without
+   * any audio. Fire-and-forget; result cached in the worker.
+   */
+  prewarm(onStatus?: StatusFn): void {
+    const worker = this.ensureWhisper();
+    const onMsg = (e: MessageEvent) => {
+      const d = e.data as { warm?: boolean; loading?: boolean; note?: string };
+      if (d?.loading) onStatus?.(d.note ?? "Voice model loading…");
+      if (d?.warm) worker.removeEventListener("message", onMsg);
+    };
+    worker.addEventListener("message", onMsg);
+    worker.postMessage({ warm: true });
+  }
+
   /** Stop capture; transcribes via whisper-base; resolves text or error. */
   async stopListening(onStatus?: StatusFn): Promise<SpeechResult> {
+    this.onAutoStop = null;
+    if (this.hardStopTimer) {
+      clearTimeout(this.hardStopTimer);
+      this.hardStopTimer = null;
+    }
     this.workletNode?.port.close();
     this.workletNode?.disconnect();
     this.sinkGain?.disconnect();
@@ -118,8 +175,12 @@ export class VoiceIO {
     const captured = this.chunks;
     this.chunks = [];
     const total = captured.reduce((a, c) => a + c.length, 0);
-    if (total === 0) {
-      return { text: "", error: "No audio captured" };
+    // <0.4s of audio = mic opened but nothing said
+    if (total < this.sampleRate * 0.4) {
+      return {
+        text: "",
+        error: "Barely anything recorded — tap 🎤 and speak a full question.",
+      };
     }
     const audio = new Float32Array(total);
     let off = 0;
@@ -133,10 +194,19 @@ export class VoiceIO {
 
     const worker = this.ensureWhisper();
     return new Promise<SpeechResult>((resolve) => {
-      const timeout = setTimeout(() => {
+      // Load-aware watchdog: the first run downloads ~45MB of weights;
+      // reset the timer whenever a progress note arrives so a legit
+      // download never races the timeout. True stalls (no notes for
+      // 120s) still fire.
+      let timeout: ReturnType<typeof setTimeout> = setTimeout(onTimeout, 120000);
+      function armTimeout() {
+        clearTimeout(timeout);
+        timeout = setTimeout(onTimeout, 120000);
+      }
+      function onTimeout() {
         cleanup();
-        resolve({ text: "", error: "Transcription timed out" });
-      }, 90000);
+        resolve({ text: "", error: "Transcription timed out — try again." });
+      }
       const onMsg = (e: MessageEvent) => {
         const d = e.data as {
           loading?: boolean;
@@ -146,6 +216,7 @@ export class VoiceIO {
           error?: string;
         };
         if (d?.loading) {
+          armTimeout();
           onStatus?.(d.note ?? "Loading voice model…");
           return;
         }

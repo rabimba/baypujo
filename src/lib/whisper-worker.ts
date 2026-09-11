@@ -49,7 +49,27 @@ function getAsr(): Promise<AsrFn> {
 }
 
 self.onmessage = async (e: MessageEvent) => {
-  const { audio, language } = e.data as { audio: Float32Array; language?: string };
+  const data = e.data as {
+    audio?: Float32Array;
+    language?: string;
+    warm?: boolean;
+  };
+  // Pre-warm request: build the pipeline now, no audio to run.
+  if (data.warm) {
+    try {
+      self.postMessage({ loading: true, note: "Voice model loading…" });
+      await getAsr();
+      self.postMessage({ warm: true });
+    } catch (err) {
+      self.postMessage({
+        ok: false,
+        error: String((err as Error)?.message ?? err).slice(0, 200),
+      });
+    }
+    return;
+  }
+  const audio = data.audio ?? new Float32Array(0);
+  const language = data.language;
   try {
     const dur = (audio.length / 16000).toFixed(1);
     self.postMessage({

@@ -63,6 +63,18 @@ export default function AssistantPanel({
       }
       if (dead) return;
       setVoiceCapable(await VoiceIO.capable());
+      // Pre-warm whisper in the background so the first voice question
+      // doesn't wait on a 45MB download after the user speaks.
+      if (!dead && await VoiceIO.capable()) {
+        import("../lib/voice-io").then(({ VoiceIO }) => {
+          if (dead) return;
+          if (!voiceRef.current) voiceRef.current = new VoiceIO();
+          voiceRef.current.prewarm((note) => {
+            if (!dead) setMicNote((prev) => (prev ? prev : null));
+            void note;
+          });
+        });
+      }
       if (!dead && phase === "warming" && managerRef.current?.getStatus().state === "ready") {
         setPhase("ready");
       }
@@ -134,11 +146,12 @@ export default function AssistantPanel({
     if (!voiceRef.current) voiceRef.current = new VoiceIO();
     if (!listening) {
       try {
-        setMicNote(null);
+        setMicNote("Listening — ask your question, I'll stop when you finish");
         setErr(null);
         setPhase("listening");
-        await voiceRef.current.startListening((peak) =>
-          setLevel(Math.min(1, peak * 3)),
+        await voiceRef.current.startListening(
+          (peak) => setLevel(Math.min(1, peak * 3)),
+          () => void toggleMic(), // speech-end auto-stop
         );
         setListening(true);
       } catch (e) {
