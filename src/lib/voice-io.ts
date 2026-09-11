@@ -112,17 +112,24 @@ export class VoiceIO {
     this.source = null;
     this.stream = null;
 
-    const total = this.chunks.reduce((a, c) => a + c.length, 0);
+    // Snapshot + clear under one tick: the worklet port may still deliver
+    // queued buffers after close, which previously corrupted the copy
+    // (Float32Array.set "offset is out of bounds").
+    const captured = this.chunks;
+    this.chunks = [];
+    const total = captured.reduce((a, c) => a + c.length, 0);
     if (total === 0) {
       return { text: "", error: "No audio captured" };
     }
     const audio = new Float32Array(total);
     let off = 0;
-    for (const c of this.chunks) {
-      audio.set(c, off);
-      off += c.length;
+    for (const c of captured) {
+      // clamp: never write past the end regardless of what arrived
+      const n = Math.min(c.length, total - off);
+      if (n <= 0) break;
+      audio.set(n === c.length ? c : c.subarray(0, n), off);
+      off += n;
     }
-    this.chunks = [];
 
     const worker = this.ensureWhisper();
     return new Promise<SpeechResult>((resolve) => {

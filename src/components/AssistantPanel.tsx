@@ -8,7 +8,7 @@ import type { ChatTurn } from "../lib/assistant-engine";
 import type { EngineStatus } from "../lib/engine-manager";
 import { isOnTopic, OFF_TOPIC_REPLY } from "../lib/assistant-context";
 
-type Phase = "warming" | "ready" | "thinking" | "transcribing" | "error";
+type Phase = "warming" | "ready" | "thinking" | "transcribing" | "listening" | "error";
 
 const MODEL_DOWNLOAD_NOTE =
   "First use downloads the on-device model (~700 MB over Wi-Fi, cached by your browser after that). Nothing is ever sent to a server.";
@@ -135,31 +135,53 @@ export default function AssistantPanel({
     if (!listening) {
       try {
         setMicNote(null);
+        setErr(null);
+        setPhase("listening");
         await voiceRef.current.startListening((peak) =>
           setLevel(Math.min(1, peak * 3)),
         );
         setListening(true);
-      } catch {
-        setErr("Microphone permission denied.");
+      } catch (e) {
+        // Recover fully — a stuck phase here is what made the mic
+        // un-clickable after one failed attempt.
+        setListening(false);
+        setLevel(0);
+        setPhase("ready");
+        setMicNote(null);
+        const msg = String((e as Error)?.message ?? e);
+        setErr(
+          /permission|denied|not allowed/i.test(msg)
+            ? "Microphone permission denied — allow mic access in the address bar and try again."
+            : `Microphone failed: ${msg.slice(0, 120)}`,
+        );
       }
     } else {
-      setListening(false);
-      setLevel(0);
-      setPhase("transcribing");
-      setMicNote("Transcribing…");
-      const res = await voiceRef.current.stopListening((note) =>
-        setMicNote(note),
-      );
-      setMicNote(null);
-      if (res.error) {
-        setErr(res.error);
+      try {
+        setListening(false);
+        setLevel(0);
+        setPhase("transcribing");
+        setMicNote("Transcribing…");
+        const res = await voiceRef.current.stopListening((note) =>
+          setMicNote(note),
+        );
+        setMicNote(null);
+        if (res.error) {
+          setErr(res.error);
+          setPhase("ready");
+          return;
+        }
+        if (res.text) {
+          await send(res.text);
+        } else {
+          setErr("Nothing heard — hold the mic a bit longer and speak up.");
+          setPhase("ready");
+        }
+      } catch (e) {
+        setListening(false);
+        setLevel(0);
+        setMicNote(null);
         setPhase("ready");
-        return;
-      }
-      if (res.text) {
-        await send(res.text);
-      } else {
-        setPhase("ready");
+        setErr(`Transcription failed: ${String((e as Error)?.message ?? e).slice(0, 120)}`);
       }
     }
   };
