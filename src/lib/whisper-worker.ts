@@ -7,9 +7,10 @@
  * fires). WASM q8 transcribes 3-10s clips in ~2-6s, plenty for this
  * use case, with zero GPU contention.
  *
- * Posts {loading, note} during model fetch so the UI can show progress,
- * and {ok, text|error} with the result. An in-worker watchdog guarantees
- * no silent hangs: if inference produces nothing in 90s, we report. */
+ * Every message carries a `type`, and transcription results carry the
+ * request `id`: a prewarm failure must never resolve an unrelated
+ * in-flight transcription. An in-worker watchdog guarantees no silent
+ * hangs — if inference produces nothing in 90s, we report. */
 import { pipeline, env } from "@huggingface/transformers";
 
 env.allowLocalModels = false;
@@ -25,13 +26,12 @@ type AsrFn = (
 ) => Promise<{ text: string }>;
 
 let asrPromise: Promise<AsrFn> | null = null;
+let asrReady = false;
 
 function getAsr(): Promise<AsrFn> {
   if (!asrPromise) {
-    asrPromise = pipeline(
-      "automatic-speech-recognition",
-      "onnx-community/whisper-base",
-      {
+    asrPromise = (
+      pipeline("automatic-speech-recognition", "onnx-community/whisper-base", {
         dtype: "q8",
         device: "wasm",
         progress_callback: (p: {
@@ -41,15 +41,18 @@ function getAsr(): Promise<AsrFn> {
         }) => {
           if (p?.status === "progress" && /\.onnx(_data)?$/.test(p.file ?? "")) {
             self.postMessage({
-              loading: true,
+              type: "progress",
               note: `Voice model ${Math.round(p.progress ?? 0)}%`,
             });
           } else if (p?.status === "ready" || p?.status === "done") {
-            self.postMessage({ loading: true, note: "Voice model ready" });
+            self.postMessage({ type: "progress", note: "Voice model ready" });
           }
         },
-      },
-    ) as unknown as Promise<AsrFn>;
+      }) as unknown as Promise<AsrFn>
+    ).then((fn) => {
+      asrReady = true;
+      return fn;
+    });
   }
   return asrPromise;
 }
@@ -77,55 +80,58 @@ function withWatchdog(
   });
 }
 
+const errText = (err: unknown) =>
+  String((err as Error)?.message ?? err).slice(0, 200);
+
 self.onmessage = async (e: MessageEvent) => {
   const data = e.data as {
+    type?: "warm" | "asr";
+    id?: number;
     audio?: Float32Array;
-    language?: string;
-    warm?: boolean;
   };
+
   // Pre-warm request: build the pipeline now, no audio to run.
-  if (data.warm) {
+  if (data.type === "warm") {
     try {
-      self.postMessage({ loading: true, note: "Voice model loading…" });
+      self.postMessage({ type: "progress", note: "Voice model loading…" });
       await getAsr();
-      self.postMessage({ warm: true });
+      self.postMessage({ type: "warm-done" });
     } catch (err) {
-      self.postMessage({
-        ok: false,
-        error: String((err as Error)?.message ?? err).slice(0, 200),
-      });
+      self.postMessage({ type: "warm-done", error: errText(err) });
     }
     return;
   }
+
+  if (data.type !== "asr") return;
+  const id = data.id ?? 0;
   const audio = data.audio ?? new Float32Array(0);
-  const _language = data.language; void _language;
   try {
-    const dur = (audio.length / 16000).toFixed(1);
-    self.postMessage({
-      loading: true,
-      note: `Loading voice model… (${dur}s of audio)`,
-    });
+    if (!asrReady) {
+      const dur = (audio.length / 16000).toFixed(1);
+      self.postMessage({
+        type: "progress",
+        note: `Loading voice model… (${dur}s of audio)`,
+      });
+    }
     const pipe = await getAsr();
-      self.postMessage({ loading: true, note: "Transcribing…" });
+    self.postMessage({ type: "progress", note: "Transcribing…" });
     const out = await withWatchdog(
       pipe(audio, {
         task: "transcribe",
         // Force English: multilingual mode on marginal audio produces
         // hallucinated junk tokens ("you"). Our audience asks in English
         // or Banglish — English ASR transcribes both intelligibly.
+        // (Trade-off: pure Bengali speech transcribes poorly; typing
+        // Bengali works fine.)
         language: "en",
         return_timestamps: false,
       }),
       90000,
     );
-    const text = (out.text ?? "").trim();
-      self.postMessage({ ok: true, text });
+    self.postMessage({ type: "result", id, ok: true, text: (out.text ?? "").trim() });
   } catch (err) {
     // Real error text (fetch failed / wasm abort / watchdog) — the UI
     // surfaces it instead of silently returning empty text.
-      self.postMessage({
-      ok: false,
-      error: String((err as Error)?.message ?? err).slice(0, 200),
-    });
+    self.postMessage({ type: "result", id, ok: false, error: errText(err) });
   }
 };

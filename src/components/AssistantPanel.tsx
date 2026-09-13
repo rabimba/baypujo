@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Shiuli } from "./motifs";
 import { VoiceIO } from "../lib/voice-io";
-import { city } from "../lib/pujas";
 import type { ChatTurn } from "../lib/assistant-engine";
 import type { EngineStatus } from "../lib/engine-manager";
 import { isOnTopic, OFF_TOPIC_REPLY } from "../lib/assistant-context";
@@ -11,7 +10,7 @@ import { isOnTopic, OFF_TOPIC_REPLY } from "../lib/assistant-context";
 type Phase = "warming" | "ready" | "thinking" | "transcribing" | "listening" | "error";
 
 const MODEL_DOWNLOAD_NOTE =
-  "First use downloads the on-device model (~700 MB over Wi-Fi, cached by your browser after that). Nothing is ever sent to a server.";
+  "First use downloads the on-device model (~1.2 GB over Wi-Fi, cached by your browser after that). Nothing is ever sent to a server.";
 
 export default function AssistantPanel({
   onClose,
@@ -37,6 +36,15 @@ export default function AssistantPanel({
   /** Always-fresh busy flag — async continuations (voice path) must not
    *  act on a stale closure snapshot that still says listening/thinking. */
   const busyRef = useRef(false);
+  /** Mic state for callbacks that outlive their render — the speech-end
+   *  auto-stop fires from an audio callback captured at mic-open time,
+   *  when `listening` was still false. Reading state there restarted the
+   *  recording instead of ending it. */
+  const listeningRef = useRef(false);
+  /** Latest stopMic, so the auto-stop callback runs the current one. */
+  const stopMicRef = useRef<(() => Promise<void>) | null>(null);
+  /** Latest turns, for history built inside async continuations. */
+  const turnsRef = useRef<ChatTurn[]>([]);
   const voiceRef = useRef<VoiceIO | null>(null);
   const logRef = useRef<HTMLDivElement | null>(null);
 
@@ -70,21 +78,24 @@ export default function AssistantPanel({
         /* status callbacks already surfaced the failure */
       }
       if (dead) return;
-      setVoiceCapable(await VoiceIO.capable());
+      const canVoice = await VoiceIO.capable();
+      if (dead) return;
+      setVoiceCapable(canVoice);
       // Pre-warm whisper in the background so the first voice question
       // doesn't wait on a 45MB download after the user speaks.
-      if (!dead && await VoiceIO.capable()) {
+      if (canVoice) {
         import("../lib/voice-io").then(({ VoiceIO }) => {
           if (dead) return;
           if (!voiceRef.current) voiceRef.current = new VoiceIO();
+          // Only surface prewarm progress when the mic is idle — a live
+          // recording/transcription owns the note line.
           voiceRef.current.prewarm((note) => {
-            if (!dead) setMicNote((prev) => (prev ? prev : null));
-            void note;
+            if (!dead && !busyRef.current) setMicNote(note);
           });
         });
       }
-      if (!dead && phase === "warming" && managerRef.current?.getStatus().state === "ready") {
-        setPhase("ready");
+      if (!dead && managerRef.current?.getStatus().state === "ready") {
+        setPhase((p) => (p === "warming" ? "ready" : p));
       }
     })();
     return () => {
@@ -94,7 +105,6 @@ export default function AssistantPanel({
       voiceRef.current?.dispose();
       voiceRef.current = null;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -103,7 +113,12 @@ export default function AssistantPanel({
 
   useEffect(() => {
     busyRef.current = busy;
-  }, [busy]);
+    listeningRef.current = listening;
+  }, [busy, listening]);
+
+  useEffect(() => {
+    turnsRef.current = turns;
+  }, [turns]);
 
   const send = async (text: string) => {
     const q = text.trim();
@@ -121,24 +136,32 @@ export default function AssistantPanel({
       q.replace(/[^a-z]/gi, "").length < 2 // "you", "…", single letters
     ) {
       // Whisper non-speech artifacts — never waste a model call on these.
+      // The raw token ("[BLANK_AUDIO]") is engineer-speak, so it is not
+      // echoed as a user turn.
       setTurns((h) => [
         ...h,
-        { role: "user", content: q },
         {
           role: "assistant",
           content:
             "I couldn't quite hear that — tap 🎤 and speak a bit louder, closer to the mic.",
         },
       ]);
+      setPhase("ready");
       return;
     }
     if (!isOnTopic(q)) {
-      const history: ChatTurn[] = [...turns, { role: "user", content: q }];
-      setTurns([...history, { role: "assistant", content: OFF_TOPIC_REPLY }]);
-      if (voiceRef.current) voiceRef.current.speak(OFF_TOPIC_REPLY);
+      setTurns((h) => [
+        ...h,
+        { role: "user", content: q },
+        { role: "assistant", content: OFF_TOPIC_REPLY },
+      ]);
+      voiceRef.current?.speak(OFF_TOPIC_REPLY);
+      // Without this the voice path stays on "transcribing" forever and
+      // the mic button never unlocks.
+      setPhase("ready");
       return;
     }
-    const history: ChatTurn[] = [...turns, { role: "user", content: q }];
+    const history: ChatTurn[] = [...turnsRef.current, { role: "user", content: q }];
     setTurns(history);
     setStreamText("");
     setPhase("thinking");
@@ -167,75 +190,95 @@ export default function AssistantPanel({
         voiceRef.current.speak(final);
       }
     } catch (e) {
+      setStreamText("");
       setPhase("error");
       setErr(String((e as Error)?.message ?? e));
     }
   };
 
+  const startMic = async () => {
+    if (!voiceRef.current) voiceRef.current = new VoiceIO();
+    try {
+      setMicNote("Listening — ask your question, I'll stop when you finish");
+      setErr(null);
+      setPhase("listening");
+      await voiceRef.current.startListening(
+        // raw peak → visible ring; quiet mics still need to show life
+        (peak) => setLevel(Math.min(1, peak * 6)),
+        // Speech-end auto-stop fires from an audio callback captured
+        // now; route through a ref so it runs the CURRENT stopMic
+        // (a direct closure would still think listening === false and
+        // start a second recording).
+        () => void stopMicRef.current?.(),
+      );
+      setListening(true);
+      listeningRef.current = true;
+    } catch (e) {
+      // Recover fully — a stuck phase here is what made the mic
+      // un-clickable after one failed attempt.
+      setListening(false);
+      listeningRef.current = false;
+      setLevel(0);
+      setPhase("ready");
+      setMicNote(null);
+      const msg = String((e as Error)?.message ?? e);
+      setErr(
+        /permission|denied|not allowed/i.test(msg)
+          ? "Microphone permission denied — allow mic access in the address bar and try again."
+          : `Microphone failed: ${msg.slice(0, 120)}`,
+      );
+    }
+  };
+
+  const stopMic = async () => {
+    // Auto-stop and a user click can race; only the first one runs.
+    if (!listeningRef.current || !voiceRef.current) return;
+    listeningRef.current = false;
+    setListening(false);
+    setLevel(0);
+    setPhase("transcribing");
+    setMicNote("Transcribing…");
+    try {
+      const res = await voiceRef.current.stopListening((note) =>
+        setMicNote(note),
+      );
+      setMicNote(null);
+      if (res.error) {
+        setErr(res.error);
+        setPhase("ready");
+        return;
+      }
+      if (res.text) {
+        sendingFromVoice.current = true;
+        try {
+          await send(res.text);
+        } finally {
+          sendingFromVoice.current = false;
+        }
+      } else {
+        setErr("Nothing heard — hold the mic a bit longer and speak up.");
+        setPhase("ready");
+      }
+    } catch (e) {
+      setMicNote(null);
+      setPhase("ready");
+      setErr(
+        `Transcription failed: ${String((e as Error)?.message ?? e).slice(0, 120)}`,
+      );
+    }
+  };
+
+  useEffect(() => {
+    stopMicRef.current = stopMic;
+  });
+
   const toggleMic = async () => {
-    if (busy && !listening) {
+    if (listeningRef.current) return stopMic();
+    if (busyRef.current) {
       setMicNote("Still answering the last question — one moment…");
       return;
     }
-    if (!voiceRef.current) voiceRef.current = new VoiceIO();
-    if (!listening) {
-      try {
-        setMicNote("Listening — ask your question, I'll stop when you finish");
-        setErr(null);
-        setPhase("listening");
-        await voiceRef.current.startListening(
-          (peak) => setLevel(Math.min(1, peak * 3)),
-          () => void toggleMic(), // speech-end auto-stop
-        );
-        setListening(true);
-      } catch (e) {
-        // Recover fully — a stuck phase here is what made the mic
-        // un-clickable after one failed attempt.
-        setListening(false);
-        setLevel(0);
-        setPhase("ready");
-        setMicNote(null);
-        const msg = String((e as Error)?.message ?? e);
-        setErr(
-          /permission|denied|not allowed/i.test(msg)
-            ? "Microphone permission denied — allow mic access in the address bar and try again."
-            : `Microphone failed: ${msg.slice(0, 120)}`,
-        );
-      }
-    } else {
-      try {
-        setListening(false);
-        setLevel(0);
-        setPhase("transcribing");
-        setMicNote("Transcribing…");
-        const res = await voiceRef.current.stopListening((note) =>
-          setMicNote(note),
-        );
-        setMicNote(null);
-        if (res.error) {
-          setErr(res.error);
-          setPhase("ready");
-          return;
-        }
-        if (res.text) {
-          sendingFromVoice.current = true;
-          try {
-            await send(res.text);
-          } finally {
-            sendingFromVoice.current = false;
-          }
-        } else {
-          setErr("Nothing heard — hold the mic a bit longer and speak up.");
-          setPhase("ready");
-        }
-      } catch (e) {
-        setListening(false);
-        setLevel(0);
-        setMicNote(null);
-        setPhase("ready");
-        setErr(`Transcription failed: ${String((e as Error)?.message ?? e).slice(0, 120)}`);
-      }
-    }
+    return startMic();
   };
 
   const brainLabel =

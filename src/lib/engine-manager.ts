@@ -48,11 +48,6 @@ interface WebLlmEngineInstance {
   unload(): Promise<void>;
 }
 
-interface WebLlmChatOpts {
-  context_window_size?: number;
-  sliding_window_size?: number;
-}
-
 interface WebLlmAppConfig {
   model_list: unknown[];
   cacheBackend?: string;
@@ -256,10 +251,19 @@ class WebLlmEngine implements AssistantEngine {
           break;
         }
       }
-    } catch {
-      /* interrupt can surface as a stream error — expected */
+    } catch (e) {
+      // Our own interrupt surfaces as a stream error — that one is
+      // expected. Anything else (device lost, KV cache exhausted) is a
+      // real failure and must reach the retry/fallback path.
+      if (!interrupted) throw e;
     }
     const final = stripThink(raw);
+    if (!final.trim()) {
+      // Model spent the whole budget inside <think> and never answered.
+      return raw.trim()
+        ? "I got tangled up thinking about that one — ask me again, maybe a little more specifically?"
+        : "";
+    }
     return interrupted ? trimLoop(final) : final;
   }
 
@@ -337,7 +341,7 @@ export class EngineManager {
       }
     }
 
-    // 2. WebLLM gemma3 — needs WebGPU; start download in background.
+    // 2. WebLLM Qwen3 — needs WebGPU; start download in background.
     const gpuOk = await this.webgpuOk();
     if (!gpuOk) {
       this.status.choice = null;
@@ -347,7 +351,7 @@ export class EngineManager {
     this.status.choice = "webllm";
     emit(
       "downloading",
-      "Downloading model (one time, ~700 MB) — cached after",
+      "Downloading model (one time, ~1.2 GB) — cached after",
     );
     const eng = new WebLlmEngine();
     await eng.init({
@@ -365,7 +369,7 @@ export class EngineManager {
       },
     });
     this.current = eng;
-    emit("ready", "gemma3 on-device");
+    emit("ready", "Qwen3 on-device");
   }
 
   private async nanoUsable(): Promise<boolean> {
@@ -405,7 +409,7 @@ export class EngineManager {
     query: string,
     onStatus: (s: EngineStatus) => void,
   ): Promise<AssistantEngine> {
-    // Bengali always gemma3 (Nano has no Bengali).
+    // Bengali always goes to WebLLM (Nano has no Bengali).
     const wantBengali = /[\u0980-\u09FF]/.test(query);
     const want: EngineChoice = wantBengali
       ? "webllm"
@@ -419,13 +423,13 @@ export class EngineManager {
       return this.current;
     }
 
-    // Bengali while Nano was chosen: lazily warm gemma3 now.
+    // Bengali while Nano was chosen: lazily warm WebLLM now.
     if (want === "webllm") {
       if (this.current?.kind !== "webllm") {
         await this.warmWebllm(onStatus);
       }
       if (!this.current || this.current.kind !== "webllm") {
-        throw new Error("gemma3 unavailable for this question");
+        throw new Error("On-device model unavailable for this question");
       }
       return this.current;
     }
@@ -487,7 +491,12 @@ export class EngineManager {
     this.genLock = new Promise<void>((r) => {
       release = r;
     });
-    await prev;
+    // Cap the wait: a wedged generation must not silently swallow every
+    // later question (WebLLM's worker queue would never drain).
+    await Promise.race([
+      prev,
+      new Promise((r) => setTimeout(r, 90000)),
+    ]).catch(() => {});
     try {
       return await this.doAsk(history, events, onStatus, last);
     } finally {
@@ -506,21 +515,31 @@ export class EngineManager {
       const answer = await engine.ask(history, events);
       return { answer, engine: engine.kind };
     } catch (e) {
-      // Engine died mid-flight → swap to the other and retry once.
+      // Engine died mid-flight → swap to the other and retry once, but
+      // only if that other engine actually exists on this device.
+      // (Blindly constructing a NanoEngine replaced the real WebLLM
+      // error with "Gemini Nano not downloaded" — useless to the user.)
       const other: EngineChoice = engine.kind === "nano" ? "webllm" : "nano";
       engine.destroy();
       this.current = null;
-      if (other === "webllm") {
-        await this.warmWebllm(onStatus);
-        engine = this.current!;
-      } else {
-        const eng = new NanoEngine();
-        await eng.init();
-        this.current = eng;
-        engine = eng;
+      if (other === "nano" && !(await this.nanoUsable())) throw e;
+      try {
+        if (other === "webllm") {
+          await this.warmWebllm(onStatus);
+          if (!this.current) throw e;
+          engine = this.current;
+        } else {
+          const eng = new NanoEngine();
+          await eng.init();
+          this.current = eng;
+          engine = eng;
+        }
+        const answer = await engine.ask(history, events);
+        return { answer, engine: engine.kind };
+      } catch {
+        // Report the original failure, not the fallback's.
+        throw e;
       }
-      const answer = await engine.ask(history, events);
-      return { answer, engine: engine.kind };
     }
   }
 

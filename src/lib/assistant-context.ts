@@ -42,11 +42,6 @@ export function mahalayaFacts(): string {
 }
 
 export function buildSystemPrompt(): string {
-  const facts = pujaFacts();
-  const pujaList = Object.entries(facts)
-    .map(([name, f]) => `- ${name}: ${f}`)
-    .join("\n");
-
   const head = [
     `You are Kartik (কার্তিক), "haat kata Kartik" — Durga Puja ${meta.year} assistant for ${city.cityLabelShort} on ${city.brand}.`,
     `SCOPE: only Durga Puja, this site, and these pujas. Refuse anything else in one line. Answer ONLY from this data; unknown → say so. 1-3 sentences, never invent details.`,

@@ -32,7 +32,6 @@ export class VoiceIO {
   private source: MediaStreamAudioSourceNode | null = null;
   private whisperWorker: Worker | null = null;
   private chunks: Float32Array[] = [];
-  private sampleRate = 16000;
   /** Actual context (capture) rate — set by ensureCtx. */
   private ctxRate = 16000;
   private speaking = false;
@@ -50,10 +49,11 @@ export class VoiceIO {
     resampledSamples: number;
   } | null = null;
   private silenceMs = 0;
+  private prewarmed = false;
+  private asrSeq = 0;
   /** Adaptive VAD calibration state. */
   private vadFloor = 0;
   private vadFrames = 0;
-  private autoStopTimer: ReturnType<typeof setInterval> | null = null;
   private onAutoStop: (() => void) | null = null;
   private hardStopTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -82,8 +82,19 @@ export class VoiceIO {
    *  matter the context rate, so the only correct setup is context rate
    *  == track rate. */
   private async openCtxAt(rate: number): Promise<void> {
-    this.ctx?.close().catch(() => {});
-    this.ctx = new AudioContext(rate === 16000 ? { sampleRate: 16000 } : {});
+    const old = this.ctx;
+    this.ctx = null;
+    if (old && old.state !== "closed") await old.close().catch(() => {});
+    try {
+      // Must actually REQUEST the rate — `new AudioContext({})` silently
+      // gives the device default (44.1k here) and re-creates the very
+      // mismatch this function exists to remove.
+      this.ctx = new AudioContext({ sampleRate: rate });
+    } catch {
+      // Some rates are rejected outright; fall back to the default and
+      // let resampleTo16k handle whatever we get.
+      this.ctx = new AudioContext();
+    }
     // Passthrough capture worklet. Chrome only pulls audio through nodes
     // that reach the destination, so the panel output is routed via a
     // zero-gain sink (silence out, data in).
@@ -170,18 +181,21 @@ export class VoiceIO {
         const now = performance.now();
         if (now - this.lastLevelAt > 80) {
           this.lastLevelAt = now;
-          onLevel(Math.min(1, peak * 3));
+          onLevel(peak); // raw 0..1; the caller scales for display
         }
       }
-      // Speech-end VAD with adaptive floor: sample the noise floor over
-      // the first ~0.5s, then voiced = peak > max(0.006, floor * 3).
-      // (Fixed 0.025 missed quiet-mic speech entirely — measured peak
-      // 0.009 on the target machine.)
-      if (this.vadFrames < 32) {
-        this.vadFloor += peak / 32;
+      // Speech-end VAD with an adaptive floor: average the room over the
+      // first ~300ms, then voiced = peak > max(0.006, floor * 3).
+      // (A fixed 0.025 missed quiet-mic speech entirely — measured peak
+      // 0.009 on the target machine.) The floor is capped so that
+      // talking immediately — which calibrates on speech — can't push
+      // the threshold above every later word and disable auto-stop.
+      const calFrames = Math.max(8, Math.round((this.ctxRate * 0.3) / 128));
+      if (this.vadFrames < calFrames) {
+        this.vadFloor += peak / calFrames;
         this.vadFrames++;
       }
-      const floor = Math.max(0.006, this.vadFloor * 3);
+      const floor = Math.min(0.08, Math.max(0.006, this.vadFloor * 3));
       const voiced = peak > floor;
       if (voiced) {
         this.voiceStartAt = this.voiceStartAt || performance.now();
@@ -195,7 +209,6 @@ export class VoiceIO {
         }
       }
     };
-    this.autoStopTimer = null; // (kept for future use; VAD runs inline)
     this.hardStopTimer = setTimeout(() => {
       const stop = this.onAutoStop;
       this.onAutoStop = null;
@@ -213,32 +226,26 @@ export class VoiceIO {
    * any audio. Fire-and-forget; result cached in the worker.
    */
   prewarm(onStatus?: StatusFn): void {
+    if (this.prewarmed) return;
+    this.prewarmed = true;
     const worker = this.ensureWhisper();
     const onMsg = (e: MessageEvent) => {
-      const d = e.data as { warm?: boolean; loading?: boolean; note?: string };
-      if (d?.loading) onStatus?.(d.note ?? "Voice model loading…");
-      if (d?.warm) worker.removeEventListener("message", onMsg);
+      const d = e.data as { type?: string; note?: string; error?: string };
+      if (d?.type === "progress") onStatus?.(d.note ?? "Voice model loading…");
+      if (d?.type === "warm-done") {
+        // Never surfaces as a transcription failure: a prewarm error just
+        // means the first real question pays the download cost again.
+        worker.removeEventListener("message", onMsg);
+        if (d.error) this.prewarmed = false;
+      }
     };
     worker.addEventListener("message", onMsg);
-    worker.postMessage({ warm: true });
+    worker.postMessage({ type: "warm" });
   }
 
   /** Stop capture; transcribes via whisper-base; resolves text or error. */
   async stopListening(onStatus?: StatusFn): Promise<SpeechResult> {
-    this.onAutoStop = null;
-    if (this.hardStopTimer) {
-      clearTimeout(this.hardStopTimer);
-      this.hardStopTimer = null;
-    }
-    this.workletNode?.port.close();
-    this.workletNode?.disconnect();
-    this.sinkGain?.disconnect();
-    this.source?.disconnect();
-    this.stream?.getTracks().forEach((t) => t.stop());
-    this.workletNode = null;
-    this.sinkGain = null;
-    this.source = null;
-    this.stream = null;
+    this.teardownCapture();
 
     // Snapshot + clear under one tick: the worklet port may still deliver
     // queued buffers after close, which previously corrupted the copy
@@ -265,9 +272,10 @@ export class VoiceIO {
 
     const audio = resampleTo16k(native, this.ctxRate);
 
-    // Normalize: APM is off (crbug workaround) so there's no auto-gain —
-    // quiet mics deliver peak ~0.05 speech that whisper decodes as
-    // [BLANK_AUDIO]. Scale usable audio up to a ~0.4 peak.
+    // Normalize: even with autoGainControl, quiet mics deliver speech
+    // near peak 0.01 that whisper decodes as [BLANK_AUDIO]. Scale usable
+    // audio up to a ~0.5 peak (skip clips that are already loud, or so
+    // close to silence that amplifying only raises the noise).
     let peak = 0;
     let nonzero = 0;
     for (let i = 0; i < audio.length; i++) {
@@ -299,6 +307,7 @@ export class VoiceIO {
     );
 
     const worker = this.ensureWhisper();
+    const id = ++this.asrSeq;
     return new Promise<SpeechResult>((resolve) => {
       // Load-aware watchdog: the first run downloads ~45MB of weights;
       // reset the timer whenever a progress note arrives so a legit
@@ -315,18 +324,21 @@ export class VoiceIO {
       }
       const onMsg = (e: MessageEvent) => {
         const d = e.data as {
-          loading?: boolean;
+          type?: string;
+          id?: number;
           note?: string;
           ok?: boolean;
           text?: string;
           error?: string;
         };
-        if (d?.loading) {
+        if (d?.type === "progress") {
           armTimeout();
           onStatus?.(d.note ?? "Loading voice model…");
           return;
         }
-        if (d?.ok !== undefined) {
+        // Only this request's result — a concurrent prewarm posts its own
+        // messages on the same port.
+        if (d?.type === "result" && d.id === id) {
           cleanup();
           resolve(
             d.ok
@@ -341,7 +353,7 @@ export class VoiceIO {
       };
       worker.addEventListener("message", onMsg);
       onStatus?.("Transcribing…");
-      worker.postMessage({ audio });
+      worker.postMessage({ type: "asr", id, audio });
     });
   }
 
@@ -373,12 +385,33 @@ export class VoiceIO {
     this.speaking = false;
   }
 
-  isSpeaking(): boolean {
-    return this.speaking;
+  /** Tear down capture nodes and release the mic (browser indicator off). */
+  private teardownCapture(): void {
+    if (this.hardStopTimer) {
+      clearTimeout(this.hardStopTimer);
+      this.hardStopTimer = null;
+    }
+    this.onAutoStop = null;
+    try {
+      this.workletNode?.port.close();
+    } catch {
+      /* already closed */
+    }
+    this.workletNode?.disconnect();
+    this.sinkGain?.disconnect();
+    this.source?.disconnect();
+    this.stream?.getTracks().forEach((t) => t.stop());
+    this.workletNode = null;
+    this.sinkGain = null;
+    this.source = null;
+    this.stream = null;
   }
 
   dispose(): void {
     this.stopSpeaking();
+    // Closing the panel mid-recording must not leave the mic live.
+    this.teardownCapture();
+    this.chunks = [];
     this.whisperWorker?.terminate();
     this.whisperWorker = null;
     void this.ctx?.close();

@@ -70,14 +70,3 @@ export async function detectSupport(): Promise<AssistantSupport> {
   const [webllm, nano] = await Promise.all([webgpuCapable(), nanoAvailable()]);
   return { supported: webllm || nano, nano, webllm };
 }
-
-/** Which engine should answer this query? */
-export function pickEngine(
-  support: AssistantSupport,
-  query: string,
-): "nano" | "webllm" {
-  // Bengali always goes to the WebLLM model — Nano's language list has no Bengali.
-  if (/[\u0980-\u09FF]/.test(query)) return "webllm";
-  if (support.nano) return "nano";
-  return "webllm";
-}
