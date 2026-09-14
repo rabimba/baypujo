@@ -72,17 +72,108 @@
       "schedule": [
         {
           "date": "2026-10-10",
+          "start": "09:00",
+          "end": "10:20",
+          "title": "Sashti Puja",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-10",
+          "start": "10:20",
+          "end": "12:00",
+          "title": "Saptami Puja",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-10",
+          "start": "12:00",
+          "end": "14:00",
+          "title": "Bhog Served",
+          "type": "food"
+        },
+        {
+          "date": "2026-10-10",
+          "start": "14:00",
+          "end": "17:00",
+          "title": "Ashtami Puja",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-10",
           "start": "17:00",
-          "end": "21:00",
-          "title": "Puja, pushpanjali, arati & cultural evening",
+          "end": "18:00",
+          "title": "Ashtami Sandhya Arati",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-10",
+          "start": "18:00",
+          "end": "20:00",
+          "title": "Cultural Program (Music, Drama & Dance)",
+          "type": "cultural"
+        },
+        {
+          "date": "2026-10-10",
+          "start": "20:00",
+          "end": "21:30",
+          "title": "Member Dinner",
+          "type": "food"
+        },
+        {
+          "date": "2026-10-11",
+          "start": "09:00",
+          "end": "10:30",
+          "title": "Kumari Puja",
           "type": "ritual"
         },
         {
           "date": "2026-10-11",
-          "start": "10:00",
-          "end": "20:00",
-          "title": "Saptami–Dashami rituals, bhog, cultural programs",
+          "start": "10:30",
+          "end": "12:00",
+          "title": "Sandhi Puja",
           "type": "ritual"
+        },
+        {
+          "date": "2026-10-11",
+          "start": "12:00",
+          "end": "13:30",
+          "title": "Nabami Puja",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-11",
+          "start": "13:30",
+          "end": "15:00",
+          "title": "Member Lunch & Bhog",
+          "type": "food"
+        },
+        {
+          "date": "2026-10-11",
+          "start": "15:00",
+          "end": "17:00",
+          "title": "Dashami Puja",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-11",
+          "start": "17:00",
+          "end": "18:30",
+          "title": "Boron & Sindoor Khela",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-11",
+          "start": "18:30",
+          "end": "20:00",
+          "title": "Dhunuchi Naach, Bijoya Adda & Closing Cultural Segment",
+          "type": "cultural"
+        },
+        {
+          "date": "2026-10-11",
+          "start": "20:00",
+          "end": "21:30",
+          "title": "Member Dinner",
+          "type": "food"
         }
       ],
       "bhog": {
@@ -105,8 +196,25 @@
         "ICC Milpitas venue",
         "Food & merchandise partners on site"
       ],
-      "status": "partial",
-      "culturalPrograms": [],
+      "status": "verified",
+      "culturalPrograms": [
+        {
+          "date": "2026-10-10",
+          "time": "18:00",
+          "title": "Music, Drama & Dance Performances",
+          "artist": "Local Artists & Members",
+          "description": "Evening cultural showcase featuring community music, dance, and theatrical performances.",
+          "free": true
+        },
+        {
+          "date": "2026-10-11",
+          "time": "18:30",
+          "title": "Dhunuchi Naach & Bijoya Adda",
+          "artist": "Community Members",
+          "description": "Energetic Dhunuchi dance, festive adda, and celebratory closing cultural segment.",
+          "free": true
+        }
+      ],
       "contact": {
         "email": "Info@abahanbayarea.org",
         "phone": "+1 (585) 635-8443"
@@ -117,14 +225,14 @@
       "hours": [
         {
           "date": "2026-10-10",
-          "open": "17:00",
-          "close": "21:00",
+          "open": "09:00",
+          "close": "21:30",
           "source": "organizer"
         },
         {
           "date": "2026-10-11",
-          "open": "10:00",
-          "close": "20:00",
+          "open": "09:00",
+          "close": "21:30",
           "source": "organizer"
         }
       ]
@@ -887,10 +995,29 @@
       },
       "highlights": [
         "Est. 1974",
-        "Large fairgrounds venue"
+        "Large fairgrounds venue",
+        "Anjan Dutta Live in Concert on Opening Night (Oct 16)",
+        "Grand Bollywood Dance Show on Sunday (Oct 18)"
       ],
       "status": "partial",
-      "culturalPrograms": [],
+      "culturalPrograms": [
+        {
+          "date": "2026-10-16",
+          "time": "19:00",
+          "title": "Anjan Dutta Live in Concert",
+          "artist": "Anjan Dutta",
+          "description": "Poetic acoustic guitars and deep storytelling of Anjan Dutta live on stage during the Durga Puja opening musical night.",
+          "free": false
+        },
+        {
+          "date": "2026-10-18",
+          "time": "18:00",
+          "title": "Grand Bollywood Dance Show",
+          "artist": "Prabasi Performers",
+          "description": "High-energy Sunday evening Bollywood Dance Show concluding the 3-day celebrations.",
+          "free": false
+        }
+      ],
       "contact": {},
       "notices": [
         "Prabasi is producing a special musical production for Durga Puja 2026 — vocalists and instrumentalists invited to participate (see Facebook)."

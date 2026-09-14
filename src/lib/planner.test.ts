@@ -62,8 +62,8 @@ describe("planner helpers", () => {
     const p = pujas.find((x) => x.id === "abahan")!;
     const w = openWindow(p, "2026-10-10");
     expect(w).not.toBeNull();
-    expect(w!.open).toBe(hmToMin("17:00"));
-    expect(w!.close).toBe(hmToMin("21:00"));
+    expect(w!.open).toBe(hmToMin("09:00"));
+    expect(w!.close).toBe(hmToMin("21:30"));
   });
 });
 
