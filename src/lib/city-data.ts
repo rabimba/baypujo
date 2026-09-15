@@ -101,7 +101,7 @@ export const city = {
 export const data = {
   "meta": {
     "year": 2026,
-    "lastVerified": "2026-09-09",
+    "lastVerified": "2026-09-14",
     "tithiReference": [
       {
         "date": "2026-10-10",
