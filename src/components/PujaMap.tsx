@@ -67,7 +67,7 @@ export default function PujaMap({
       });
       L.marker([p.venue.lat, p.venue.lng], { icon })
         .bindPopup(
-          `<strong>${p.name}</strong><br>${p.venue.name}, ${p.venue.city}<br>${p.dateLabel}<br><a href="/pujas/${p.id}/">View details →</a>`,
+          `<strong>${p.name}</strong><br>${p.venue.name}, ${p.venue.city}<br>${p.dateLabel}<br><a href="./${p.id}/" style="color:#b3231f;font-weight:600;text-decoration:underline;display:inline-block;margin-top:4px;">View details →</a>`,
         )
         .addTo(layer);
     });
