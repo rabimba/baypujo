@@ -640,7 +640,15 @@ export const data = {
           "date": "2026-10-10",
           "time": "21:00",
           "artist": "Ash King",
-          "description": "Popular Bollywood playback singer live. Ticket info coming soon.",
+          "description": "Popular Bollywood playback singer live at Campbell Heritage Center, Campbell CA. Ticket info coming soon. Members get free premium seating.",
+          "free": false
+        },
+        {
+          "title": "Bhalobasha Chhilo — Broadway-style musical tribute to Asha Bhosle",
+          "date": "2026-10-10",
+          "time": "15:00",
+          "artist": "Prothoma ensemble",
+          "description": "A Broadway-style musical tribute to the legendary Asha Bhosle — live music, dance, acting and theatrical storytelling. Venue: Campbell Heritage Center. Ticket link coming soon.",
           "free": false
         },
         {
@@ -871,7 +879,16 @@ export const data = {
         "3-day schedule published"
       ],
       "status": "verified",
-      "culturalPrograms": [],
+      "culturalPrograms": [
+        {
+          "title": "Jisshu Sengupta — Live Performance",
+          "date": "2026-10-11",
+          "time": null,
+          "artist": "Jisshu Sengupta",
+          "description": "Headline live performance by the acclaimed Bengali actor on the closing Sunday. Ticketed; sponsorships include tickets to the show.",
+          "free": false
+        }
+      ],
       "contact": {
         "email": "contact@sanskriti.org"
       },
@@ -1086,7 +1103,7 @@ export const data = {
       "entry": {
         "free": null,
         "ticketUrl": "https://www.tugoz.com/events/prabasi",
-        "notes": "Booths and any ticketed shows via tugoz; check prabasi.org and the Facebook event for the ritual schedule."
+        "notes": "Anjan Dutta (Oct 16) booked via Tugoz; Monali Thakur (Oct 17) and the puja/dance show via Sulekha. Saturday bhog sponsorship on Tugoz."
       },
       "links": {
         "website": "https://prabasi.org/",
@@ -1094,9 +1111,10 @@ export const data = {
         "tickets": "https://www.tugoz.com/events/prabasi"
       },
       "highlights": [
-        "Est. 1974",
+        "Golden Jubilee Durga Puja — est. 1974",
         "Large fairgrounds venue",
-        "Anjan Dutta Live in Concert on Opening Night (Oct 16)",
+        "Anjan Dutta Live in Concert — opening night (Oct 16)",
+        "Monali Thakur Live in Concert (Oct 17)",
         "Grand Bollywood Dance Show on Sunday (Oct 18)"
       ],
       "status": "partial",
@@ -1107,6 +1125,14 @@ export const data = {
           "title": "Anjan Dutta Live in Concert",
           "artist": "Anjan Dutta",
           "description": "Poetic acoustic guitars and deep storytelling of Anjan Dutta live on stage during the Durga Puja opening musical night.",
+          "free": false
+        },
+        {
+          "title": "Monali Thakur Live in Concert",
+          "date": "2026-10-17",
+          "time": null,
+          "artist": "Monali Thakur",
+          "description": "Bollywood musical night with National Award winner Monali Thakur at Santa Clara Fairgrounds. Booking via Sulekha.",
           "free": false
         },
         {
@@ -1142,7 +1168,7 @@ export const data = {
         }
       ],
       "dateLabel": "Oct 16–18, 2026",
-      "description": "Peninsula-area Bengali association puja at Foster City Community Center. Confirm latest venue and registration on the BayBasi events page.",
+      "description": "Baybasi's Autumn Festival — a three-day gala of Durga Puja and Dandiya on the Peninsula with cultural programs, international artists from Kolkata, lunch, dinner and an Indian fair, drawing 5,000+ guests.",
       "venue": {
         "name": "Foster City Community Center",
         "address": "650 Shell Blvd",
@@ -1159,16 +1185,32 @@ export const data = {
       "entry": {
         "free": null,
         "ticketUrl": null,
-        "notes": "Confirm details with organizer — public info limited."
+        "notes": "Three-day public festival; concert and meal ticketing via the organizer — confirm on baybasi.us."
       },
       "links": {
         "website": "https://baybasi.us/events.html"
       },
-      "highlights": [],
+      "highlights": [
+        "Autumn Festival — Durga Puja + Dandiya, 5,000+ guests",
+        "Iman Chakraborty live in concert (Oct 18)",
+        "Guest artists from Kolkata",
+        "Lunch, dinner and Indian fair on site"
+      ],
       "status": "partial",
-      "culturalPrograms": [],
+      "culturalPrograms": [
+        {
+          "title": "Iman Chakraborty Live in Concert",
+          "date": "2026-10-18",
+          "time": null,
+          "artist": "Iman Chakraborty",
+          "description": "A live musical evening with the acclaimed Bengali playback singer during Baybasi's Autumn Festival weekend.",
+          "free": null
+        }
+      ],
       "contact": {},
-      "notices": [],
+      "notices": [
+        "Bijoya Sammilani, Diwali & Laxmi Puja (member event) follows on Nov 7, 2026."
+      ],
       "hours": []
     },
     {
@@ -1334,6 +1376,21 @@ export const data = {
       "weekend": 2,
       "dates": [
         {
+          "date": "2026-10-11"
+        },
+        {
+          "date": "2026-10-12"
+        },
+        {
+          "date": "2026-10-13"
+        },
+        {
+          "date": "2026-10-14"
+        },
+        {
+          "date": "2026-10-15"
+        },
+        {
           "date": "2026-10-16"
         },
         {
@@ -1349,8 +1406,8 @@ export const data = {
           "date": "2026-10-20"
         }
       ],
-      "dateLabel": "Oct 16–20, 2026",
-      "description": "Durga Puja at Shiva-Vishnu Temple, a major Hindu temple and cultural center in Livermore. Check temple calendar for schedule and visitor guidance.",
+      "dateLabel": "Oct 11–20, 2026",
+      "description": "Shiva-Vishnu Temple (HCCC) runs Devi Navarathri and Durga Pooja celebrations from Oct 11 through Oct 20, 2026, alongside the Navarathri Sri Vishnu Brahmotsavam (Oct 16–18).",
       "venue": {
         "name": "Shiva-Vishnu Temple",
         "address": "1232 Arrowwood Ave",
@@ -1374,13 +1431,14 @@ export const data = {
       },
       "highlights": [
         "Major temple",
-        "5-day presence"
+        "Durga Pooja & Devi Navarathri Oct 11–20",
+        "Sri Vishnu Brahmotsavam Oct 16–18"
       ],
       "status": "partial",
       "culturalPrograms": [],
       "contact": {},
       "notices": [
-        "Temple site requires JavaScript; check the temple calendar page directly for the puja schedule."
+        "Temple publishes per-day timings on its own calendar — check livermoretemple.org for daily ritual times."
       ],
       "hours": []
     },
@@ -1638,16 +1696,27 @@ export const data = {
       "name": "Ankur Durga Puja",
       "organizer": "Ankur Inc",
       "region": "Sacramento",
-      "weekend": null,
-      "dates": [],
-      "dateLabel": "Dates TBA",
-      "description": "Sacramento Bengali community organization hosting worship and Bengali festive traditions at Sacramento Turn Verein. Confirm current-year dates before visiting.",
+      "weekend": 3,
+      "dates": [
+        {
+          "date": "2026-10-23"
+        },
+        {
+          "date": "2026-10-24"
+        },
+        {
+          "date": "2026-10-25"
+        }
+      ],
+      "dateLabel": "Oct 23–25, 2026",
+      "description": "Sharodotsav — the grandest celebration of Ankur Inc., the Sacramento & Northern California Bengali Cultural Association (501(c)(3), est. as a small initiative and now a full community). Three days of puja rituals, cultural performances, and community feasting.",
       "venue": {
         "name": "Sacramento Turn Verein",
         "address": "3349 J St",
         "city": "Sacramento",
         "lat": 38.5719497,
-        "lng": -121.4617971
+        "lng": -121.4617971,
+        "coordsApprox": true
       },
       "schedule": [],
       "bhog": {
@@ -1663,11 +1732,21 @@ export const data = {
       "links": {
         "website": "https://www.ankurinc.org/"
       },
-      "highlights": [],
-      "status": "tba",
+      "highlights": [
+        "Sharodotsav — 3 days of puja, culture and feasting (Oct 23–25)",
+        "Sacramento & Northern California Bengali Cultural Association (501(c)(3))",
+        "Bangla School every other Sunday; year-round cultural calendar"
+      ],
+      "status": "partial",
       "culturalPrograms": [],
-      "contact": {},
-      "notices": [],
+      "contact": {
+        "phone": "(916) 57-ANKUR",
+        "notes": "Org address: 6601 Coyle Ave, Carmichael CA 95608"
+      },
+      "notices": [
+        "Dates confirmed by the organizer (Oct 23–25); the 2026 venue is listed only as 'Sacramento Venue' — confirm the hall with Ankur before travelling.",
+        "Volunteer Appreciation / GBM gala on Nov 7, 2026."
+      ],
       "hours": []
     },
     {
@@ -1906,7 +1985,9 @@ export const data = {
       "status": "tba",
       "culturalPrograms": [],
       "contact": {},
-      "notices": [],
+      "notices": [
+        "Organizer site could not be reached during the last data refresh — 2026 dates still unpublished."
+      ],
       "hours": []
     },
     {
