@@ -60,9 +60,10 @@ export default function PujaMap({
       const color = REGION_COLORS[p.region] ?? "#3388ff";
       const icon = L.divIcon({
         className: "",
-        html: `<div style="width:24px;height:24px;border-radius:50%;background:${color};border:2px solid #ffffff;box-shadow:0 2px 5px rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;" title="${p.name}"><svg viewBox="0 0 100 100" width="16" height="16" fill="none" style="display:block;"><path d="M50 16 C46 26, 46 33, 50 41 C54 33, 54 26, 50 16 Z" fill="#ffd700" stroke="#ffd700" stroke-width="1"/><path d="M22 52 C30 40, 42 40, 48 52 C42 60, 30 60, 22 52 Z" stroke="white" stroke-width="4" fill="none"/><circle cx="35" cy="51" r="3.5" fill="white" stroke="none"/><path d="M78 52 C70 40, 58 40, 52 52 C58 60, 70 60, 78 52 Z" stroke="white" stroke-width="4" fill="none"/><circle cx="65" cy="51" r="3.5" fill="white" stroke="none"/><circle cx="42" cy="66" r="7" stroke="#ffd700" stroke-width="2.5" fill="none"/><circle cx="35" cy="66" r="1.5" fill="#ffd700" stroke="none"/></svg></div>`,
-        iconSize: [24, 24],
-        iconAnchor: [12, 12],
+        html: `<div style="width:32px;height:42px;filter:drop-shadow(0 3px 6px rgba(0,0,0,0.4));cursor:pointer;display:block;" title="${p.name}"><svg viewBox="0 0 32 42" width="32" height="42" fill="none" style="display:block;"><path d="M16 0 C7.2 0, 0 7.2, 0 16 C0 27, 13.5 39.5, 16 42 C18.5 39.5, 32 27, 32 16 C32 7.2, 24.8 0, 16 0 Z" fill="${color}" stroke="#ffffff" stroke-width="2.5"/><path d="M16 6 C14.5 10, 14.5 13, 16 16 C17.5 13, 17.5 10, 16 6 Z" fill="#ffd700"/><path d="M7 19 C10 14, 14 14, 15.5 19 C14 22, 10 22, 7 19 Z" fill="#ffffff"/><circle cx="11.5" cy="18.8" r="1.3" fill="#1c1917"/><path d="M25 19 C22 14, 18 14, 16.5 19 C18 22, 22 22, 25 19 Z" fill="#ffffff"/><circle cx="20.5" cy="18.8" r="1.3" fill="#1c1917"/><circle cx="13.5" cy="24" r="2.8" stroke="#ffd700" stroke-width="1.3" fill="none"/><circle cx="10.7" cy="24" r="0.8" fill="#ffd700"/></svg></div>`,
+        iconSize: [32, 42],
+        iconAnchor: [16, 42],
+        popupAnchor: [0, -40],
       });
       L.marker([p.venue.lat, p.venue.lng], { icon })
         .bindPopup(

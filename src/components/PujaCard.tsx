@@ -76,10 +76,10 @@ export default function PujaCard({
             style={{ color: regionColor }}
           >
             <span
-              className="w-4 h-4 rounded-full flex items-center justify-center shrink-0 border border-white shadow-xs"
+              className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 border-2 border-white shadow-sm"
               style={{ backgroundColor: regionColor }}
             >
-              <MaaDurgaIcon className="w-3 h-3" />
+              <MaaDurgaIcon className="w-4 h-4" />
             </span>
             <span className="font-display normal-case tracking-normal text-sm leading-none">
               {REGION_BN[puja.region]}
