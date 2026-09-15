@@ -213,3 +213,53 @@ export function Dhunuchi({ className }: { className?: string }) {
     </svg>
   );
 }
+
+/** Maa Durga face icon (inspired by Durga by Siddharth Majumdar from Noun Project). */
+export function MaaDurgaIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 100 100"
+      className={className}
+      fill="none"
+      stroke="white"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+      role="presentation"
+    >
+      {/* Third Eye / Bindi */}
+      <path
+        d="M50 16 C46 26, 46 33, 50 41 C54 33, 54 26, 50 16 Z"
+        fill="#ffd700"
+        stroke="#ffd700"
+        strokeWidth="1"
+      />
+      {/* Left Eye */}
+      <path
+        d="M22 52 C30 40, 42 40, 48 52 C42 60, 30 60, 22 52 Z"
+        stroke="white"
+        strokeWidth="3.5"
+        fill="none"
+      />
+      <circle cx="35" cy="51" r="3.5" fill="white" stroke="none" />
+      {/* Right Eye */}
+      <path
+        d="M78 52 C70 40, 58 40, 52 52 C58 60, 70 60, 78 52 Z"
+        stroke="white"
+        strokeWidth="3.5"
+        fill="none"
+      />
+      <circle cx="65" cy="51" r="3.5" fill="white" stroke="none" />
+      {/* Big Bengali Nath / Nose Ring */}
+      <circle
+        cx="42"
+        cy="66"
+        r="7"
+        stroke="#ffd700"
+        strokeWidth="2.5"
+        fill="none"
+      />
+      <circle cx="35" cy="66" r="1.5" fill="#ffd700" stroke="none" />
+    </svg>
+  );
+}

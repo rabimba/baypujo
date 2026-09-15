@@ -189,6 +189,43 @@ export default function AboutPage() {
         </ol>
       </section>
 
+      {/* Attribution & Credits */}
+      <section className="mt-8 bg-stone-50 border border-stone-200 rounded-2xl p-5 text-xs text-stone-600">
+        <h3 className="font-display font-semibold text-sm text-stone-800 mb-1">
+          Attributions &amp; Credits
+        </h3>
+        <p>
+          Maa Durga icon motif on maps and directory cards inspired by{" "}
+          <a
+            href="https://thenounproject.com/icon/durga-39518/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sindoor underline hover:text-sindoor-dark"
+          >
+            &ldquo;Durga&rdquo; by Siddharth Majumdar
+          </a>{" "}
+          from{" "}
+          <a
+            href="https://thenounproject.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sindoor underline hover:text-sindoor-dark"
+          >
+            The Noun Project
+          </a>{" "}
+          (licensed under CC BY 3.0). Map tiles &copy;{" "}
+          <a
+            href="https://www.openstreetmap.org/copyright"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sindoor underline hover:text-sindoor-dark"
+          >
+            OpenStreetMap contributors
+          </a>
+          .
+        </p>
+      </section>
+
       <p className="mt-10 text-center font-display text-sindoor text-lg">
         <Link href="/pujas/" className="hover:underline">
           শুভ পূজা — browse all {pujas.length} pujas →

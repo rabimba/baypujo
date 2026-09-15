@@ -60,9 +60,9 @@ export default function PujaMap({
       const color = REGION_COLORS[p.region] ?? "#3388ff";
       const icon = L.divIcon({
         className: "",
-        html: `<div style="width:14px;height:14px;border-radius:50%;background:${color};border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,.4)"></div>`,
-        iconSize: [14, 14],
-        iconAnchor: [7, 7],
+        html: `<div style="width:24px;height:24px;border-radius:50%;background:${color};border:2px solid #ffffff;box-shadow:0 2px 5px rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;" title="${p.name}"><svg viewBox="0 0 100 100" width="16" height="16" fill="none" style="display:block;"><path d="M50 16 C46 26, 46 33, 50 41 C54 33, 54 26, 50 16 Z" fill="#ffd700" stroke="#ffd700" stroke-width="1"/><path d="M22 52 C30 40, 42 40, 48 52 C42 60, 30 60, 22 52 Z" stroke="white" stroke-width="4" fill="none"/><circle cx="35" cy="51" r="3.5" fill="white" stroke="none"/><path d="M78 52 C70 40, 58 40, 52 52 C58 60, 70 60, 78 52 Z" stroke="white" stroke-width="4" fill="none"/><circle cx="65" cy="51" r="3.5" fill="white" stroke="none"/><circle cx="42" cy="66" r="7" stroke="#ffd700" stroke-width="2.5" fill="none"/><circle cx="35" cy="66" r="1.5" fill="#ffd700" stroke="none"/></svg></div>`,
+        iconSize: [24, 24],
+        iconAnchor: [12, 12],
       });
       L.marker([p.venue.lat, p.venue.lng], { icon })
         .bindPopup(

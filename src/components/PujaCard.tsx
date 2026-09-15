@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { MaaDurgaIcon } from "./motifs";
 import type { Puja } from "../lib/types";
 import { REGION_BN, REGION_COLORS, fmtTime, tithiBn } from "../lib/pujas";
 import { haversineMi } from "../lib/geo";
@@ -71,9 +72,15 @@ export default function PujaCard({
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p
-            className="text-[11px] font-semibold uppercase tracking-wider flex items-baseline gap-1.5"
+            className="text-[11px] font-semibold uppercase tracking-wider flex items-center gap-1.5"
             style={{ color: regionColor }}
           >
+            <span
+              className="w-4 h-4 rounded-full flex items-center justify-center shrink-0 border border-white shadow-xs"
+              style={{ backgroundColor: regionColor }}
+            >
+              <MaaDurgaIcon className="w-3 h-3" />
+            </span>
             <span className="font-display normal-case tracking-normal text-sm leading-none">
               {REGION_BN[puja.region]}
             </span>
