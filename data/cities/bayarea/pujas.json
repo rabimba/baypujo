@@ -1852,43 +1852,214 @@
       "name": "Aparajita Durga Puja",
       "organizer": "Aparajita",
       "region": "Tri-Valley",
-      "weekend": null,
-      "dates": [],
-      "dateLabel": "Dates TBA",
-      "description": "Women-led, inclusive puja rooted in Navaratri, Shakti, and community — female priestesses and equal participation for all devotees.",
+      "weekend": 2,
+      "dates": [
+        {
+          "date": "2026-10-16"
+        },
+        {
+          "date": "2026-10-17"
+        },
+        {
+          "date": "2026-10-18"
+        },
+        {
+          "date": "2026-10-19"
+        },
+        {
+          "date": "2026-10-20"
+        }
+      ],
+      "dateLabel": "Oct 16–20, 2026 (5-day Panjika puja)",
+      "description": "Presented by Shakti Foundation. A women-led, inclusive Durga Puja rooted in Navaratri, Shakti, and community, celebrating all five days from Maha Shashti through Vijayadashmi at Amador Recreation Center in Pleasanton. Features female priestesses, Kalash Asthapana, daily Pushpanjali & Aarti, Sandhi Puja with Bhog Prasad, Kumari Puja, Navami Havan, Sindoor Daan, and Dhunuchi Naach.",
       "venue": {
-        "name": "Aparajita Puja Venue",
-        "address": "907 Sunnybrook Way",
+        "name": "Amador Recreation Center",
+        "address": "4443 Black Avenue",
         "city": "Pleasanton",
-        "lat": 37.6624312,
-        "lng": -121.8746789,
-        "coordsApprox": true
+        "lat": 37.6723,
+        "lng": -121.8766,
+        "coordsApprox": false
       },
-      "schedule": [],
+      "schedule": [
+        {
+          "date": "2026-10-16",
+          "start": "15:00",
+          "end": "18:00",
+          "title": "Kalash Asthapana, Bodhan Puja & Adibas",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-16",
+          "start": "18:30",
+          "end": "19:30",
+          "title": "Aarti & Pushpanjali",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-17",
+          "start": "10:30",
+          "end": "12:30",
+          "title": "Maha Saptami Puja, Aarti & Pushpanjali",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-17",
+          "start": "14:00",
+          "end": "16:00",
+          "title": "Cultural Program",
+          "type": "cultural"
+        },
+        {
+          "date": "2026-10-17",
+          "start": "17:00",
+          "end": "19:00",
+          "title": "Evening Puja, Aarti & Pushpanjali",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-18",
+          "start": "10:30",
+          "end": "12:30",
+          "title": "Maha Ashtami Puja, Aarti, Pushpanjali & Bhog Prasad",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-18",
+          "start": "18:00",
+          "end": "19:30",
+          "title": "Evening Puja, Aarti, Pushpanjali & Bhog Prasad",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-18",
+          "start": "21:45",
+          "end": "22:20",
+          "title": "Maha Sandhi Puja",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-19",
+          "start": "10:30",
+          "end": "12:30",
+          "title": "Maha Navami Puja, Aarti & Pushpanjali",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-19",
+          "start": "13:00",
+          "end": "14:00",
+          "title": "Kumari Puja",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-19",
+          "start": "15:30",
+          "end": "17:00",
+          "title": "Navami Havan",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-19",
+          "start": "18:00",
+          "end": "19:30",
+          "title": "Evening Puja, Aarti & Pushpanjali",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-20",
+          "start": "10:30",
+          "end": "12:00",
+          "title": "Vijayadashmi Puja, Darshan, Darpan Visarjan & Pushpanjali",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-20",
+          "start": "17:00",
+          "end": "20:00",
+          "title": "Sindhoor Daan & Dhunuchi Naach",
+          "type": "ritual"
+        }
+      ],
       "bhog": {
-        "available": null,
-        "price": null,
-        "details": null
+        "available": true,
+        "details": "Bhog Prasad offered and distributed to all devotees on Maha Ashtami (morning & evening), and prasad daily.",
+        "price": "Free / Sponsored"
       },
       "entry": {
-        "free": null,
+        "free": true,
         "ticketUrl": null,
-        "notes": null
+        "notes": "Free and open to all devotees. Sponsorships: One-Day ($51-$101), Sandhi Puja ($201), Maha Ashtami & Bhog ($251), All 5 Days ($501)."
       },
       "links": {
         "website": "https://aparajitausa.org/"
       },
       "highlights": [
-        "Women-led",
-        "Female priestesses"
+        "Presented by Shakti Foundation — women-led celebration with female priestesses",
+        "Full 5-day observance (Oct 16–20) at Amador Recreation Center, Pleasanton",
+        "Kalash Asthapana, Bodhan & Adibas on Shashti (Oct 16)",
+        "Sandhi Puja on Ashtami night (9:45 PM – 10:20 PM, Oct 18)",
+        "Kumari Puja & Navami Havan on Maha Navami (Oct 19)",
+        "Darpan Visarjan, Sindoor Daan & Dhunuchi Naach on Vijayadashmi (Oct 20)"
       ],
-      "status": "tba",
-      "culturalPrograms": [],
-      "contact": {},
+      "status": "verified",
+      "culturalPrograms": [
+        {
+          "date": "2026-10-17",
+          "time": "14:00",
+          "title": "Saptami Community Cultural Program",
+          "artist": "Community Performers",
+          "description": "Music, dance and cultural performances by community members.",
+          "free": true
+        },
+        {
+          "date": "2026-10-20",
+          "time": "17:00",
+          "title": "Dhunuchi Naach Celebration",
+          "artist": "Devotees",
+          "description": "Traditional celebratory Dhunuchi dance and Sindhoor Daan.",
+          "free": true
+        }
+      ],
+      "contact": {
+        "phone": "Nalini: (408) 393-4871 / Tina: (949) 981-7971",
+        "notes": "Call / SMS for details, donations or sponsorship."
+      },
       "notices": [
-        "Organizer site could not be reached during the last data refresh — 2026 dates still unpublished."
+        "Follows the 5-day Panjika calendar from Friday Oct 16 through Tuesday Oct 20.",
+        "Venue closes at 8:30 PM on most days; stays open until 11:00 PM on Sunday Oct 18 for Sandhi Puja."
       ],
-      "hours": []
+      "hours": [
+        {
+          "date": "2026-10-16",
+          "open": "15:00",
+          "close": "20:30",
+          "source": "organizer"
+        },
+        {
+          "date": "2026-10-17",
+          "open": "10:30",
+          "close": "20:30",
+          "source": "organizer"
+        },
+        {
+          "date": "2026-10-18",
+          "open": "10:30",
+          "close": "23:00",
+          "source": "organizer"
+        },
+        {
+          "date": "2026-10-19",
+          "open": "10:30",
+          "close": "20:30",
+          "source": "organizer"
+        },
+        {
+          "date": "2026-10-20",
+          "open": "10:30",
+          "close": "20:30",
+          "source": "organizer"
+        }
+      ]
     },
     {
       "id": "bapuja",
