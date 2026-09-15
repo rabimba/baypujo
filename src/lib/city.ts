@@ -11,6 +11,7 @@ export interface CityConfig {
   heroKickerBn: string;
   cityLabel: string; // "the Bay Area" (used mid-sentence)
   cityLabelShort: string; // "Bay Area"
+  stateCode?: string; // e.g. "CA" or "TX"
   metaTitle: string;
   metaDescription: string;
   repoName: string;

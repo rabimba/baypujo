@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import PujaMapLazy from "../../../components/PujaMapLazy";
 import {
+  city,
   fmtDateLong,
   fmtTime,
   getPuja,
@@ -101,7 +102,7 @@ export default async function PujaDetailPage({ params }: Props) {
             {puja.venue.address && (
               <>
                 <br />
-                {puja.venue.address}, {puja.venue.city}, CA
+                {puja.venue.address}, {puja.venue.city}{city.stateCode ? `, ${city.stateCode}` : ""}
               </>
             )}
           </p>
@@ -121,7 +122,7 @@ export default async function PujaDetailPage({ params }: Props) {
             </a>
             <a
               href={`https://maps.apple.com/?q=${encodeURIComponent(
-                `${puja.venue.name} ${puja.venue.city} CA`,
+                `${puja.venue.name} ${puja.venue.city} ${city.stateCode ?? ""}`.trim(),
               )}`}
               target="_blank"
               rel="noopener noreferrer"

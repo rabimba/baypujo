@@ -96,7 +96,8 @@ export const city = {
       "brand": "Houston Pujo Parikrama",
       "url": "https://rabimba.github.io/houstonpujo/"
     }
-  ]
+  ],
+  "stateCode": "CA"
 } as CityConfig;
 export const data = {
   "meta": {

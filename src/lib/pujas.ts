@@ -109,7 +109,7 @@ export function fmtDateLong(date: string): string {
 
 export function mapsUrl(puja: Puja): string {
   const q = encodeURIComponent(
-    [puja.venue.name, puja.venue.address, puja.venue.city, "CA"]
+    [puja.venue.name, puja.venue.address, puja.venue.city, city.stateCode ?? ""]
       .filter(Boolean)
       .join(" "),
   );
