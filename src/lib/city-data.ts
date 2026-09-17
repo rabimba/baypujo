@@ -623,7 +623,8 @@ export const data = {
         "Durnibar Saha live",
         "Abhog — play by Suman Mukhopadhyay, Oct 11",
         "Laser Disco Dandiya kickoff Oct 9",
-        "Chakra fashion show (free)"
+        "Chakra fashion show (free)",
+        "Mahisasurmardini The Musical on Oct 9 (Free entry)"
       ],
       "status": "partial",
       "culturalPrograms": [
@@ -635,6 +636,14 @@ export const data = {
           "description": "Electrifying laser disco dandiya kickoff.",
           "ticketUrl": "https://www.tugoz.com/events/prothoma/Prothoma-2026-LaserDiscoDandiya",
           "free": false
+        },
+        {
+          "title": "Mahisasurmardini — The Musical",
+          "date": "2026-10-09",
+          "time": "18:45",
+          "artist": "Artists of San Francisco Bay Area",
+          "description": "Live on stage at Campbell Heritage Theater. Iconic timeless rendition of Chandi Paath and quintessential songs of Mahalaya. Entry is completely FREE for all (no tickets required).",
+          "free": true
         },
         {
           "title": "Ash King Live in Concert",
