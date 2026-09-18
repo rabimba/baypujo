@@ -4,7 +4,9 @@ import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import Script from "next/script";
 
-const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
+import { city } from "../lib/pujas";
+
+const GA_ID = process.env.NEXT_PUBLIC_GA_ID ?? (city.id === "bayarea" ? "G-022MZHD7TY" : undefined);
 const GOATCOUNTER_CODE = process.env.NEXT_PUBLIC_GOATCOUNTER_CODE;
 
 declare global {
