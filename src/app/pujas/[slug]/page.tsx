@@ -30,9 +30,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const puja = getPuja(slug);
   if (!puja) return { title: "Puja not found" };
+  const title = `${puja.name} 2026 — Schedule, Bhog & Directions`;
+  const description = `${puja.name} at ${puja.venue.name}, ${puja.venue.city}${city.stateCode ? `, ${city.stateCode}` : ""}. Dates: ${puja.dateLabel}. Verified schedule, pushpanjali timings, bhog details, tickets & directions.`;
   return {
-    title: `${puja.name} 2026 — schedule, bhog & directions`,
-    description: `${puja.name} at ${puja.venue.name}, ${puja.venue.city}. ${puja.dateLabel}. Schedule, bhog details, entry, and directions.`,
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: "article",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+    },
   };
 }
 

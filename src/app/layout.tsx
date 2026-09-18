@@ -18,7 +18,14 @@ const hind = Hind_Siliguri({
   weight: ["300", "400", "500", "600", "700"],
 });
 
+const BASE = (
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://rabimba.github.io"
+).replace(/\/+$/, "");
+const BASE_PATH = process.env.PB_BASE_PATH ?? `/${city.repoName}`;
+const SITE_URL = `${BASE}${BASE_PATH}`;
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
     default: city.metaTitle,
     template: `%s · ${city.brand}`,
@@ -29,7 +36,31 @@ export const metadata: Metadata = {
     `durga puja ${city.cityLabelShort.toLowerCase()}`,
     `bengali ${city.cityLabelShort.toLowerCase()}`,
     "pujo parikrama",
+    "puja schedule",
+    "bhog",
+    "pushpanjali",
+    "anandamela",
   ],
+  authors: [{ name: "Rabimba Karanjai", url: city.ownerUrl }],
+  creator: "Rabimba Karanjai",
+  publisher: city.brand,
+  openGraph: {
+    title: city.metaTitle,
+    description: city.metaDescription,
+    url: SITE_URL,
+    siteName: city.brand,
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: city.metaTitle,
+    description: city.metaDescription,
+    creator: "@rabimba",
+  },
+  alternates: {
+    canonical: SITE_URL,
+  },
 };
 
 const nav = [
