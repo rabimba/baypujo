@@ -102,7 +102,7 @@ export const city = {
 export const data = {
   "meta": {
     "year": 2026,
-    "lastVerified": "2026-09-14",
+    "lastVerified": "2026-09-28",
     "tithiReference": [
       {
         "date": "2026-10-10",
@@ -409,11 +409,11 @@ export const data = {
       "dateLabel": "Oct 9–11, 2026 (Navaratri & Durga Puja)",
       "description": "Central Valley nonprofit founded 2022; Durga Puja and Navaratri celebrations rooted in culture and service.",
       "venue": {
-        "name": "Mossdale Elementary School",
-        "address": "455 Brookhurst Blvd",
+        "name": "Lathrop High School",
+        "address": "647 Spartan Way",
         "city": "Lathrop",
-        "lat": 37.8019532,
-        "lng": -121.3063066
+        "lat": 37.8277384,
+        "lng": -121.3035205
       },
       "schedule": [],
       "bhog": {
@@ -966,7 +966,8 @@ export const data = {
       "bhog": {
         "available": true,
         "price": null,
-        "details": "Food court with authentic Bengali cuisine."
+        "details": "Food court with authentic Bengali cuisine. Traditional puja offerings and donations via the Agomoni portal.",
+        "purchaseUrl": "https://www.agomoni.org/DP2026PujaDonation"
       },
       "entry": {
         "free": null,
@@ -974,7 +975,8 @@ export const data = {
         "notes": "Open-air community celebration; check site for program and any ticketed shows."
       },
       "links": {
-        "website": "https://agomoni.org/durgapuja-2026/"
+        "website": "https://agomoni.org/durgapuja-2026/",
+        "tickets": "https://www.agomoni.org/DP2026PujaDonation"
       },
       "highlights": [
         "California's largest open-air Durga Puja",

@@ -94,3 +94,7 @@ sitemap.
 - Drive times are straight-line distance × road factor, not live traffic.
 - Where no schedule is published, the planner assumes 10:00–20:00 hours.
 - Schedules change — every page links to the organizer for confirmation.
+
+## License
+
+This project is licensed under the [Apache License, Version 2.0](LICENSE). Derivative works and redistributions must preserve copyright and attribution notices as specified in the [NOTICE](NOTICE) file.
