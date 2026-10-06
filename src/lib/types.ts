@@ -100,12 +100,20 @@ export interface MahalayaInfo {
   tarpan: string;
 }
 
+export interface RecentUpdate {
+  date: string;
+  text: string;
+  link?: string;
+  pujaId?: string;
+}
+
 export interface PujoData {
   meta: {
     year: number;
     lastVerified: string;
     tithiReference: { date: string; label: string; labelBn?: string }[];
     mahalaya?: MahalayaInfo;
+    recentUpdates?: RecentUpdate[];
     sourceNote: string;
   };
   pujas: Puja[];

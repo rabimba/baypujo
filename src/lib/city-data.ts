@@ -136,6 +136,31 @@ export const data = {
       }
     ],
     "sourceNote": "Dates and details from organizer websites (Abahan, Aadya, MitraUSA, Muktangan, Prothoma, Aantorik, Sanskriti, Pashchimi, Utsav Sacramento, Prabasi, Agomoni, BAPuja, Shirdi Sai Darbar, Bengal Club) and the Abahan Bay Area directory. Tithi timings per Drik Panchang. Schedules change — always confirm with the organizer before traveling. Mahalaya 2026 (Ashwina Amavasya, Oct 10) per Drik Panchang.",
+    "recentUpdates": [
+      {
+        "date": "2026-09-28",
+        "text": "Mitra USA updated Durga Puja venue to Lathrop High School (647 Spartan Way, Lathrop).",
+        "pujaId": "mitra"
+      },
+      {
+        "date": "2026-09-28",
+        "text": "Prothoma released tickets for Ash King concert, Suman Mukhopadhyay's play Abhog, and Bhalobasha Chhilo at Heritage Theatre.",
+        "pujaId": "prothoma",
+        "link": "https://heritagetheatre.showare.com/orderticketsvenue.asp?p=1113"
+      },
+      {
+        "date": "2026-09-28",
+        "text": "Agomoni opened the Durga Puja 2026 offering and donation portal for California's largest open-air pujo.",
+        "pujaId": "agomoni",
+        "link": "https://www.agomoni.org/DP2026PujaDonation"
+      },
+      {
+        "date": "2026-09-28",
+        "text": "Utsav Sacramento Silver Jubilee tickets live on Eventbrite (Chandrabindoo & Mahalaxmi Iyer Nite).",
+        "pujaId": "utsab",
+        "link": "https://utsavsac.org/event/utsav-silver-jubilee-durga-puja-2026-october-23rd-to-october-25th/"
+      }
+    ],
     "mahalaya": {
       "date": "2026-10-10",
       "dateLabel": "Saturday, October 10, 2026",
@@ -626,12 +651,12 @@ export const data = {
         "Chakra fashion show (free)",
         "Mahisasurmardini The Musical on Oct 9 (Free entry)"
       ],
-      "status": "partial",
+      "status": "verified",
       "culturalPrograms": [
         {
           "title": "Laser Disco Dandiya Night",
           "date": "2026-10-09",
-          "time": null,
+          "time": "20:30",
           "artist": null,
           "description": "Electrifying laser disco dandiya kickoff.",
           "ticketUrl": "https://www.tugoz.com/events/prothoma/Prothoma-2026-LaserDiscoDandiya",
@@ -650,7 +675,8 @@ export const data = {
           "date": "2026-10-10",
           "time": "21:00",
           "artist": "Ash King",
-          "description": "Popular Bollywood playback singer live at Campbell Heritage Center, Campbell CA. Ticket info coming soon. Members get free premium seating.",
+          "description": "Popular Bollywood playback singer live at Campbell Heritage Center, Campbell CA. Members get free premium seating.",
+          "ticketUrl": "https://heritagetheatre.showare.com/orderticketsvenue.asp?p=1113",
           "free": false
         },
         {
@@ -658,7 +684,8 @@ export const data = {
           "date": "2026-10-10",
           "time": "15:00",
           "artist": "Prothoma ensemble",
-          "description": "A Broadway-style musical tribute to the legendary Asha Bhosle — live music, dance, acting and theatrical storytelling. Venue: Campbell Heritage Center. Ticket link coming soon.",
+          "description": "A Broadway-style musical tribute to the legendary Asha Bhosle — live music, dance, acting and theatrical storytelling. Venue: Campbell Heritage Center.",
+          "ticketUrl": "https://heritagetheatre.showare.com/orderticketsvenue.asp?p=1112",
           "free": false
         },
         {
@@ -666,15 +693,24 @@ export const data = {
           "date": "2026-10-11",
           "time": "15:30",
           "artist": "Suman Mukhopadhyay, Sudipta Majumdar",
-          "description": "Premiere of Abhog with meet-and-greet with the director. Ticket info coming soon.",
+          "description": "Premiere of Abhog with meet-and-greet with the director.",
+          "ticketUrl": "https://heritagetheatre.showare.com/orderticketsvenue.asp?p=1114",
           "free": false
         },
         {
-          "title": "Chakra — Circle of Life fashion show",
+          "title": "Rupkothar Runway — Fashion Show",
           "date": null,
           "time": null,
           "artist": null,
-          "description": "Spectacular fashion show — CHAKRA, Circle of Life. Absolutely free for all.",
+          "description": "Celebration of fashion, creativity, and the Prothoma family. Free for all.",
+          "free": true
+        },
+        {
+          "title": "Prangon e Nach",
+          "date": null,
+          "time": null,
+          "artist": null,
+          "description": "Community celebration dance in front of Durga Ma. Free event for everyone.",
           "free": true
         },
         {

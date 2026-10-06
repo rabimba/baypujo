@@ -1,6 +1,7 @@
 import Link from "next/link";
 import AssistantMount from "../components/AssistantMount";
 import PujaCard from "../components/PujaCard";
+import UpdateTicker from "../components/UpdateTicker";
 import {
   AlponaDivider,
   DurgaEye,
@@ -36,6 +37,7 @@ export default function HomePage() {
 
   return (
     <div>
+      <UpdateTicker />
       {/* Hero */}
       <section className="durgo-gradient text-white relative overflow-hidden">
         <div
