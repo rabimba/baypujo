@@ -139,6 +139,18 @@ export const data = {
     "recentUpdates": [
       {
         "date": "2026-09-28",
+        "text": "Bay Area Prabasi published full 3-day puja schedule & concerts (Anjan Dutta, Monali Thakur) at Santa Clara Fairgrounds.",
+        "pujaId": "prabasi",
+        "link": "https://prabasi.org/bay-area-prabasi-durga-puja-2026"
+      },
+      {
+        "date": "2026-09-28",
+        "text": "Shirdi Sai Darbar announced 5-day Grand Bengali Durga Puja (Oct 16–20) with daily 7:30 PM rituals in Sunnyvale.",
+        "pujaId": "shirdisai",
+        "link": "https://shirdisaidarbar.org/upcomingevents.html"
+      },
+      {
+        "date": "2026-09-28",
         "text": "Mitra USA updated Durga Puja venue to Lathrop High School (647 Spartan Way, Lathrop).",
         "pujaId": "mitra"
       },
@@ -1142,16 +1154,123 @@ export const data = {
         "lat": 37.2999593,
         "lng": -121.8511955
       },
-      "schedule": [],
+      "schedule": [
+        {
+          "date": "2026-10-16",
+          "start": "15:30",
+          "end": "18:00",
+          "title": "Bodhon, Amontron, Adhibas, Bhog & Arati",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-16",
+          "start": "19:30",
+          "end": "21:30",
+          "title": "Anjan Dutta Live in Concert (Opening Night)",
+          "type": "cultural"
+        },
+        {
+          "date": "2026-10-17",
+          "start": "08:30",
+          "end": "10:30",
+          "title": "Potrika Snan Probesh, Ghot Sthapona, Saptami Puja",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-17",
+          "start": "10:30",
+          "end": "11:30",
+          "title": "Pushpanjali, Bhog & Arati",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-17",
+          "start": "11:30",
+          "end": "12:30",
+          "title": "Ashtami Puja, Pushpanjali",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-17",
+          "start": "12:30",
+          "end": "12:45",
+          "title": "Pushpanjali, Bhog & Arati, Prasad",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-17",
+          "start": "13:15",
+          "end": "14:00",
+          "title": "Kumari Puja",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-17",
+          "start": "16:30",
+          "end": "17:15",
+          "title": "Sandhi Puja, Pushpanjali, Podmo & Pradeep Daan, Prasad",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-17",
+          "start": "17:15",
+          "end": "18:00",
+          "title": "Bhavani Stotram",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-17",
+          "start": "19:30",
+          "end": "21:30",
+          "title": "Monali Thakur Live in Concert",
+          "type": "cultural"
+        },
+        {
+          "date": "2026-10-18",
+          "start": "09:00",
+          "end": "10:30",
+          "title": "Nabami Puja, Anjoli, Bhog & Arati",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-18",
+          "start": "12:00",
+          "end": "13:00",
+          "title": "Hom (Havan)",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-18",
+          "start": "13:00",
+          "end": "14:00",
+          "title": "Dashami Puja, Bishorjon, Shantir Jol",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-18",
+          "start": "15:00",
+          "end": "16:30",
+          "title": "Sindur Khela & Traditional Dhunuchi Dance",
+          "type": "cultural"
+        },
+        {
+          "date": "2026-10-18",
+          "start": "18:30",
+          "end": "20:30",
+          "title": "Jashn-e-Bollywood Grand Dance Show",
+          "type": "cultural"
+        }
+      ],
       "bhog": {
-        "available": null,
+        "available": true,
         "price": null,
-        "details": "Booths and food vendors on site (booth bookings via tugoz)."
+        "details": "Saturday Ashtami Mahaprasad bhog lunch; festive dinners on Friday & Saturday and Dashami lunch on Sunday for members/sponsors. Authentic Kolkata street food & Bengali delicacies at food stalls for all visitors.",
+        "purchaseUrl": "https://www.tugoz.com/events/prabasi/individual-sponsorship?eid=112340"
       },
       "entry": {
-        "free": null,
+        "free": true,
         "ticketUrl": "https://www.tugoz.com/events/prabasi",
-        "notes": "Anjan Dutta (Oct 16) booked via Tugoz; Monali Thakur (Oct 17) and the puja/dance show via Sulekha. Saturday bhog sponsorship on Tugoz."
+        "notes": "Rituals open to community visitors; Saturday Bhog sponsorship via Tugoz; concert tickets for Anjan Dutta (Tugoz) and Monali Thakur (Sulekha)."
       },
       "links": {
         "website": "https://prabasi.org/",
@@ -1159,34 +1278,38 @@ export const data = {
         "tickets": "https://www.tugoz.com/events/prabasi"
       },
       "highlights": [
-        "Golden Jubilee Durga Puja — est. 1974",
-        "Large fairgrounds venue",
-        "Anjan Dutta Live in Concert — opening night (Oct 16)",
-        "Monali Thakur Live in Concert (Oct 17)",
-        "Grand Bollywood Dance Show on Sunday (Oct 18)"
+        "54th Year Celebration — est. 1974",
+        "Large Exposition Hall venue at Santa Clara Fairgrounds",
+        "Anjan Dutta Live in Concert (Oct 16, 7:30 PM)",
+        "Monali Thakur Live in Concert (Oct 17, 7:30 PM)",
+        "Kumari Puja on Saturday (Oct 17, 1:15 PM)",
+        "Sindur Khela & Dhunuchi Dance (Oct 18)",
+        "Grand Bollywood Dance Show (Oct 18, 6:30 PM)"
       ],
-      "status": "partial",
+      "status": "verified",
       "culturalPrograms": [
         {
           "date": "2026-10-16",
-          "time": "19:00",
+          "time": "19:30",
           "title": "Anjan Dutta Live in Concert",
-          "artist": "Anjan Dutta",
-          "description": "Poetic acoustic guitars and deep storytelling of Anjan Dutta live on stage during the Durga Puja opening musical night.",
+          "artist": "Anjan Dutta & Band",
+          "description": "Poetic acoustic guitars and deep storytelling of legendary songwriter Anjan Dutta and his band.",
+          "ticketUrl": "https://www.tugoz.com/events/prabasi/durga-puja-day1",
           "free": false
         },
         {
-          "title": "Monali Thakur Live in Concert",
           "date": "2026-10-17",
-          "time": null,
+          "time": "19:30",
+          "title": "Monali Thakur Live in Concert",
           "artist": "Monali Thakur",
-          "description": "Bollywood musical night with National Award winner Monali Thakur at Santa Clara Fairgrounds. Booking via Sulekha.",
+          "description": "National Film Award winner Monali Thakur lights up the stage with hit Bollywood and Bengali chartbusters.",
+          "ticketUrl": "https://events.sulekha.com/monali-thakur-live-in-bay-area_event-in_san-jose-ca_401550",
           "free": false
         },
         {
           "date": "2026-10-18",
-          "time": "18:00",
-          "title": "Grand Bollywood Dance Show",
+          "time": "18:30",
+          "title": "Jashn-e-Bollywood Grand Dance Show",
           "artist": "Prabasi Performers",
           "description": "High-energy Sunday evening Bollywood Dance Show concluding the 3-day celebrations.",
           "free": false
@@ -2618,13 +2741,29 @@ export const data = {
     },
     {
       "id": "shirdisai",
-      "name": "Shirdi Sai Darbar Durga Puja",
+      "name": "Shirdi Sai Darbar Bengali Durga Puja",
       "organizer": "Shirdi Sai Darbar Sunnyvale",
       "region": "South Bay",
-      "weekend": null,
-      "dates": [],
-      "dateLabel": "Dates TBA",
-      "description": "Temple-based celebration at Shirdi Sai Darbar, Sunnyvale. Check the latest schedule and temple guidance before planning your visit.",
+      "weekend": 2,
+      "dates": [
+        {
+          "date": "2026-10-16"
+        },
+        {
+          "date": "2026-10-17"
+        },
+        {
+          "date": "2026-10-18"
+        },
+        {
+          "date": "2026-10-19"
+        },
+        {
+          "date": "2026-10-20"
+        }
+      ],
+      "dateLabel": "Oct 16–20, 2026",
+      "description": "5 divine days of Grand Bengali Durga Puja Celebration 2026 at Shirdi Sai Darbar (Bharat Darshan) in Sunnyvale. Sacred traditional rituals every evening from 7:30 PM, chanting, blessed prasad, and community celebration.",
       "venue": {
         "name": "Shirdi Sai Darbar",
         "address": "255 San Geronimo Way",
@@ -2632,30 +2771,82 @@ export const data = {
         "lat": 37.3803346,
         "lng": -122.0139932
       },
-      "schedule": [],
+      "schedule": [
+        {
+          "date": "2026-10-16",
+          "start": "19:30",
+          "end": null,
+          "title": "Maha Shashthi: Bilva Nimantran, Kalparambha, Akal Bodhan, Amantran & Adhivas",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-17",
+          "start": "19:30",
+          "end": null,
+          "title": "Maha Saptami: Durga Saptami Puja & Kolabou Puja",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-18",
+          "start": "19:30",
+          "end": null,
+          "title": "Maha Ashtami: Durga Ashtami Puja, Kumari Puja, Sandhi Puja",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-19",
+          "start": "19:30",
+          "end": null,
+          "title": "Maha Navami: Maha Navami Puja, Durga Balidan, Navami Homa",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-20",
+          "start": "19:30",
+          "end": null,
+          "title": "Vijayadashami: Durga Visarjan, Vijayadashami Celebration, Sindoor Khela",
+          "type": "ritual"
+        }
+      ],
       "bhog": {
-        "available": null,
+        "available": true,
         "price": null,
-        "details": null
+        "details": "Blessed Prasad and Annadanam served to devotees throughout the five-day celebration."
       },
       "entry": {
-        "free": null,
-        "ticketUrl": null,
-        "notes": null
+        "free": true,
+        "ticketUrl": "https://paybee.io/@ssd_paybee@102",
+        "notes": "Free entry for all devotees, families, and friends. Puja sponsorships available via PayBee."
       },
       "links": {
-        "website": "https://shirdisaidarbar.org/"
+        "website": "https://shirdisaidarbar.org/upcomingevents.html",
+        "tickets": "https://paybee.io/@ssd_paybee@102"
       },
-      "highlights": [],
-      "status": "tba",
-      "culturalPrograms": [],
+      "highlights": [
+        "5 Divine Days of Traditional Bengali Durga Puja",
+        "Evening pujas daily from 7:30 PM",
+        "Kumari Puja & Sandhi Puja on Ashtami (Oct 18)",
+        "Sindoor Utsav / Sindoor Khela on Vijayadashami (Oct 20)",
+        "Free blessed prasad for all devotees",
+        "Darshan of 25+ Hindu Deities"
+      ],
+      "status": "verified",
+      "culturalPrograms": [
+        {
+          "date": "2026-10-20",
+          "time": "19:30",
+          "title": "Sindoor Utsav & Vijayadashami Celebration",
+          "artist": null,
+          "description": "Traditional Sindoor Khela and farewell celebration for Maa Durga.",
+          "free": true
+        }
+      ],
       "contact": {
-        "email": "ShirdiSaiSevak@yahoo.com",
-        "phone": "408-482-0089",
-        "notes": "Text or WhatsApp messages only"
+        "email": "info@shirdisaidarbar.org",
+        "phone": "408-482-0089"
       },
       "notices": [
-        "Temple open daily; Thu/Sat/Sun 7am–9pm. Durga Puja sponsorship options appear on the temple's paybee page closer to the festival."
+        "All devotees welcome. Grand Shardiya Maha Navratri runs Oct 11–19, with Bengali Durga Puja Oct 16–20."
       ],
       "hours": []
     },
