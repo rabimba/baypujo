@@ -139,6 +139,18 @@ export const data = {
     "recentUpdates": [
       {
         "date": "2026-09-28",
+        "text": "Muktangan announced Freedom High School venue in Oakley and full 2-day puja schedule (Oct 10–11).",
+        "pujaId": "muktangan",
+        "link": "https://muktangan.us/durga-puja-2026/"
+      },
+      {
+        "date": "2026-09-28",
+        "text": "Prothoma published day-by-day festival schedule at Campbell Heritage Theater (Oct 9–11).",
+        "pujaId": "prothoma",
+        "link": "https://www.prothoma.org/"
+      },
+      {
+        "date": "2026-09-28",
         "text": "Bay Area Prabasi published full 3-day puja schedule & concerts (Anjan Dutta, Monali Thakur) at Santa Clara Fairgrounds.",
         "pujaId": "prabasi",
         "link": "https://prabasi.org/bay-area-prabasi-durga-puja-2026"
@@ -493,71 +505,177 @@ export const data = {
           "date": "2026-10-11"
         }
       ],
-      "dateLabel": "Oct 9–11, 2026 (Navrang Dandiya Oct 9; Durga Puja Oct 10–11)",
-      "description": "Community celebration at Brentwood City Park. Check organizer site for schedule and participation details.",
+      "dateLabel": "Oct 10–11, 2026",
+      "description": "Grand 2-day community celebration of Durga Puja by Muktangan featuring traditional rituals, food festival, cultural programs, fashion show, Bollywood dance, and community dinners at Freedom High School in Oakley.",
       "venue": {
-        "name": "Brentwood City Park",
-        "address": "710 2nd St",
-        "city": "Brentwood",
-        "lat": 37.9305,
-        "lng": -121.6936,
-        "coordsApprox": true
+        "name": "Freedom High School",
+        "address": "1050 Neroly Rd",
+        "city": "Oakley",
+        "lat": 37.9694093,
+        "lng": -121.7196713
       },
-      "schedule": [],
+      "schedule": [
+        {
+          "date": "2026-10-10",
+          "start": "11:00",
+          "end": "13:00",
+          "title": "Shashti & Saptami Puja",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-10",
+          "start": "13:30",
+          "end": "14:30",
+          "title": "Member Lunch & Prasad",
+          "type": "food"
+        },
+        {
+          "date": "2026-10-10",
+          "start": "15:00",
+          "end": "17:00",
+          "title": "Cultural Programs",
+          "type": "cultural"
+        },
+        {
+          "date": "2026-10-10",
+          "start": "17:00",
+          "end": "20:00",
+          "title": "Ashtami Puja, Sandhi Puja & Dhunuchi Nach",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-10",
+          "start": "20:00",
+          "end": "20:30",
+          "title": "Fashion Show",
+          "type": "cultural"
+        },
+        {
+          "date": "2026-10-10",
+          "start": "20:30",
+          "end": "22:00",
+          "title": "Member Dinner",
+          "type": "food"
+        },
+        {
+          "date": "2026-10-11",
+          "start": "09:00",
+          "end": "12:30",
+          "title": "Nabami & Dashami Puja",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-11",
+          "start": "12:30",
+          "end": "14:00",
+          "title": "Member Lunch & Prasad",
+          "type": "food"
+        },
+        {
+          "date": "2026-10-11",
+          "start": "14:00",
+          "end": "16:00",
+          "title": "Cultural Programs",
+          "type": "cultural"
+        },
+        {
+          "date": "2026-10-11",
+          "start": "16:00",
+          "end": "17:00",
+          "title": "Sindoor Khela",
+          "type": "cultural"
+        },
+        {
+          "date": "2026-10-11",
+          "start": "17:00",
+          "end": "18:30",
+          "title": "Lokkhi Puja",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-11",
+          "start": "18:30",
+          "end": "19:30",
+          "title": "Bollywood Dance",
+          "type": "cultural"
+        },
+        {
+          "date": "2026-10-11",
+          "start": "19:30",
+          "end": "21:00",
+          "title": "Bijoya Sammilani & Member Dinner",
+          "type": "food"
+        }
+      ],
       "bhog": {
-        "available": null,
+        "available": true,
         "price": null,
-        "details": null
+        "details": "Member lunches and dinners served both days. Local vendors serving Bengali snacks, chaat, and sweets throughout the weekend."
       },
       "entry": {
-        "free": null,
-        "ticketUrl": null,
-        "notes": null
+        "free": true,
+        "ticketUrl": "https://muktangan.us/membership-join/",
+        "notes": "Free admission to attend; membership packages include festive lunches and dinners."
       },
       "links": {
-        "website": "https://muktangan.us/durga-puja-2025/",
+        "website": "https://muktangan.us/durga-puja-2026/",
         "facebook": "https://www.facebook.com/muktangan.us"
       },
       "highlights": [
-        "Outdoor park venue"
+        "Grand high school venue at Freedom High School, Oakley",
+        "2 full days of traditional rituals & cultural programs",
+        "Sandhi Puja & Dhunuchi Nach Saturday evening",
+        "Sindoor Khela and Lokkhi Puja Sunday evening",
+        "Food festival & vendor stalls"
       ],
-      "status": "partial",
+      "status": "verified",
       "culturalPrograms": [
         {
-          "title": "Navrang — A Dandiya Saga",
-          "date": "2026-10-09",
-          "time": null,
+          "title": "Dhunuchi Nach",
+          "date": "2026-10-10",
+          "time": "17:00",
           "artist": null,
-          "description": "Dandiya night opening the festival weekend."
+          "description": "Energetic traditional dhunuchi naach during Ashtami & Sandhi Puja."
         },
         {
-          "title": "Evening with international bands",
-          "date": null,
-          "time": null,
+          "title": "Fashion Show",
+          "date": "2026-10-10",
+          "time": "20:00",
           "artist": null,
-          "description": "All-time favorite international bands evening (details coming soon)."
+          "description": "Community festive fashion showcase."
+        },
+        {
+          "title": "Sindoor Khela",
+          "date": "2026-10-11",
+          "time": "16:00",
+          "artist": null,
+          "description": "Joyful farewell and traditional sindoor khela."
+        },
+        {
+          "title": "Bollywood Dance Showcase",
+          "date": "2026-10-11",
+          "time": "18:30",
+          "artist": null,
+          "description": "High-voltage community dance presentation."
         }
       ],
       "contact": {
         "email": "events@muktangan.us",
         "phone": "+1 (925) 642-0804 / +1 (510) 358-5858"
       },
-      "notices": [
-        "Schedule, food menu and vendors 'coming soon' per organizer site.",
-        "Food festival with numerous cultural programs: songs, dance, drama, fashion show, dandiya night."
-      ],
+      "notices": [],
       "hours": [
         {
           "date": "2026-10-10",
-          "open": "10:00",
-          "close": "21:00",
-          "source": "default"
+          "open": "11:00",
+          "close": "22:00",
+          "source": "organizer"
         },
         {
           "date": "2026-10-11",
-          "open": "10:00",
+          "open": "09:00",
           "close": "21:00",
-          "source": "default"
+          "source": "organizer"
         }
       ]
     },
@@ -632,23 +750,121 @@ export const data = {
       "dateLabel": "Oct 9–11, 2026",
       "description": "Prothoma's flagship Durga Puja at the Campbell Heritage Center — Laser Disco Dandiya kickoff (Oct 9), Ash King live (Oct 10, 9 PM), the play Abhog by Suman Mukhopadhyay (Oct 11, 3:30 PM), and the Chakra fashion show. Members get free premium seating at live shows.",
       "venue": {
-        "name": "Campbell Heritage Center",
-        "address": null,
+        "name": "Campbell Heritage Theater",
+        "address": "1 W Campbell Ave",
         "city": "Campbell",
         "lat": 37.2889943,
-        "lng": -121.951981,
-        "coordsApprox": true
+        "lng": -121.951981
       },
-      "schedule": [],
+      "schedule": [
+        {
+          "date": "2026-10-09",
+          "start": "18:45",
+          "end": "20:15",
+          "title": "Mahisasurmardini — The Musical (Free entry)",
+          "type": "cultural"
+        },
+        {
+          "date": "2026-10-09",
+          "start": "20:30",
+          "end": "23:00",
+          "title": "Laser Disco Dandiya Night",
+          "type": "cultural"
+        },
+        {
+          "date": "2026-10-10",
+          "start": "10:00",
+          "end": "12:30",
+          "title": "Pujo Adhibash",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-10",
+          "start": "12:30",
+          "end": "14:30",
+          "title": "Pushpanjali & Bhog",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-10",
+          "start": "15:00",
+          "end": "16:30",
+          "title": "Musical — Bhalobasha Chilo",
+          "type": "cultural"
+        },
+        {
+          "date": "2026-10-10",
+          "start": "16:30",
+          "end": "17:30",
+          "title": "Rupkothar Runway (Fashion Show)",
+          "type": "cultural"
+        },
+        {
+          "date": "2026-10-10",
+          "start": "18:00",
+          "end": "18:30",
+          "title": "Sandhya Aarti",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-10",
+          "start": "18:30",
+          "end": "20:30",
+          "title": "Prangon e Nach (Durga Ma Homecoming Dance)",
+          "type": "cultural"
+        },
+        {
+          "date": "2026-10-10",
+          "start": "21:00",
+          "end": "23:30",
+          "title": "Ash King Live in Concert",
+          "type": "cultural"
+        },
+        {
+          "date": "2026-10-11",
+          "start": "11:30",
+          "end": "12:30",
+          "title": "Nabami Pujo Start",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-11",
+          "start": "12:30",
+          "end": "14:00",
+          "title": "Nabami Pushpanjali & Bhog",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-11",
+          "start": "14:00",
+          "end": "15:30",
+          "title": "Dashami Puja and Visarjan",
+          "type": "ritual"
+        },
+        {
+          "date": "2026-10-11",
+          "start": "15:30",
+          "end": "16:30",
+          "title": "Natok — Abhog (Suman Mukhopadhyay)",
+          "type": "cultural"
+        },
+        {
+          "date": "2026-10-11",
+          "start": "16:30",
+          "end": "18:30",
+          "title": "Debi Boron and Sindur Khela",
+          "type": "cultural"
+        }
+      ],
       "bhog": {
-        "available": null,
+        "available": true,
         "price": null,
-        "details": null
+        "details": "Festive meals and bhog served across the puja weekend."
       },
       "entry": {
-        "free": null,
-        "ticketUrl": null,
-        "notes": "Dandiya tickets on tugoz; Ash King & Abhog ticket info coming soon. Members get free premium seating for live shows."
+        "free": true,
+        "ticketUrl": "https://heritagetheatre.showare.com/orderticketsvenue.asp?p=1113",
+        "notes": "Rituals, Mahisasurmardini, and Prangon e Nach are free entry. Tickets required for Ash King concert, Abhog play, Bhalobasha Chhilo, and Laser Dandiya via Heritage Theatre and Tugoz."
       },
       "links": {
         "website": "https://www.prothoma.org/",
