@@ -273,17 +273,13 @@ export default function ParikromaClient() {
           </section>
 
           <section className="bg-white rounded-2xl border border-stone-200 p-5">
-            <h2 className="font-display font-bold text-lg">
-              Must-visit pujas{" "}
-              <span className="text-sm font-body font-normal text-stone-500">
-                (optional)
-              </span>
-            </h2>
+            <h2 className="font-display font-bold text-lg">Pujas to visit</h2>
             <p className="text-xs text-stone-500 mt-1 font-body">
               Active on {fmtDateLong(date)} ·{" "}
               {WEEKEND_LABELS[
                 String(active[0]?.weekend ?? "")
-              ] ?? "various weekends"}
+              ] ?? "various weekends"}{" "}
+              · your itinerary includes only what you pick below
             </p>
             <div className="flex flex-wrap gap-2 mt-3">
               {active.map((p) => {
@@ -319,7 +315,9 @@ export default function ParikromaClient() {
             aria-live="polite"
           >
             {origin
-              ? `✓ Itinerary updates live — ${result?.stops.length ?? 0} stop${(result?.stops.length ?? 0) === 1 ? "" : "s"} planned`
+              ? mustVisit.length === 0
+                ? "Pick pujas below to build your itinerary"
+                : `✓ Itinerary updates live — ${result?.stops.length ?? 0} stop${(result?.stops.length ?? 0) === 1 ? "" : "s"} planned`
               : "Set a starting point to see your itinerary"}
           </div>
         </div>
@@ -403,11 +401,6 @@ export default function ParikromaClient() {
                       >
                         {s.puja.name}
                       </Link>
-                      {s.isMustVisit && (
-                        <span className="ml-2 text-[10px] uppercase font-bold text-dhunuchi">
-                          must
-                        </span>
-                      )}
                       <p className="text-xs text-stone-600">
                         {minToHm(Math.max(s.arrive, hmToMin(startTime)))} –{" "}
                         {minToHm(s.depart)} · {s.puja.venue.city}
@@ -424,23 +417,38 @@ export default function ParikromaClient() {
                 </ol>
                 {result.stops.length === 0 && (
                   <div className="text-sm text-stone-600 bg-amber-50 border border-amber-200 rounded-xl p-4">
-                    <p className="font-semibold text-amber-900">
-                      No pujas fit this window yet.
-                    </p>
-                    <p className="mt-1">
-                      {active.length === 0
-                        ? "No pujas are scheduled on this date — pick another day."
-                        : `Your window is ${startTime}–${endTime} with ${dwell} min per puja. Try:`}
-                    </p>
-                    {active.length > 0 && (
-                      <ul className="list-disc pl-5 mt-1 space-y-0.5">
-                        <li>Start earlier (9:00) or stay later (21:00)</li>
-                        <li>Shorten dwell time to 45 min</li>
-                        <li>
-                          Check the skipped list below — pujas closing before
-                          your start time can&apos;t be reached
-                        </li>
-                      </ul>
+                    {mustVisit.length === 0 ? (
+                      <>
+                        <p className="font-semibold text-amber-900">
+                          No pujas selected yet.
+                        </p>
+                        <p className="mt-1">
+                          Pick the pujas you want to visit from the list on
+                          the left — your itinerary will include only those,
+                          scheduled in the best order.
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="font-semibold text-amber-900">
+                          No pujas fit this window yet.
+                        </p>
+                        <p className="mt-1">
+                          {active.length === 0
+                            ? "No pujas are scheduled on this date — pick another day."
+                            : `Your window is ${startTime}–${endTime} with ${dwell} min per puja. Try:`}
+                        </p>
+                        {active.length > 0 && (
+                          <ul className="list-disc pl-5 mt-1 space-y-0.5">
+                            <li>Start earlier (9:00) or stay later (21:00)</li>
+                            <li>Shorten dwell time to 45 min</li>
+                            <li>
+                              Check the skipped list below for why each pick
+                              didn&apos;t fit
+                            </li>
+                          </ul>
+                        )}
+                      </>
                     )}
                   </div>
                 )}

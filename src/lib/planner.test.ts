@@ -68,7 +68,7 @@ describe("planner helpers", () => {
 });
 
 describe("planParikroma", () => {
-  it("produces ordered feasible stops", () => {
+  it("schedules selected pujas in order, respecting drive time and dwell", () => {
     const a = fakePuja("a", iccMilpitas, { open: "10:00", close: "21:00" });
     const b = fakePuja("b", newarkPavilion, { open: "10:00", close: "21:00" });
     const res = planParikroma({
@@ -77,7 +77,7 @@ describe("planParikroma", () => {
       endTime: "20:00",
       origin: iccMilpitas,
       dwellMin: 60,
-      mustVisit: [],
+      mustVisit: ["a", "b"],
       candidates: [a, b],
     });
     expect(res.stops.map((s) => s.puja.id)).toEqual(["a", "b"]);
@@ -89,7 +89,7 @@ describe("planParikroma", () => {
     expect(res.totalDriveMi).toBeGreaterThan(0);
   });
 
-  it("skips puja that closes too early", () => {
+  it("skips a selected puja that closes too early", () => {
     const a = fakePuja("a", iccMilpitas, { open: "08:00", close: "10:30" });
     const res = planParikroma({
       date: "2026-10-17",
@@ -97,7 +97,7 @@ describe("planParikroma", () => {
       endTime: "20:00",
       origin: iccMilpitas,
       dwellMin: 60,
-      mustVisit: [],
+      mustVisit: ["a"],
       candidates: [a],
     });
     expect(res.stops.length).toBe(0);
@@ -126,26 +126,30 @@ describe("planParikroma", () => {
     expect(res.skipped).toEqual([]);
   });
 
-  it("must-visit scheduled before nearer optional puja", () => {
-    const near = fakePuja("near", { lat: 37.4, lng: -121.9 }, { open: "10:00", close: "21:00" });
-    const far = fakePuja("far", { lat: 37.7, lng: -122.05 }, { open: "10:00", close: "21:00" });
+  it("plan contains only the pujas the user selected — nothing auto-added", () => {
+    const active = pujas.filter((p) => p.dates.some((d) => d.date === "2026-10-17"));
+    expect(active.length).toBeGreaterThan(5); // plenty of other candidates available
     const res = planParikroma({
       date: "2026-10-17",
-      startTime: "10:00",
-      endTime: "20:00",
-      origin: { lat: 37.4, lng: -121.9 },
-      dwellMin: 45,
-      mustVisit: ["far"],
-      candidates: [near, far],
+      startTime: "09:00",
+      endTime: "21:00",
+      origin: iccMilpitas,
+      dwellMin: 60,
+      mustVisit: ["pashchimi", "aparajita"],
+      candidates: active,
     });
-    expect(res.stops[0].puja.id).toBe("far");
-    expect(res.stops[0].isMustVisit).toBe(true);
-    expect(res.stops.some((s) => s.puja.id === "near")).toBe(true);
+    const mentioned = [
+      ...res.stops.map((s) => s.puja.id),
+      ...res.skipped.map((s) => s.puja.id),
+    ];
+    expect(mentioned.length).toBeGreaterThan(0);
+    for (const id of mentioned) {
+      expect(["pashchimi", "aparajita"]).toContain(id);
+    }
   });
 
-  it("real data: Oct 17 within one day visits multiple pujas", () => {
+  it("no selection -> empty plan, not an auto-filled one", () => {
     const active = pujas.filter((p) => p.dates.some((d) => d.date === "2026-10-17"));
-    expect(active.length).toBeGreaterThan(3);
     const res = planParikroma({
       date: "2026-10-17",
       startTime: "09:00",
@@ -155,8 +159,45 @@ describe("planParikroma", () => {
       mustVisit: [],
       candidates: active,
     });
-    expect(res.stops.length).toBeGreaterThanOrEqual(2);
-    // monotonic departures
+    expect(res.stops).toEqual([]);
+    expect(res.skipped).toEqual([]);
+  });
+
+  it("no selection from a far-away origin still isn't flagged as a bad origin", () => {
+    // 0 stops here is because nothing was picked, not because the origin
+    // reading looks wrong -- the banner shouldn't fire with nothing asked.
+    const tokyo = { lat: 35.68, lng: 139.69 };
+    const active = pujas.filter((p) => p.dates.some((d) => d.date === "2026-10-17"));
+    const res = planParikroma({
+      date: "2026-10-17",
+      startTime: "09:00",
+      endTime: "21:00",
+      origin: tokyo,
+      dwellMin: 60,
+      mustVisit: [],
+      candidates: active,
+    });
+    expect(res.diagnostics.originTooFar).toBe(false);
+  });
+
+  it("real data: selecting several pujas on Oct 17 schedules them in order, every pick accounted for", () => {
+    const active = pujas.filter((p) => p.dates.some((d) => d.date === "2026-10-17"));
+    expect(active.length).toBeGreaterThan(3);
+    const picks = active.slice(0, 3).map((p) => p.id);
+    const res = planParikroma({
+      date: "2026-10-17",
+      startTime: "09:00",
+      endTime: "21:00",
+      origin: iccMilpitas,
+      dwellMin: 60,
+      mustVisit: picks,
+      candidates: active,
+    });
+    const accounted = [
+      ...res.stops.map((s) => s.puja.id),
+      ...res.skipped.map((s) => s.puja.id),
+    ].sort();
+    expect(accounted).toEqual([...picks].sort());
     for (let i = 1; i < res.stops.length; i++) {
       expect(res.stops[i].depart).toBeGreaterThan(res.stops[i - 1].depart);
     }
@@ -184,7 +225,7 @@ describe("planParikroma", () => {
       endTime: "20:00",
       origin: tokyo,
       dwellMin: 45,
-      mustVisit: [],
+      mustVisit: ["agomoni"],
       candidates: pujas.filter((p) => p.dates.some((d) => d.date === "2026-10-17")),
     });
     // Tokyo: nothing reachable in a day
@@ -202,55 +243,21 @@ describe("planParikroma", () => {
       endTime: "20:00",
       origin: la,
       dwellMin: 45,
-      mustVisit: [],
+      mustVisit: ["agomoni", "aparajita"],
       candidates: pujas.filter((p) => p.dates.some((d) => d.date === "2026-10-17")),
     });
     // invariant: a zero-stop result is always explained
     if (res.stops.length === 0) {
       expect(res.diagnostics.originTooFar).toBe(true);
     }
-    expect(res.skipped.every((s) => s.reason.includes("mi away") || s.reason.includes("Closes"))).toBe(true);
-  });
-
-  it("bay area origin, wide window → never zero stops", () => {
-    const res = planParikroma({
-      date: "2026-10-17",
-      startTime: "09:00",
-      endTime: "20:00",
-      origin: iccMilpitas,
-      dwellMin: 45,
-      mustVisit: [],
-      candidates: pujas.filter((p) => p.dates.some((d) => d.date === "2026-10-17")),
-    });
-    expect(res.stops.length).toBeGreaterThanOrEqual(3);
-    expect(res.diagnostics.originTooFar).toBe(false);
-  });
-
-  it("optional-stop fill finds the 3-stop plan a nearest-first greedy would miss", () => {
-    // "deadline" (22.3mi away, 39min drive) closes at 11:20. "hub1"/"hub2"
-    // both sit exactly at the origin (0mi). Nearest-first greedy always
-    // grabs a 0mi hub first (635 depart), by which point "deadline" is
-    // unreachable before its close (arrive 674 + 30 dwell = 704 > 680) --
-    // 2 stops, "deadline" dropped. Visiting "deadline" FIRST instead makes
-    // all three fit (the only route that does) -- 3 stops.
-    const deadline = fakePuja("deadline", { lat: 37.7, lng: -122.05 }, { open: "10:00", close: "11:20" });
-    const hub1 = fakePuja("hub1", { lat: 37.4, lng: -121.9 }, { open: "10:00", close: "20:00" });
-    const hub2 = fakePuja("hub2", { lat: 37.4, lng: -121.9 }, { open: "10:00", close: "20:00" });
-    const res = planParikroma({
-      date: "2026-10-17",
-      startTime: "10:00",
-      endTime: "20:00",
-      origin: { lat: 37.4, lng: -121.9 },
-      dwellMin: 30,
-      mustVisit: [],
-      candidates: [hub1, deadline, hub2],
-    });
-    expect(res.stops).toHaveLength(3);
-    expect(res.stops[0].puja.id).toBe("deadline");
-    expect(res.stops.map((s) => s.puja.id)).toEqual(
-      expect.arrayContaining(["deadline", "hub1", "hub2"]),
-    );
-    expect(res.skipped).toEqual([]);
+    expect(
+      res.skipped.every(
+        (s) =>
+          s.reason.includes("mi away") ||
+          s.reason.includes("Closes") ||
+          s.reason.includes("Doesn't fit together"),
+      ),
+    ).toBe(true);
   });
 
   it("names the conflict when two must-visits genuinely can't both fit in one day", () => {
@@ -276,14 +283,11 @@ describe("planParikroma", () => {
     }
   });
 
-  it("optional-fill DP stays fast at the real-world ceiling (16 candidates)", () => {
-    // Real data maxes out at 14 active pujas on the busiest festival date;
-    // 16 is MAX_OPTIONAL_DP_N itself. Guards against the exact DP silently
-    // regressing into something exponential-feeling in the UI.
-    const many = Array.from({ length: 16 }, (_, i) =>
+  it("handles 7 must-visits (the permutation ceiling) without exploding", () => {
+    const musts = Array.from({ length: 7 }, (_, i) =>
       fakePuja(
-        `n${i}`,
-        { lat: 37.3 + (i % 4) * 0.1, lng: -122.1 + Math.floor(i / 4) * 0.1 },
+        `m${i}`,
+        { lat: 37.3 + i * 0.05, lng: -122.0 + i * 0.03 },
         { open: "09:00", close: "21:00" },
       ),
     );
@@ -293,34 +297,13 @@ describe("planParikroma", () => {
       startTime: "09:00",
       endTime: "21:00",
       origin: { lat: 37.4, lng: -121.9 },
-      dwellMin: 45,
-      mustVisit: [],
-      candidates: many,
+      dwellMin: 30,
+      mustVisit: musts.map((p) => p.id),
+      candidates: musts,
     });
     expect(Date.now() - started).toBeLessThan(300);
-    expect(res.stops.length).toBeGreaterThan(0);
-  });
-
-  it("falls back to the greedy approximation above the DP ceiling (17 candidates) instead of hanging", () => {
-    const many = Array.from({ length: 17 }, (_, i) =>
-      fakePuja(
-        `n${i}`,
-        { lat: 37.3 + (i % 4) * 0.1, lng: -122.1 + Math.floor(i / 4) * 0.1 },
-        { open: "09:00", close: "21:00" },
-      ),
-    );
-    const started = Date.now();
-    const res = planParikroma({
-      date: "2026-10-17",
-      startTime: "09:00",
-      endTime: "21:00",
-      origin: { lat: 37.4, lng: -121.9 },
-      dwellMin: 45,
-      mustVisit: [],
-      candidates: many,
-    });
-    expect(Date.now() - started).toBeLessThan(100);
-    expect(res.stops.length).toBeGreaterThan(0);
+    expect(res.stops).toHaveLength(7);
+    expect(res.skipped).toEqual([]);
   });
 
   it("a lone must-visit that just doesn't fit the day gets the normal reason, not a self-conflict message", () => {
@@ -352,32 +335,9 @@ describe("planParikroma", () => {
       endTime: "20:00",
       origin: iccMilpitas,
       dwellMin: 60,
-      mustVisit: [],
+      mustVisit: ["early"],
       candidates: [early],
     });
     expect(res.skipped[0].reason).toContain("08:30");
-  });
-
-  it("skip reason is honest when a candidate fits alone but loses to a better-optimized plan", () => {
-    // "x" and "y" each independently fit the 10:00-12:00 window (barely),
-    // but visiting both overruns the 12:00 cutoff either order -- the
-    // optimizer keeps "x" (less driving). "y" is NOT "could not fit": a
-    // direct trip there alone fits fine, it just wasn't the better pick.
-    const x = fakePuja("x", { lat: 37.4, lng: -121.9 }, { open: "10:00", close: "20:00" });
-    const y = fakePuja("y", { lat: 37.516, lng: -121.9 }, { open: "10:00", close: "20:00" });
-    const res = planParikroma({
-      date: "2026-10-17",
-      startTime: "10:00",
-      endTime: "12:00",
-      origin: { lat: 37.4, lng: -121.9 },
-      dwellMin: 90,
-      mustVisit: [],
-      candidates: [x, y],
-    });
-    expect(res.stops.map((s) => s.puja.id)).toEqual(["x"]);
-    expect(res.skipped).toHaveLength(1);
-    expect(res.skipped[0].puja.id).toBe("y");
-    expect(res.skipped[0].reason).not.toContain("could not fit");
-    expect(res.skipped[0].reason).toMatch(/didn't make|wasn't needed|better plan/i);
   });
 });

@@ -19,7 +19,7 @@ const result = planParikroma({
   endTime: "20:00",
   origin,
   dwellMin: 60,
-  mustVisit: ["pashchimi"],
+  mustVisit: ["pashchimi", "aparajita"],
   candidates,
 });
 
@@ -118,7 +118,7 @@ describe("share link", () => {
       start: "10:00",
       end: "20:00",
       dwell: 60,
-      must: ["pashchimi"],
+      must: ["pashchimi", "aparajita"],
       lat: origin.lat,
       lng: origin.lng,
     });

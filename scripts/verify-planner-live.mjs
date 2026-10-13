@@ -1,4 +1,4 @@
-/* Planner flow: live itinerary (no Build button), all input modes */
+/* Planner flow: selection-only itinerary (no auto-fill), live updates */
 import { chromium } from "playwright";
 import { cityConfig, baseUrl, inMetroGeo } from "./verify-lib.mjs";
 const CITY = cityConfig();
@@ -27,71 +27,100 @@ const stopCount = () => page.locator("ol li").count();
 const statusText = () =>
   page.locator('[aria-live="polite"]').innerText().catch(() => "");
 
-// 1. default + geo → itinerary appears WITHOUT any build click
+// 1. default prompt before origin
 await goto();
 log("prompt before origin", (await statusText()).includes("Set a starting point"));
+
+// 2. origin set, nothing selected -> empty itinerary, not auto-filled
 await page.click("text=Use my current location");
-await page.waitForTimeout(2000);
-const stops1 = await stopCount();
-log("live itinerary after geo (no click)", stops1 >= 2, `stops=${stops1}`);
-log("status bar shows count", (await statusText()).includes("planned"));
+await page.waitForTimeout(1500);
+const stopsNoneSelected = await stopCount();
+log(
+  "no auto-fill with nothing selected",
+  stopsNoneSelected === 0,
+  `stops=${stopsNoneSelected}`,
+);
+log("status prompts to pick pujas", (await statusText()).includes("Pick pujas"));
+log(
+  "empty-state explains nothing is selected yet",
+  (await page.locator("text=No pujas selected yet").count()) === 1,
+);
 
-// 2. change dwell → itinerary updates live
-await page.fill('input[type=range]', "45");
-await page.locator('input[type=range]').evaluate((el) =>
-  el.dispatchEvent(new Event("input", { bubbles: true })));
-await page.waitForTimeout(600);
-const stops2 = await stopCount();
-log("dwell change updates live", stops2 >= stops1 - 1 && stops2 >= 2, `stops=${stops2}`);
+// 3. select exactly one puja -> exactly that one shows
+await page.click("text=Pashchimi Durga Puja");
+await page.waitForTimeout(500);
+const stopsOne = await stopCount();
+const firstStopText = await page.locator("ol li").first().innerText();
+log("selecting one puja plans exactly one stop", stopsOne === 1, `stops=${stopsOne}`);
+log("the stop is the one selected", firstStopText.includes("Pashchimi"));
 
-// 3. change time window live
+// 4. select a second puja -> both show, nothing extra
+await page.click("text=Aparajita Durga Puja");
+await page.waitForTimeout(500);
+const stopsTwo = await stopCount();
+const itineraryText = await page
+  .locator("ol")
+  .first()
+  .innerText()
+  .catch(() => "");
+log("selecting a second puja plans exactly two stops", stopsTwo === 2, `stops=${stopsTwo}`);
+log(
+  "itinerary mentions only the two selected pujas, nothing auto-added",
+  itineraryText.includes("Pashchimi") &&
+    itineraryText.includes("Aparajita") &&
+    !itineraryText.includes("Agomoni") &&
+    !itineraryText.includes("Fog Bengal"),
+);
+
+// 5. live updates (dwell/time) still respect the selection only -- never grow
+//    beyond what was picked
 await page.fill('input[type=time] >> nth=0', "09:00");
 await page.fill('input[type=time] >> nth=1', "21:00");
 await page.waitForTimeout(600);
-const stops3 = await stopCount();
-log("wider window updates live", stops3 >= stops2, `stops=${stops3}`);
+const stopsAfterWiderWindow = await stopCount();
+log(
+  "wider window never adds unselected pujas",
+  stopsAfterWiderWindow <= 2,
+  `stops=${stopsAfterWiderWindow}`,
+);
 
-// 4. change date live
-await page.locator("select").first().selectOption("2026-10-10");
-await page.waitForTimeout(600);
-const stops4 = await stopCount();
-log("date change updates live", stops4 >= 1, `stops=${stops4}`);
-
-// 5. address mode
-await goto();
-await page.click("text=Address");
-await page.fill('input[placeholder*="Leghorn"]', "1901 Leghorn St, Mountain View");
-await page.click("text=Find");
-await page.waitForTimeout(3500);
-const stops5 = await stopCount();
-log("live itinerary after address", stops5 >= 2, `stops=${stops5}`);
-
-// 6. must-visit chips live
-await goto();
-await page.click("text=Use my current location");
-await page.waitForTimeout(2000);
-await page.click("text=Pashchimi Durga Puja");
-await page.waitForTimeout(500);
-const first = await page.locator("ol li").first().innerText();
-log("must-visit pinned first", first.includes("Pashchimi") && first.includes("MUST"));
-
-// 7. infeasible window shows actionable guidance
+// 6. a selection that can't fit a tiny window -> honest skipped reasons,
+//    not a wall of every unselected puja
 await page.fill('input[type=time] >> nth=0', "13:00");
 await page.fill('input[type=time] >> nth=1', "14:00");
-await page.fill('input[type=range]', "180");
-await page.locator('input[type=range]').evaluate((el) =>
-  el.dispatchEvent(new Event("input", { bubbles: true })));
-await page.waitForTimeout(900);
-const guidance = await page.locator("text=No pujas fit this window yet").count();
-const skipped = await page.locator("h3").filter({ hasText: "Skipped" }).count();
-log("guidance + skipped list for tight window", guidance === 1 && skipped >= 1);
+await page.waitForTimeout(600);
+const skippedHeading = await page.locator("h3").filter({ hasText: "Skipped" }).innerText().catch(() => "");
+const skippedListText = await page
+  .locator("h3")
+  .filter({ hasText: "Skipped" })
+  .locator("xpath=following-sibling::ul[1]")
+  .innerText()
+  .catch(() => "");
+log(
+  "tight window skips the picks with reasons, not everyone else",
+  skippedHeading.includes("2") || skippedHeading.includes("1"),
+  skippedHeading,
+);
+log(
+  "unselected pujas never appear in the skipped list (only the 2 picks can)",
+  !skippedListText.includes("Fog Bengal") && !skippedListText.includes("Durga Bari"),
+  skippedListText.slice(0, 120),
+);
 
-// 8. date with a single far puja (Oct 24 — Utsab only)
-await page.locator("select").first().selectOption("2026-10-24");
-await page.waitForTimeout(900);
-const stopsFar = await stopCount();
-log("Oct 24 (single Sacramento puja) handled sanely", stopsFar <= 1, `stops=${stopsFar}`);
+// 7. changing date resets the selection (existing contract) -- itinerary
+//    goes back to the "nothing selected" empty state, not a stale auto-fill
+await page.fill('input[type=time] >> nth=0', "09:00");
+await page.fill('input[type=time] >> nth=1', "21:00");
+await page.locator("select").first().selectOption("2026-10-10");
+await page.waitForTimeout(600);
+const stopsAfterDateChange = await stopCount();
+log(
+  "date change clears the plan back to nothing-selected",
+  stopsAfterDateChange === 0,
+  `stops=${stopsAfterDateChange}`,
+);
 
+await page.screenshot({ path: "/tmp/parikroma-verify.png", fullPage: true });
 console.log("errors:", errors.length ? errors.join("\n  ") : "none");
 await browser.close();
 const failed = results.filter((r) => !r).length;

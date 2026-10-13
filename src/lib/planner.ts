@@ -227,194 +227,38 @@ function bestMustOrder(
   return best;
 }
 
-function popcount(x: number): number {
-  let c = 0;
-  while (x) {
-    c += x & 1;
-    x >>= 1;
-  }
-  return c;
-}
-
-interface OptionalPlan {
-  stops: PlanStop[];
-  totalDrive: number;
-  totalDist: number;
-}
-
-/** Nearest-feasible-first fallback — used only above MAX_OPTIONAL_DP_N,
- *  so a pathological future candidate count can't hang the UI. */
-function greedyFill(
-  nodes: Puja[],
-  date: string,
-  dwellMin: number,
-  end: number,
-  startClock: number,
-  startLoc: LatLng,
-): OptionalPlan {
-  const remaining = new Map(nodes.map((p) => [p.id, p]));
-  const stops: PlanStop[] = [];
-  let clock = startClock;
-  let current = startLoc;
-  let totalDrive = 0;
-  let totalDist = 0;
-  while (true) {
-    const feasible = [...remaining.values()].filter((p) =>
-      isFeasible(computeArrival(p, date, dwellMin, clock, current), end),
-    );
-    if (feasible.length === 0) break;
-    const next = feasible.sort(
-      (a, b) => haversineMi(current, a.venue) - haversineMi(current, b.venue),
-    )[0];
-    const v = computeArrival(next, date, dwellMin, clock, current);
-    stops.push(toPlanStop(next, date, v, false));
-    remaining.delete(next.id);
-    totalDrive += v.drive;
-    totalDist += v.dist;
-    clock = v.depart;
-    current = next.venue;
-  }
-  return { stops, totalDrive, totalDist };
-}
-
-/** 2^16 × 16 ≈ 1M DP states — sub-50ms. Real data maxes out at 14
- *  candidates on the busiest day; this leaves headroom before falling
- *  back to the greedy approximation. */
-const MAX_OPTIONAL_DP_N = 16;
-
-/**
- * Exact best fill of optional stops after the must-visit skeleton is
- * placed. dp[mask][last] = earliest possible departure having visited
- * exactly the stop-set `mask`, ending at `last` — a state reached earlier
- * strictly dominates the same state reached later (every future option
- * stays open), so keeping only the minimum departure per (mask, last) is
- * sufficient; no need to track alternate arrival times for the same state.
- * Dwell time is constant per stop count, so for a fixed popcount, minimum
- * departure is exactly minimum drive+wait — ranking by (most stops, then
- * earliest departure) is therefore also (most stops, then least driving).
- */
-function bestOptionalFill(
-  nodes: Puja[],
-  date: string,
-  dwellMin: number,
-  end: number,
-  startClock: number,
-  startLoc: LatLng,
-): OptionalPlan {
-  if (nodes.length === 0) return { stops: [], totalDrive: 0, totalDist: 0 };
-  if (nodes.length > MAX_OPTIONAL_DP_N) {
-    return greedyFill(nodes, date, dwellMin, end, startClock, startLoc);
-  }
-
-  const n = nodes.length;
-  const size = 1 << n;
-  const windows = nodes.map((p) => windowFor(p, date));
-  const driveFromStart = nodes.map((p) => driveTimeMin(haversineMi(startLoc, p.venue)));
-  const driveBetween: number[][] = nodes.map((a) =>
-    nodes.map((b) => driveTimeMin(haversineMi(a.venue, b.venue))),
-  );
-
-  const depart = new Float64Array(size * n).fill(Infinity);
-  const parent = new Int32Array(size * n).fill(-1);
-
-  for (let i = 0; i < n; i++) {
-    const arrive = startClock + driveFromStart[i];
-    const dep = Math.max(arrive, windows[i].open) + dwellMin;
-    if (arrive <= windows[i].close && dep <= windows[i].close && dep <= end) {
-      depart[(1 << i) * n + i] = dep;
-    }
-  }
-
-  for (let mask = 1; mask < size; mask++) {
-    for (let last = 0; last < n; last++) {
-      if (!(mask & (1 << last))) continue;
-      const fromIdx = mask * n + last;
-      const d = depart[fromIdx];
-      if (d === Infinity) continue;
-      for (let next = 0; next < n; next++) {
-        if (mask & (1 << next)) continue;
-        const arrive = d + driveBetween[last][next];
-        const win = windows[next];
-        const dep = Math.max(arrive, win.open) + dwellMin;
-        if (arrive > win.close || dep > win.close || dep > end) continue;
-        const toIdx = (mask | (1 << next)) * n + next;
-        if (dep < depart[toIdx]) {
-          depart[toIdx] = dep;
-          parent[toIdx] = fromIdx;
-        }
-      }
-    }
-  }
-
-  let bestIdx = -1;
-  let bestPopcount = 0;
-  let bestDepart = Infinity;
-  for (let mask = 1; mask < size; mask++) {
-    const pc = popcount(mask);
-    if (pc < bestPopcount) continue; // can't beat the best even with last=anything
-    for (let last = 0; last < n; last++) {
-      if (!(mask & (1 << last))) continue;
-      const d = depart[mask * n + last];
-      if (d === Infinity) continue;
-      if (pc > bestPopcount || d < bestDepart) {
-        bestPopcount = pc;
-        bestDepart = d;
-        bestIdx = mask * n + last;
-      }
-    }
-  }
-  if (bestIdx === -1) return { stops: [], totalDrive: 0, totalDist: 0 };
-
-  const order: number[] = [];
-  for (let idx = bestIdx; idx !== -1; idx = parent[idx]) {
-    order.unshift(idx % n);
-  }
-
-  const stops: PlanStop[] = [];
-  let clock = startClock;
-  let current = startLoc;
-  let totalDrive = 0;
-  let totalDist = 0;
-  for (const i of order) {
-    const v = computeArrival(nodes[i], date, dwellMin, clock, current);
-    stops.push(toPlanStop(nodes[i], date, v, false));
-    clock = v.depart;
-    current = nodes[i].venue;
-    totalDrive += v.drive;
-    totalDist += v.dist;
-  }
-  return { stops, totalDrive, totalDist };
-}
-
 export function planParikroma(input: PlannerInput): PlanResult {
   const start = hmToMin(input.startTime);
   const end = hmToMin(input.endTime);
   const skipped: Skipped[] = [];
 
-  const remaining = new Map(input.candidates.map((p) => [p.id, p]));
+  // The plan only ever contains pujas the user explicitly selected — never
+  // anything auto-added to "fill" the day. `candidates` (pujas active on
+  // the date) is used only to validate selections and for the far-origin
+  // diagnostic below, never as a pool to draw extra stops from.
+  const activeById = new Map(input.candidates.map((p) => [p.id, p]));
   for (const id of input.mustVisit) {
-    if (!remaining.has(id)) {
-      const p = input.candidates.find((x) => x.id === id) ?? allPujas.find((x) => x.id === id);
+    if (!activeById.has(id)) {
+      const p = allPujas.find((x) => x.id === id);
       if (p) skipped.push({ puja: p, reason: "Not active on selected date" });
     }
   }
   const musts = input.mustVisit
-    .filter((id) => remaining.has(id))
-    .map((id) => remaining.get(id)!);
+    .filter((id) => activeById.has(id))
+    .map((id) => activeById.get(id)!);
 
   const stops: PlanStop[] = [];
-  let current: LatLng = input.origin;
-  let clock = start;
 
-  // Phase 1 — must-visits are a protected skeleton, scheduled in whichever
-  // order makes all of them feasible (see bestMustOrder). Optional stops
-  // never get to bump a must-visit out of the plan.
+  // Must-visits are scheduled as a protected group: every order that gets
+  // all of them there in time is tried exhaustively (see bestMustOrder),
+  // and the fastest-finishing one wins — so a tight-deadline pick can't be
+  // stranded behind a nearer slack-rich one.
   //
-  // Split off any must-visit that doesn't fit the user's day at all (direct
-  // from origin, on its own) — that one gets the ordinary "doesn't fit your
-  // hours" reason below, not a "conflicts with your other pick" message
-  // that would be nonsensical when it's the only must-visit, or simply
-  // wrong when it was never reachable regardless of the others.
+  // Split off anything that doesn't fit the day at all on its own first —
+  // that gets the ordinary "doesn't fit your hours" reason below, not a
+  // "conflicts with your other pick" message that would be nonsensical
+  // for a single selection, or simply wrong when it was never reachable
+  // regardless of the others.
   const soloInfeasible = musts.filter(
     (p) => !isFeasible(computeArrival(p, input.date, input.dwellMin, start, input.origin), end),
   );
@@ -423,9 +267,6 @@ export function planParikroma(input: PlannerInput): PlanResult {
   const mustPlan = bestMustOrder(soloFeasible, input.date, input.dwellMin, end, start, input.origin);
   if (mustPlan) {
     stops.push(...mustPlan.stops);
-    clock = mustPlan.finishClock;
-    current = mustPlan.current;
-    for (const p of mustPlan.stops) remaining.delete(p.puja.id);
   } else if (soloFeasible.length > 0) {
     // Each of these fits fine on its own — they only conflict with each
     // other.
@@ -435,32 +276,10 @@ export function planParikroma(input: PlannerInput): PlanResult {
         puja: p,
         reason: `Doesn't fit together with your other must-visit pick${soloFeasible.length > 2 ? "s" : ""} (${names}) in one day — try removing one`,
       });
-      remaining.delete(p.id);
     }
   }
-  // soloInfeasible must-visits are left in `remaining` on purpose — the
-  // generic reasons loop below already explains exactly why each one
-  // doesn't fit (too early a close, too far, past your cutoff, etc.).
 
-  let totalDriveMin = stops.reduce((sum, s) => sum + s.driveFromPrevMin, 0);
-  let totalDriveMi = stops.reduce((sum, s) => sum + s.distanceFromPrevMi, 0);
-
-  // Phase 2 — fill whatever time is left with optional stops. Exact
-  // bitmask DP (see bestOptionalFill) below MAX_OPTIONAL_DP_N candidates.
-  const optionalPlan = bestOptionalFill(
-    [...remaining.values()],
-    input.date,
-    input.dwellMin,
-    end,
-    clock,
-    current,
-  );
-  stops.push(...optionalPlan.stops);
-  totalDriveMin += optionalPlan.totalDrive;
-  totalDriveMi += optionalPlan.totalDist;
-  for (const s of optionalPlan.stops) remaining.delete(s.puja.id);
-
-  for (const p of remaining.values()) {
+  for (const p of soloInfeasible) {
     const win = windowFor(p, input.date);
     if (win.close < start) {
       skipped.push({
@@ -477,16 +296,19 @@ export function planParikroma(input: PlannerInput): PlanResult {
         puja: p,
         reason: `~${Math.round(distMi)} mi away — earliest arrival ${minToHm(arrive)}, after ${minToHm(win.close)} closing`,
       });
-    } else {
-      const depart = Math.max(arrive, win.open) + input.dwellMin;
-      skipped.push({
-        puja: p,
-        reason: depart > end
-          ? `~${Math.round(distMi)} mi away — visit would end ${minToHm(depart)}, after your ${minToHm(end)} cutoff`
-          : `~${Math.round(distMi)} mi away — fits your hours on its own, but didn't make the most efficient plan — mark it must-visit to include it`,
-      });
+      continue;
     }
+    const depart = Math.max(arrive, win.open) + input.dwellMin;
+    skipped.push({
+      puja: p,
+      reason: depart > end
+        ? `~${Math.round(distMi)} mi away — visit would end ${minToHm(depart)}, after your ${minToHm(end)} cutoff`
+        : `~${Math.round(distMi)} mi away — not enough time there before it closes`,
+    });
   }
+
+  const totalDriveMin = stops.reduce((sum, s) => sum + s.driveFromPrevMin, 0);
+  const totalDriveMi = stops.reduce((sum, s) => sum + s.distanceFromPrevMi, 0);
 
   const lastEnd = stops.length > 0 ? stops[stops.length - 1].depart : start;
 
@@ -499,8 +321,13 @@ export function planParikroma(input: PlannerInput): PlanResult {
           ...input.candidates.map((p) => haversineMi(input.origin, p.venue)),
         )
       : null;
+  // Gated on an actual selection — with nothing picked yet, 0 stops just
+  // means nothing was asked for, not that the origin looks wrong.
   const originTooFar =
-    stops.length === 0 && nearestMi !== null && nearestMi > city.warnRadiusMi;
+    musts.length > 0 &&
+    stops.length === 0 &&
+    nearestMi !== null &&
+    nearestMi > city.warnRadiusMi;
 
   return {
     stops,
